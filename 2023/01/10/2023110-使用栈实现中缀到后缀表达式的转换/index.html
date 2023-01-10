@@ -177,9 +177,7 @@
 <p><code>Postfix</code>:A B C * +</p>
 </blockquote>
 <p>我们发现操作数之间的相对位置并无改变，只是操作符的位置发生变化。下面提供一个转换的方法，依然使用栈来实现。</p>
-<ol>
-<li></li>
-</ol>
+<p>1) </p>
 <table>
 <thead>
 <tr>
@@ -196,9 +194,7 @@
 <td align="center"></td>
 </tr>
 </tbody></table>
-<ol start="2">
-<li></li>
-</ol>
+<p>2) </p>
 <table>
 <thead>
 <tr>
@@ -215,7 +211,9 @@
 <td align="center">+</td>
 </tr>
 </tbody></table>
-<p>3.现在我们遇到了第二个符号，如果此时栈顶符号的运算级别大于等于该符号，那么就将栈顶的符号弹出并且加入Postfix，直到不符合该条件或者栈为空时，将该符号（也就是遍历到的符号）入栈。</p>
+<ol start="3">
+<li>现在我们遇到了第二个符号，如果此时栈顶符号的运算级别大于等于该符号，那么就将栈顶的符号弹出并且加入Postfix，直到不符合该条件或者栈为空时，将该符号（也就是遍历到的符号）入栈。</li>
+</ol>
 <table>
 <thead>
 <tr>
@@ -232,7 +230,9 @@
 <td align="center">+ *</td>
 </tr>
 </tbody></table>
-<p>4.直到遍历结束，将栈中剩余符号依次全部弹出并加入Postfix。</p>
+<ol start="4">
+<li>直到遍历结束，将栈中剩余符号依次全部弹出并加入Postfix。</li>
+</ol>
 <table>
 <thead>
 <tr>
