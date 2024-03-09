@@ -11381,7 +11381,8 @@ figure.highlight.foldable div.level-left {
   flex-wrap: wrap;
 }
 @media screen and (max-width: 768px) {
-  .widget.card#toc {
+  .widget.card,
+  #toc {
     display: none;
     position: fixed;
     margin: 1rem;
@@ -11390,10 +11391,12 @@ figure.highlight.foldable div.level-left {
     bottom: 0;
     z-index: 100;
   }
-  .widget.card#toc .card-content {
+  .widget.card .card-content,
+  #toc .card-content {
     padding: 0;
   }
-  .widget.card#toc .menu {
+  .widget.card .menu,
+  #toc .menu {
     padding: 1.5rem;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
