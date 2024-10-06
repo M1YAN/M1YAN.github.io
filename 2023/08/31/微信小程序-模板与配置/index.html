@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>微信小程序开发-模板与配置 - MiYan&#039;s Blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="MiYan&#039;s Blog"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MiYan&#039;s Blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="WXML模板数据绑定1. 数据绑定的基本原则 在data中定义数据（.js中的data对象中） 在WXML中使用数据"><meta property="og:type" content="blog"><meta property="og:title" content="微信小程序开发-模板与配置"><meta property="og:url" content="http://m1yan.github.io/2023/08/31/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E9%85%8D%E7%BD%AE/"><meta property="og:site_name" content="MiYan&#039;s Blog"><meta property="og:description" content="WXML模板数据绑定1. 数据绑定的基本原则 在data中定义数据（.js中的data对象中） 在WXML中使用数据"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://s1.ax1x.com/2023/08/29/pPdGxmQ.png"><meta property="article:published_time" content="2023-08-30T16:00:00.000Z"><meta property="article:modified_time" content="2023-08-30T16:00:00.000Z"><meta property="article:author" content="Mi Yan"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://s1.ax1x.com/2023/08/29/pPdGxmQ.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://m1yan.github.io/2023/08/31/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E9%85%8D%E7%BD%AE/"},"headline":"微信小程序开发-模板与配置","image":["https://s1.ax1x.com/2023/08/29/pPdGxmQ.png"],"datePublished":"2023-08-30T16:00:00.000Z","dateModified":"2023-08-30T16:00:00.000Z","author":{"@type":"Person","name":"Mi Yan"},"publisher":{"@type":"Organization","name":"MiYan's Blog","logo":{"@type":"ImageObject","url":{"text":"MiYan's Blog"}}},"description":"WXML模板数据绑定1. 数据绑定的基本原则 在data中定义数据（.js中的data对象中） 在WXML中使用数据"}</script><link rel="canonical" href="http://m1yan.github.io/2023/08/31/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E9%85%8D%E7%BD%AE/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link data-pjax rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link data-pjax rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">MiYan&#039;s Blog</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="https://s1.ax1x.com/2023/08/29/pPdGxmQ.png" alt="微信小程序开发-模板与配置"></span></div><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2023-08-30T16:00:00.000Z" title="2023/8/31 00:00:00">2023-08-31</time>发表</span><span class="level-item"><time dateTime="2023-08-30T16:00:00.000Z" title="2023/8/31 00:00:00">2023-08-31</time>更新</span><span class="level-item">13 分钟读完 (大约2013个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">微信小程序开发-模板与配置</h1><div class="content"><h1 id="WXML模板"><a href="#WXML模板" class="headerlink" title="WXML模板"></a>WXML模板</h1><h2 id="数据绑定"><a href="#数据绑定" class="headerlink" title="数据绑定"></a>数据绑定</h2><h3 id="1-数据绑定的基本原则"><a href="#1-数据绑定的基本原则" class="headerlink" title="1. 数据绑定的基本原则"></a>1. 数据绑定的基本原则</h3><ol>
+<li>在data中定义数据（.js中的data对象中）</li>
+<li>在WXML中使用数据</li>
+</ol>
+<span id="more"></span>
+
+<h3 id="2-Mustache语法"><a href="#2-Mustache语法" class="headerlink" title="2. Mustache语法"></a>2. Mustache语法</h3><p>把data中的数据绑定到页面进行渲染，使用Mastache语法（双大括号）将变量包起来即可。语法格式为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span>&gt;</span>&#123;&#123;要绑定的数据类型&#125;&#125;<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-Mustache语法的应用场景"><a href="#3-Mustache语法的应用场景" class="headerlink" title="3. Mustache语法的应用场景"></a>3. Mustache语法的应用场景</h3><ul>
+<li>绑定内容</li>
+<li>绑定属性</li>
+<li>运算（三元运算、算数运算等）</li>
+</ul>
+<h3 id="4-动态绑定内容"><a href="#4-动态绑定内容" class="headerlink" title="4. 动态绑定内容"></a>4. 动态绑定内容</h3><h3 id="5-动态绑定属性"><a href="#5-动态绑定属性" class="headerlink" title="5. 动态绑定属性"></a>5. 动态绑定属性</h3><p>.js 中的data</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">    <span class="attr">data</span>:&#123;</span><br><span class="line">        <span class="attr">imgsrc</span>: <span class="string">&#x27;address&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>.wxml中</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;&#123;&#123;imgsrc&#125;&#125;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-三元运算"><a href="#6-三元运算" class="headerlink" title="6. 三元运算"></a>6. 三元运算</h3><p>页面数据</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">    <span class="attr">data</span>:&#123;</span><br><span class="line">        <span class="attr">randomNum</span>: <span class="title class_">Math</span>.<span class="title function_">random</span>()*<span class="number">10</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>页面结构</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span>&gt;</span>&#123;&#123;randomNum&gt;=5 ? &#x27;随机数字大于等于5&#x27;:&#x27;随机数字小于5&#x27;&#125;&#125; <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="事件绑定"><a href="#事件绑定" class="headerlink" title="事件绑定"></a>事件绑定</h2><h3 id="1-什么是事件"><a href="#1-什么是事件" class="headerlink" title="1. 什么是事件"></a>1. 什么是事件</h3><p>事件是渲染层到逻辑层的通讯方式。通过事件可以将用户在渲染层的行为，反馈到逻辑层进行业务的处理。</p>
+<h3 id="2-小程序中常用事件"><a href="#2-小程序中常用事件" class="headerlink" title="2. 小程序中常用事件"></a>2. 小程序中常用事件</h3><table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">绑定方式</th>
+<th align="center">事件描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">tap</td>
+<td align="center">bindtap&#x2F;bind:tap</td>
+<td align="center">手指触摸后马上离开，类似HTML中的click事件</td>
+</tr>
+<tr>
+<td align="center">input</td>
+<td align="center">bindinput&#x2F;bind:input</td>
+<td align="center">文本框的输入事件</td>
+</tr>
+<tr>
+<td align="center">change</td>
+<td align="center">bindchange&#x2F;bind:change</td>
+<td align="center">状态改变时触发</td>
+</tr>
+</tbody></table>
+<h3 id="3-事件对象的属性列表"><a href="#3-事件对象的属性列表" class="headerlink" title="3. 事件对象的属性列表"></a>3. 事件对象的属性列表</h3><blockquote>
+<p>当事件回调时，会收到一个事件对象event，它的详细属性如下：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th align="center">属性</th>
+<th align="center">类型</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">type</td>
+<td align="center">String</td>
+<td align="center">事件类型</td>
+</tr>
+<tr>
+<td align="center">timeStamp</td>
+<td align="center">Int</td>
+<td align="center">页面打开到触发事件经过的毫秒数</td>
+</tr>
+<tr>
+<td align="center"><em><strong>target</strong></em></td>
+<td align="center"><em><strong>Object</strong></em></td>
+<td align="center"><em><strong>触发事件的组件的一些属性值集合</strong></em></td>
+</tr>
+<tr>
+<td align="center">currentTarget</td>
+<td align="center">Object</td>
+<td align="center">当前组件的一些属性值集合</td>
+</tr>
+<tr>
+<td align="center"><em><strong>detail</strong></em></td>
+<td align="center"><em><strong>Object</strong></em></td>
+<td align="center"><em><strong>额外的信息</strong></em></td>
+</tr>
+<tr>
+<td align="center">touches</td>
+<td align="center">Array</td>
+<td align="center">触摸事件，当前停留在屏幕中的触摸点信息的数组</td>
+</tr>
+<tr>
+<td align="center">changedTouches</td>
+<td align="center">Array</td>
+<td align="center">触摸事件，当前变化的触摸点信息的数组</td>
+</tr>
+</tbody></table>
+<h3 id="4-target与currentTarget区别"><a href="#4-target与currentTarget区别" class="headerlink" title="4. target与currentTarget区别"></a>4. target与currentTarget区别</h3><blockquote>
+<p>target是触发该事件的源头组件，而currentTarget是当前事件所绑定的组件。</p>
+</blockquote>
+<p>？？?</p>
+<h3 id="5-bindtap的语法格式"><a href="#5-bindtap的语法格式" class="headerlink" title="5. bindtap的语法格式"></a>5. bindtap的语法格式</h3><ol>
+<li>通过bindtap，可以为组件绑定tap触摸事件，语法如下：</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">bindtap</span>=<span class="string">&quot;btnTapHandler&quot;</span>&gt;</span>按钮<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在页面的.js文件中定义对应的事件处理函数，事件参数通过形参event（简写为e）来接收</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">    <span class="title function_">btnTapHandler</span>(<span class="params">e</span>)&#123; <span class="comment">//按钮的tap事件处理函数</span></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(e) <span class="comment">//事件参数对象e</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-在事件处理函数中为data中的数据赋值"><a href="#6-在事件处理函数中为data中的数据赋值" class="headerlink" title="6. 在事件处理函数中为data中的数据赋值"></a>6. 在事件处理函数中为data中的数据赋值</h3><p>通过调用this.setData(dataObject)方法，可以给页面data中的数据重新赋值，示例（设置按钮按下使data中的count变量+1）如下：</p>
+<ol>
+<li>设置一个+1按钮</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;warn&quot;</span> <span class="attr">bind:tap</span>=<span class="string">&quot;changecount&quot;</span>&gt;</span>+1<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在js中编写+1函数</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">count</span>: <span class="number">1</span></span><br><span class="line">  &#125;,</span><br><span class="line"><span class="comment">//修改count的值</span></span><br><span class="line">  <span class="title function_">changecount</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123;</span><br><span class="line">      <span class="attr">count</span>:<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">count</span>+<span class="number">1</span></span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>编译后点击按钮，观察调试器中的AppData中count变量的值+1</li>
+</ol>
+<h3 id="7-事件传参"><a href="#7-事件传参" class="headerlink" title="7. 事件传参"></a>7. 事件传参</h3><blockquote>
+<p>可以为组件提供data-*自定义属性传参，其中*代表的是参数的名字，示例如下：</p>
+</blockquote>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">bindtap</span>=<span class="string">&quot;btnHandler&quot;</span> <span class="attr">data-info</span>=<span class="string">&#123;&#123;2&#125;&#125;</span>&gt;</span></span><br><span class="line">    事件传参</span><br><span class="line"><span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最终</p>
+<ul>
+<li>info会被解析成参数的名字</li>
+<li>数值2会解析为参数的值</li>
+</ul>
+<p>在事件函数中，通过event.target.dataset.参数名即可获取到具体参数的值，实例如下</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">btnHandler</span>(<span class="params">event</span>)&#123;</span><br><span class="line">    <span class="comment">//dataset是一个对象，包含了所有通过data-方式传递过来的参数项</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">target</span>.<span class="property">dataset</span>)</span><br><span class="line">    <span class="comment">//通过dataset可以访问到具体的参数值</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">target</span>.<span class="property">dataset</span>.<span class="property">info</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果想实现一个+2按钮，js文件中btnHandler函数改为</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">btnHandler</span>(<span class="params">e</span>)&#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123;</span><br><span class="line">        <span class="attr">count</span>:<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">count</span>+e.<span class="property">target</span>.<span class="property">dataset</span>.<span class="property">info</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="8-bindinput的语法格式"><a href="#8-bindinput的语法格式" class="headerlink" title="8. bindinput的语法格式"></a>8. bindinput的语法格式</h3><blockquote>
+<p>在小程序中，通过input事件来响应文本框的输入事件，语法格式如下：</p>
+</blockquote>
+<ol>
+<li>通过bindinput，可以为文本框绑定输入事件</li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">bindinput</span>=<span class="string">&quot;inputHandler&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">input</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在页面的js文件中定义事件处理函数：</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">inputHandler</span>(<span class="params">e</span>)&#123;</span><br><span class="line">    <span class="comment">//e.detail.value 是变化过后文本框最新的值</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(e.<span class="property">detail</span>.<span class="property">value</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-文本框和data的数据同步"><a href="#9-文本框和data的数据同步" class="headerlink" title="9. 文本框和data的数据同步"></a>9. 文本框和data的数据同步</h3><p>步骤：</p>
+<ol>
+<li>定义数据</li>
+<li>渲染结构</li>
+<li>美化样式</li>
+<li>绑定input事件处理函数</li>
+</ol>
+<p>代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">value</span>=<span class="string">&quot;&#123;&#123;msg&#125;&#125;&quot;</span> <span class="attr">bindinput</span>=<span class="string">&quot;inputHandler&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">input</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">msg</span>:<span class="string">&#x27;你好&#x27;</span></span><br><span class="line">  &#125;,</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//输入框事件处理函数</span></span><br><span class="line">  <span class="title function_">inputHandler</span>(<span class="params">e</span>)&#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123;</span><br><span class="line">      <span class="attr">msg</span>: e.<span class="property">detail</span>.<span class="property">value</span></span><br><span class="line">    &#125;)</span><br><span class="line">      </span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">input</span> &#123;</span><br><span class="line">  <span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">margin</span>: <span class="number">5px</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">5px</span>;</span><br><span class="line">  <span class="attribute">border-radius</span>: <span class="number">5px</span>; <span class="comment">/*圆角*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="条件渲染"><a href="#条件渲染" class="headerlink" title="条件渲染"></a>条件渲染</h2><h3 id="1-wx-if"><a href="#1-wx-if" class="headerlink" title="1. wx:if"></a>1. wx:if</h3><p>在小程序中，使用<code>wx:if=&quot;&#123;&#123;condition&#125;&#125;&quot;</code>来判断是否需要渲染该代码块，</p>
+<p>也可以用<code>wx:elif</code>和<code>wx:else</code>来添加else判断。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:if</span>=<span class="string">&quot;&#123;&#123;type===1&#125;&#125;&quot;</span>&gt;</span>男<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:elif</span>=<span class="string">&quot;&#123;&#123;type===2&#125;&#125;&quot;</span>&gt;</span>女<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:else</span>&gt;</span>保密<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-结合使用wx-if"><a href="#2-结合使用wx-if" class="headerlink" title="2. 结合&lt;block&gt;使用wx:if"></a>2. 结合&lt;block&gt;使用wx:if</h3><p>如果要一次性控制多个组件的显示和隐藏，可以使用一个block标签将多个组件包装起来，并在block标签上使用wx:if控制属性，示例如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">block</span> <span class="attr">wx:if</span>=<span class="string">&quot;&#123;&#123;true&#125;&#125;&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">view</span>&gt;</span>view1<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">view</span>&gt;</span>view2<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">block</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>注意</code>:block并不是一个组件，只是一个包裹性质的容器，不会在页面中做任何渲染。</p>
+<h3 id="3-hidden"><a href="#3-hidden" class="headerlink" title="3. hidden"></a>3. hidden</h3><p>直接用hidden&#x3D;”“也能控制元素的显示和隐藏。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">hidden</span>=<span class="string">&quot;&#123;&#123;condtion&#125;&#125;&quot;</span>&gt;</span>条件为true隐藏，条件为false显示<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="列表渲染"><a href="#列表渲染" class="headerlink" title="列表渲染"></a>列表渲染</h2><h3 id="1-wx-for"><a href="#1-wx-for" class="headerlink" title="1. wx:for"></a>1. wx:for</h3><p>通过wx:for可以根据指定的数组，循环渲染重复的组件结构</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:for</span>=<span class="string">&quot;&#123;&#123;array&#125;&#125;&quot;</span>&gt;</span></span><br><span class="line">索引是&#123;&#123;index&#125;&#125;，当前项是&#123;&#123;item&#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>js文件</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line">    <span class="attr">data</span>:&#123;</span><br><span class="line">        <span class="attr">arr1</span>:[<span class="string">&#x27;Apple&#x27;</span>,<span class="string">&#x27;Huawei&#x27;</span>,<span class="string">&#x27;Xiaomi&#x27;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>wxml文件</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:for</span>=<span class="string">&quot;&#123;&#123;arr1&#125;&#125;&quot;</span>&gt;</span><span class="comment">&lt;!--提高效率可以加入属性wx:key=&quot;index&quot;--&gt;</span></span><br><span class="line">索引是：&#123;&#123;index&#125;&#125;，item是：&#123;&#123;item&#125;&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-手动指定索引和当前项的变量名"><a href="#2-手动指定索引和当前项的变量名" class="headerlink" title="2. 手动指定索引和当前项的变量名*"></a>2. 手动指定索引和当前项的变量名*</h3><ul>
+<li>使用wx:for-index可以指定<code>当前循环项索引</code>的变量名</li>
+<li>使用wx:for-item可以指定<code>当前项</code>的变量名</li>
+</ul>
+<p>示例如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:for</span>=<span class="string">&quot;&#123;&#123;arr1&#125;&#125;&quot;</span> <span class="attr">wx:for-index</span>=<span class="string">&quot;idx&quot;</span> <span class="attr">wx-for-item</span>=<span class="string">&quot;itemName&quot;</span>&gt;</span></span><br><span class="line">	索引是：&#123;&#123;idx&#125;&#125;,当前项是&#123;&#123;itemName&#125;&#125;;</span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-wx-key的使用"><a href="#3-wx-key的使用" class="headerlink" title="3.wx:key的使用"></a>3.wx:key的使用</h3><p>类似于Vue列表渲染中的:key，小程序在实现列表渲染时，也建议为渲染出来的列表项指定唯一的Key值，从而提高渲染的效率，示例代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">data</span>:&#123;</span><br><span class="line">    <span class="attr">userList</span>:[</span><br><span class="line">        &#123;<span class="attr">id</span>:<span class="number">1</span>,<span class="attr">name</span>:<span class="string">&#x27;小红&#x27;</span>&#125;,</span><br><span class="line">        &#123;<span class="attr">id</span>:<span class="number">2</span>,<span class="attr">name</span>:<span class="string">&#x27;小蓝&#x27;</span>&#125;,</span><br><span class="line">        &#123;<span class="attr">id</span>:<span class="number">3</span>,<span class="attr">name</span>:<span class="string">&#x27;小黄&#x27;</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">wx:for</span>=<span class="string">&quot;&#123;&#123;userList&#125;&#125;&quot;</span> <span class="attr">wx:key</span>=<span class="string">&quot;id&quot;</span>&gt;</span>&#123;&#123;item.name&#125;&#125;<span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="WXSS模板样式"><a href="#WXSS模板样式" class="headerlink" title="WXSS模板样式"></a>WXSS模板样式</h1><h2 id="什么是WXSS"><a href="#什么是WXSS" class="headerlink" title="什么是WXSS"></a>什么是WXSS</h2><p>WXSS(WeiXin Style Sheets)是一套样式语言，用于美化WXML的组件样式，类似于网页开发中的CSS。</p>
+<h2 id="WXSS和CSS的关系"><a href="#WXSS和CSS的关系" class="headerlink" title="WXSS和CSS的关系"></a>WXSS和CSS的关系</h2><p>WXSS扩展的特性：</p>
+<ul>
+<li>rpx尺寸单位</li>
+<li>@import样式导入</li>
+</ul>
+<h2 id="rpx尺寸单位"><a href="#rpx尺寸单位" class="headerlink" title="rpx尺寸单位"></a>rpx尺寸单位</h2><h3 id="1-什么是rpx尺寸单位"><a href="#1-什么是rpx尺寸单位" class="headerlink" title="1. 什么是rpx尺寸单位"></a>1. 什么是rpx尺寸单位</h3><p>rpx(responsive pixel) 是微信小程序独有的，用来解决屏适配的尺寸问题。</p>
+<h3 id="2-rpx的实现原理"><a href="#2-rpx的实现原理" class="headerlink" title="2. rpx的实现原理"></a>2. rpx的实现原理</h3><p>鉴于不同设备的屏幕大小不同，为了实现屏幕的自动适配，rpx把所有设备的屏幕，在宽度上等分为750份（即当前屏幕的总宽度为750rpx）</p>
+<h3 id="3-rpx和px之间的单位换算"><a href="#3-rpx和px之间的单位换算" class="headerlink" title="3. rpx和px之间的单位换算"></a>3. rpx和px之间的单位换算</h3><p>在iPhone6中，<br>$$<br>1rpx&#x3D;0.5px<br>$$</p>
+<p>$$<br>1px&#x3D;2rpx<br>$$</p>
+<h2 id="样式导入"><a href="#样式导入" class="headerlink" title="样式导入"></a>样式导入</h2><h3 id="1-什么是样式导入"><a href="#1-什么是样式导入" class="headerlink" title="1. 什么是样式导入"></a>1. 什么是样式导入</h3><p>使用wxss提供的@import语法，可以导入外联的样式表。</p>
+<h3 id="2-import的语法格式"><a href="#2-import的语法格式" class="headerlink" title="2. @import的语法格式"></a>2. @import的语法格式</h3><p>@import后跟需要导入的外联样式表的相对路径，用 ; 语句表示结束。示例如下：</p>
+<p>新建一个common文件夹，里面新建common.wxss文件</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.username</span>&#123;</span><br><span class="line">    <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在index.wxss文件中引入样式表</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@import</span> <span class="string">&quot;/common/common.wxss&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>最后在index.wxml里面引入类型看是否成功。</p>
+<h2 id="全局样式和局部样式"><a href="#全局样式和局部样式" class="headerlink" title="全局样式和局部样式"></a>全局样式和局部样式</h2><h3 id="1-全局样式"><a href="#1-全局样式" class="headerlink" title="1. 全局样式"></a>1. 全局样式</h3><p>定义在app.wxss中的样式为全局样式，作用于每一个页面。</p>
+<h3 id="2-局部样式"><a href="#2-局部样式" class="headerlink" title="2. 局部样式"></a>2. 局部样式</h3><p>在页面的wxss文件中定义的样式，只作用于当前页面。</p>
+<blockquote>
+<p>当全局样式和局部样式权重（将光标停留在样式名称上时显示）一样时，优先显示局部样式，否则显示权重较大的样式。</p>
+</blockquote>
+<h1 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h1><h2 id="全局配置文件及常用的配置项"><a href="#全局配置文件及常用的配置项" class="headerlink" title="全局配置文件及常用的配置项"></a>全局配置文件及常用的配置项</h2><p>小程序根目录下的<code>app.json</code>文件是小程序的全局配置文件。常用的配置如下：</p>
+<ol>
+<li>pages<ul>
+<li>记录当前小程序页面的存放路径</li>
+</ul>
+</li>
+<li><strong>window</strong><ul>
+<li>全局设置小程序窗口的外观</li>
+</ul>
+</li>
+<li><strong>tabBar</strong><ul>
+<li>设置小程序底部的tabBar效果</li>
+</ul>
+</li>
+<li>style<ul>
+<li>是否启用新版的组件样式</li>
+</ul>
+</li>
+</ol>
+<h2 id="window"><a href="#window" class="headerlink" title="window"></a>window</h2><h3 id="1-小程序窗口的组成部分"><a href="#1-小程序窗口的组成部分" class="headerlink" title="1. 小程序窗口的组成部分"></a>1. 小程序窗口的组成部分</h3><img src="https://s1.ax1x.com/2023/08/31/pP0CMSP.jpg" style="zoom:50%;" />
+
+<p>其中，window可以配置导航栏区域和背景区域。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>微信小程序开发-模板与配置</p><p><a href="http://m1yan.github.io/2023/08/31/微信小程序-模板与配置/">http://m1yan.github.io/2023/08/31/微信小程序-模板与配置/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>Mi Yan</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2023-08-31</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2023-08-31</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="notification is-danger">You need to set <code>install_url</code> to use ShareThis. Please set it in <code>_config.yml</code>.</div></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>爱发电</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>支付宝</span><span class="qrcode"><img src="/" alt="支付宝"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>送我杯咖啡</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><div class="notification is-danger">You forgot to set the <code>business</code> or <code>currency_code</code> for Paypal. Please set it in <code>_config.yml</code>.</div><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>微信</span><span class="qrcode"><img src="/" alt="微信"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2023/09/14/%E3%80%8AAI%E6%97%B6%E4%BB%A3%EF%BC%9A%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9%E3%80%8B-generated-by-chatGPT/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">《AI时代：命运的抉择》</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2023/08/29/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91-%E8%B5%B7%E6%AD%A5/"><span class="level-item">微信小程序开发-起步</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">评论</h3><div class="notification is-danger">You forgot to set the <code>shortname</code> for Disqus. Please set it in <code>_config.yml</code>.</div></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Mi Yan"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Mi Yan</p><p class="is-size-6 is-block">BUPT School of Future</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Beijing, China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">25</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">9</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/M1YAN" target="_blank" rel="me noopener">关注我</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Github" href="https://github.com/M1YAN"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Twitter" href="https://twitter.com"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="me noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><div class="card widget" data-type="links"><div class="card-content"><div class="menu"><h3 class="menu-label">链接</h3><ul class="menu-list"><li><a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Hexo</span></span><span class="level-right"><span class="level-item tag">hexo.io</span></span></a></li><li><a class="level is-mobile" href="https://smera1d0.github.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Yuu</span></span><span class="level-right"><span class="level-item tag">smera1d0.github.io</span></span></a></li><li><a class="level is-mobile" href="https://zhrli324.github.io" target="_blank" rel="noopener"><span class="level-left"><span class="level-item">Zhrli</span></span><span class="level-right"><span class="level-item tag">zhrli324.github.io</span></span></a></li></ul></div></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/"><span class="level-start"><span class="level-item">大作业</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"><span class="level-start"><span class="level-item">年度总结</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"><span class="level-start"><span class="level-item">计算机网络</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%A4%A7%E4%BD%9C%E4%B8%9A/"><span class="level-start"><span class="level-item">计算机网络大作业</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-16T16:00:00.000Z">2024-04-17</time></p><p class="title"><a href="/2024/04/17/DASH%E5%AE%9E%E9%AA%8C/">DASH实验报告</a></p><p class="categories"><a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%A4%A7%E4%BD%9C%E4%B8%9A/">计算机网络大作业</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-03-10T16:00:00.000Z">2024-03-11</time></p><p class="title"><a href="/2024/03/11/CH1%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%92%8C%E5%9B%A0%E7%89%B9%E7%BD%91/">CH1计算机网络和因特网</a></p><p class="categories"><a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-02-10T16:00:00.000Z">2024-02-11</time></p><p class="title"><a href="/2024/02/11/Blog%E5%AD%97%E4%BD%93%E7%84%95%E6%96%B0%E2%80%94%E2%80%94%E5%BE%97%E6%84%8F%E9%BB%91%20Smiley%20Sans/">Blog字体焕新——得意黑 Smiley Sans</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-12-30T16:00:00.000Z">2023-12-31</time></p><p class="title"><a href="/2023/12/31/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/">2023年终报告</a></p><p class="categories"><a href="/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-12-19T16:00:00.000Z">2023-12-20</time></p><p class="title"><a href="/2023/12/20/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/">极大似然技术编码译码</a></p><p class="categories"><a href="/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/">大作业</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/04/"><span class="level-start"><span class="level-item">四月 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/03/"><span class="level-start"><span class="level-item">三月 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2024/02/"><span class="level-start"><span class="level-item">二月 2024</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/12/"><span class="level-start"><span class="level-item">十二月 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/10/"><span class="level-start"><span class="level-item">十月 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/09/"><span class="level-start"><span class="level-item">九月 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/08/"><span class="level-start"><span class="level-item">八月 2023</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/07/"><span class="level-start"><span class="level-item">七月 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/02/"><span class="level-start"><span class="level-item">二月 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">一月 2023</span></span><span class="level-end"><span class="level-item tag">14</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">标签</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/2023/"><span class="tag">2023</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/AI/"><span class="tag">AI</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/Internet/"><span class="tag">Internet</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/"><span class="tag">大作业</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"><span class="tag">年度总结</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/"><span class="tag">离散数学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/"><span class="tag">科幻小说</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E7%BC%96%E7%A0%81/"><span class="tag">编码</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"><span class="tag">计算机网络</span><span class="tag">2</span></a></div></div></div></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">MiYan&#039;s Blog</a><p class="is-size-7"><span>&copy; 2024 Mi Yan</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7">© 2022</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script data-pjax src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script data-pjax src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script src="/js/pjax.js"></script><!--!--><!--!--><!--!--><script data-pjax src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
