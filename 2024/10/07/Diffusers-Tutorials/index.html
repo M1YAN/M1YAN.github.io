@@ -41,28 +41,28 @@
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> diffusers <span class="keyword">import</span> DDPMScheduler, UNet2DModel</span><br><span class="line"></span><br><span class="line">scheduler = DDPMScheduler.from_pretrained(<span class="string">&quot;google/ddpm-cat-256&quot;</span>)</span><br><span class="line">model = UNet2DModel.from_pretrained(<span class="string">&quot;google/ddpm-cat-256&quot;</span>, use_safetensors=<span class="literal">True</span>).to(<span class="string">&quot;cuda&quot;</span>)</span><br></pre></td></tr></table></figure>
 
-<ol>
+<ol start="2">
 <li>设置时间步用于去噪过程</li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scheduler.set_timesteps(<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
 
-<ol>
+<ol start="3">
 <li>设置scheduler的时间步会创建一个张量，其中包含均匀分布的元素，例子中为50个。每个元素对应模型对图像进行去噪步长。在去噪循环中，迭代此张量对图像进行去噪：</li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">scheduler.timesteps</span><br><span class="line"></span><br><span class="line">tensor([<span class="number">980</span>, <span class="number">960</span>, <span class="number">940</span>, <span class="number">920</span>, <span class="number">900</span>, <span class="number">880</span>, <span class="number">860</span>, <span class="number">840</span>, <span class="number">820</span>, <span class="number">800</span>, <span class="number">780</span>, <span class="number">760</span>, <span class="number">740</span>, <span class="number">720</span>,</span><br><span class="line">    <span class="number">700</span>, <span class="number">680</span>, <span class="number">660</span>, <span class="number">640</span>, <span class="number">620</span>, <span class="number">600</span>, <span class="number">580</span>, <span class="number">560</span>, <span class="number">540</span>, <span class="number">520</span>, <span class="number">500</span>, <span class="number">480</span>, <span class="number">460</span>, <span class="number">440</span>,</span><br><span class="line">    <span class="number">420</span>, <span class="number">400</span>, <span class="number">380</span>, <span class="number">360</span>, <span class="number">340</span>, <span class="number">320</span>, <span class="number">300</span>, <span class="number">280</span>, <span class="number">260</span>, <span class="number">240</span>, <span class="number">220</span>, <span class="number">200</span>, <span class="number">180</span>, <span class="number">160</span>,</span><br><span class="line">    <span class="number">140</span>, <span class="number">120</span>, <span class="number">100</span>,  <span class="number">80</span>,  <span class="number">60</span>,  <span class="number">40</span>,  <span class="number">20</span>,   <span class="number">0</span>])</span><br></pre></td></tr></table></figure>
 
-<ol>
+<ol start="4">
 <li>创建一些与输出形状一致的随机噪声：</li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line">sample_size = model.config.sample_size</span><br><span class="line">noise = torch.randn((<span class="number">1</span>, <span class="number">3</span>, sample_size, sample_size), device=<span class="string">&quot;cuda&quot;</span>)</span><br></pre></td></tr></table></figure>
 
-<ol>
+<ol start="5">
 <li>编写一个循环来迭代时间步。在每个时间步中，模型会执行UNet2DModel.forward()传递并且返回噪声残差。Scheduler的step()方法会使用噪声残差、时间步和输入，预测上一个时间步的图像（时间步是从大到小，“上一个时间步”指比其数值小的时间步）</li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">input</span> = noise</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> scheduler.timesteps:</span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        noisy_residual = model(<span class="built_in">input</span>, t).sample</span><br><span class="line">    previous_noisy_sample = scheduler.step(noisy_residual, t, <span class="built_in">input</span>).prev_sample</span><br><span class="line">    <span class="built_in">input</span> = previous_noisy_sample</span><br></pre></td></tr></table></figure>
 
 <p>上述过程为整个去噪过程。</p>
-<ol>
+<ol start="6">
 <li>最后一步是将去噪输出转换为图像</li>
 </ol>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">image = (<span class="built_in">input</span> / <span class="number">2</span> + <span class="number">0.5</span>).clamp(<span class="number">0</span>, <span class="number">1</span>).squeeze()</span><br><span class="line">image = (image.permute(<span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>) * <span class="number">255</span>).<span class="built_in">round</span>().to(torch.uint8).cpu().numpy()</span><br><span class="line">image = Image.fromarray(image)</span><br><span class="line">image</span><br></pre></td></tr></table></figure>
