@@ -10934,6 +10934,30 @@ a.article-nav-next span {
   word-wrap: break-word;
   white-space: normal;
 }
+.article {
+  counter-reset: section;
+}
+.article h2 {
+  counter-reset: sub-section;
+}
+.article h3 {
+  counter-reset: composite;
+}
+.article h4 {
+  counter-reset: detail;
+}
+.article h2:before {
+  content: counter(section) " ";
+  counter-increment: section;
+}
+.article h3:before {
+  content: counter(section) "." counter(sub-section) " ";
+  counter-increment: sub-section;
+}
+.article h4:before {
+  content: counter(section) "." counter(sub-section) "." counter(composite) " ";
+  counter-increment: composite;
+}
 .navbar-main {
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
@@ -11388,6 +11412,8 @@ figure.highlight.foldable div.level-left {
     right: 0;
     bottom: 0;
     z-index: 100;
+    max-height: calc(100vh - 22px);
+    overflow-y: scroll;
   }
   .widget.card#toc .card-content {
     padding: 0;
@@ -11641,6 +11667,10 @@ figure.highlight.foldable div.level-left {
   background-color: #276cda;
 }
 @media screen and (min-width: 1280px) {
+  .is-3-column .container {
+    max-width: 1216px;
+    width: 1216px;
+  }
   .is-1-column .container,
   .is-2-column .container {
     max-width: 960px;
@@ -11648,6 +11678,10 @@ figure.highlight.foldable div.level-left {
   }
 }
 @media screen and (min-width: 1472px) {
+  .is-3-column .container {
+    max-width: 1344px;
+    width: 1344px;
+  }
   .is-2-column .container {
     max-width: 1152px;
     width: 1152px;
