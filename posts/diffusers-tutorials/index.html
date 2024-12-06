@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Diffusers Tutorials | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="diffusers, tutorials">
+<meta name="description" content="Pipelines, models and schedulers
+解构基本pipeline
+pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像
+from diffusers import DDPMPipeline
+
+ddpm = DDPMPipeline.from_pretrained(&#34;google/ddpm-cat-256&#34;, use_safetensors=True).to(&#34;cuda&#34;)
+image = ddpm(num_inference_steps=25).images[0]
+image
+">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="http://localhost:1313/posts/diffusers-tutorials/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/diffusers-tutorials/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script><meta property="og:url" content="http://localhost:1313/posts/diffusers-tutorials/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="Diffusers Tutorials">
+  <meta property="og:description" content="Pipelines, models and schedulers 解构基本pipeline pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像
+from diffusers import DDPMPipeline ddpm = DDPMPipeline.from_pretrained(&#34;google/ddpm-cat-256&#34;, use_safetensors=True).to(&#34;cuda&#34;) image = ddpm(num_inference_steps=25).images[0] image ">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-10-07T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-10-07T00:00:00+00:00">
+    <meta property="article:tag" content="Diffusers">
+    <meta property="article:tag" content="Tutorials">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="Diffusers Tutorials">
+<meta name="twitter:description" content="Pipelines, models and schedulers
+解构基本pipeline
+pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像
+from diffusers import DDPMPipeline
+
+ddpm = DDPMPipeline.from_pretrained(&#34;google/ddpm-cat-256&#34;, use_safetensors=True).to(&#34;cuda&#34;)
+image = ddpm(num_inference_steps=25).images[0]
+image
+">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Diffusers Tutorials",
+      "item": "http://localhost:1313/posts/diffusers-tutorials/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Diffusers Tutorials",
+  "name": "Diffusers Tutorials",
+  "description": "Pipelines, models and schedulers 解构基本pipeline pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像\nfrom diffusers import DDPMPipeline ddpm = DDPMPipeline.from_pretrained(\u0026#34;google/ddpm-cat-256\u0026#34;, use_safetensors=True).to(\u0026#34;cuda\u0026#34;) image = ddpm(num_inference_steps=25).images[0] image ",
+  "keywords": [
+    "diffusers", "tutorials"
+  ],
+  "articleBody": "Pipelines, models and schedulers 解构基本pipeline pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像\nfrom diffusers import DDPMPipeline ddpm = DDPMPipeline.from_pretrained(\"google/ddpm-cat-256\", use_safetensors=True).to(\"cuda\") image = ddpm(num_inference_steps=25).images[0] image 在上述例子中，pipeline中包括一个UNet2DModel和一个DDPMScheduler。pipeline通过获取所需输出大小的随机噪声并将其多次传递给模型对图像进行去噪。每个时间步，模型都会预测噪声残差，调度器会使用它来预测一个噪声更少的图像，重复该步骤直到到达特定的时间步。\n解构pipeline，从模型中重新构建一个pipeline用于去噪过程。\n加载模型和scheduler: from diffusers import DDPMScheduler, UNet2DModel scheduler = DDPMScheduler.from_pretrained(\"google/ddpm-cat-256\") model = UNet2DModel.from_pretrained(\"google/ddpm-cat-256\", use_safetensors=True).to(\"cuda\") 设置时间步用于去噪过程 scheduler.set_timesteps(50) 设置scheduler的时间步会创建一个张量，其中包含均匀分布的元素，例子中为50个。每个元素对应模型对图像进行去噪步长。在去噪循环中，迭代此张量对图像进行去噪： scheduler.timesteps tensor([980, 960, 940, 920, 900, 880, 860, 840, 820, 800, 780, 760, 740, 720, 700, 680, 660, 640, 620, 600, 580, 560, 540, 520, 500, 480, 460, 440, 420, 400, 380, 360, 340, 320, 300, 280, 260, 240, 220, 200, 180, 160, 140, 120, 100, 80, 60, 40, 20, 0]) 创建一些与输出形状一致的随机噪声： import torch sample_size = model.config.sample_size noise = torch.randn((1, 3, sample_size, sample_size), device=\"cuda\") 编写一个循环来迭代时间步。在每个时间步中，模型会执行UNet2DModel.forward()传递并且返回噪声残差。Scheduler的step()方法会使用噪声残差、时间步和输入，预测上一个时间步的图像（时间步是从大到小，“上一个时间步”指比其数值小的时间步） input = noise for t in scheduler.timesteps: with torch.no_grad(): noisy_residual = model(input, t).sample previous_noisy_sample = scheduler.step(noisy_residual, t, input).prev_sample input = previous_noisy_sample 上述过程为整个去噪过程。\n最后一步是将去噪输出转换为图像 from PIL import Image import numpy as np image = (input / 2 + 0.5).clamp(0, 1).squeeze() image = (image.permute(1, 2, 0) * 255).round().to(torch.uint8).cpu().numpy() image = Image.fromarray(image) image 解构稳定扩散Pipeline 稳定扩散 (Stable Diffusion) 是一种文本到图像的潜在扩散模型，使用图像的低维表示而不是实际像素空间，使得它更节省内存。编码器将图像压缩为较小的表示，解码器将压缩后的表示转换为图像。对于文本到图像的生成模型，需要一个tokenizer 和一个encoder 来生成文本嵌入，所以，稳定扩散模型需要三个单独的预训练模型。\n使用from_pretrained()方法加载这些组件，使用stable-diffusion-v1-4模型。\nfrom PIL import Image import torch from transformers import CLIPTextModel, CLIPTokenizer from diffusers import AutoencoderKL, UNet2DConditionModel, PNDMScheduler vae = AutoencoderKL.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"vae\", use_safetensors=True) tokenizer = CLIPTokenizer.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"tokenizer\") text_encoder = CLIPTextModel.from_pretrained( \"CompVis/stable-diffusion-v1-4\", subfolder=\"text_encoder\", use_safetensors=True ) unet = UNet2DConditionModel.from_pretrained( \"CompVis/stable-diffusion-v1-4\", subfolder=\"unet\", use_safetensors=True ) 不使用默认的PNDMScheduler，而是换成UniPCMultistepScheduler：\nfrom diffusers import UniPCMultistepScheduler scheduler = UniPCMultistepScheduler.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"scheduler\") 为了加快推理速度，将模型移至GPU中，VAE、Encoder、UNet具有可训练的权重。\ntorch_device = \"cuda\" vae.to(torch_device) text_encoder.to(torch_device) unet.to(torch_device) 创建文本嵌入 (Text Embeddings) 将文本tokenized以生成embeddings。文本用于引导扩散模型输出提示中的内容，其中参数guidance_scale决定了在生成图像时应该给予提示多少权重。\nprompt = [\"a photograph of an astronaut riding a horse\"] height = 512 # default height of Stable Diffusion width = 512 # default width of Stable Diffusion num_inference_steps = 25 # Number of denoising steps guidance_scale = 7.5 # Scale for classifier-free guidance generator = torch.manual_seed(0) # Seed generator to create the initial latent noise batch_size = len(prompt) 对文本进行tokenize并且从prompt中生成嵌入：\n# 使用分词器对prompt进行分词，并填充到最大长度 text_input = tokenizer( prompt, padding=\"max_length\", max_length=tokenizer.model_max_length, truncation=True, return_tensors=\"pt\" ) # 使用text_encoder对分词后对prompt生成text_embeddings with torch.no_grad(): text_embeddings = text_encoder(text_input.input_ids.to(torch_device))[0] 还需要生成无条件文本嵌入，用于填充嵌入。这些嵌入需要有相同的形状（batch_size和seq_length），像条件文本嵌入一样：\n# text_input的形状：batch_size * seq_length max_length = text_input.input_ids.shape[-1] uncond_input = tokenizer([\"\"] * batch_size, padding=\"max_length\", max_length=max_length, return_tensors=\"pt\") uncond_embeddings = text_encoder(uncond_input.input_ids.to(torch_device))[0] 将无条件文本嵌入和条件文本嵌入拼接：\ntext_embeddings = torch.cat([uncond_embeddings, text_embeddings]) 创建随机噪声 接下来，生成一些随机噪声作为去噪过程的起点。作为潜空间的图像表示，它们会被逐渐去噪。图像的潜在表示小于最终的图像尺寸，模型之后会将其转换为最终的512*512尺寸。\n由于VAE每次下采样都会将尺寸的长宽变为原来的1/2，使用以下代码来验证VAE的下采样次数：\n2 ** (len(vae.config.block_out_channels) - 1) == 8 # vae.config.block_out_channels为卷积层的数量 # -1后时下采样的次数 # 说明经历了3次下采样 生成随机噪声的代码：\nlatents = torch.randn( (batch_size, unet.config.in_channels, height // 8, width // 8), # 生成的噪声位于三次下采样之后的潜空间 generator=generator, device=torch_device, ) 图像去噪 首先使用初始化噪声分布sigma 缩放输入，是使用UniPCMultistepScheduler调度器的必须步骤。\nlatents = latents * scheduler.init_noise_sigma 创建一个去噪循环，能够逐步将纯噪声转换为在latent space中的图像表示，去噪循环中有三个操作：\n设置去噪期间Scheduler的时间步长 迭代时间步长 在每个时间步中，调用UNet模型来预测噪声残差并将其传递给Scheduler来计算之前的噪声样本 from tqdm.auto import tqdm scheduler.set_timesteps(num_inference_steps) for t in tqdm(scheduler.timesteps): # expand the latents if we are doing classifier-free guidance to avoid doing two forward passes. latent_model_input = torch.cat([latents] * 2) latent_model_input = scheduler.scale_model_input(latent_model_input, timestep=t) # predict the noise residual # 噪声预测需要输入上一步的潜空间表示、时间步以及文本嵌入 with torch.no_grad(): noise_pred = unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample # perform guidance noise_pred_uncond, noise_pred_text = noise_pred.chunk(2) # guidance_scale 用于调节文本指导生成的强度 noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond) # compute the previous noisy sample x_t -\u003e x_t-1 # 输入预测的噪声、时间步和潜空间表示来计算上一个时间步的潜空间表示 latents = scheduler.step(noise_pred, t, latents).prev_sample 解码图像 最后一步是使用VAE将潜空间表示解码为图像并获取解码输出。\n# scale and decode the image latents with vae latents = 1 / 0.18215 * latents with torch.no_grad(): image = vae.decode(latents).sample 最后，使用PIL.Image来展示图像。\nimage = (image / 2 + 0.5).clamp(0, 1).squeeze() image = (image.permute(1, 2, 0) * 255).to(torch.uint8).cpu().numpy() image = Image.fromarray(image) image Training Diffusion Model DreamBooth 首先，下载diffuers示例脚本，安装对应依赖：\ngit clone https://github.com/huggingface/diffusers cd diffusers pip install . 配置Accelerate环境：\naccelerate config 脚本参数 训练脚本提供了许多参数用于自定义训练运行。启动训练使用以下代码：\naccelerate launch train_dreambooth.py 一些基本且重要的参数：\n--pretrained_model_name_or_path: Hub上的模型名称或者预训练模型本地路径 --instance_data_path: 包含训练数据集的文件夹路径 --instance_prompt: 包含示例图片的稀有标记的文本提示 --train_text_encoder: 是否训练文本编码器 --output_dir: 训练好的模型保存地址 --push_to_hub: 是否将训练好的模型推送至hub --checkpointing_steps: 在模型训练时保存检查点的频率；如果训练因为某种原因中断，可以通过添加--resume_from_checkpoint到训练命令中从该检查点继续训练 先验保存损失 先验保存损失通过使用模型自己生成的样本来帮助学习更加多样性的图像主体。由于生成的样本图像与提供的图像属于同一类别，因此它们有助于模型保留对该类别的理解同时利用该类别的已知信息来提供新的构图。\n--with_prior_preservation: 是否使用先验保留损失 --prior_loss_weight: 控制先验保存损失对模型的影响 --class_data_dir: 包含生成类图像的文件夹路径 --class_prompt: 描述生成类图像的文本提示 accelerate launch train_dreambooth.py \\ --with_prior_preservation \\ --prior_loss_weight=1.0 \\ --class_data_dir=\"path/to/class/images\" \\ --class_prompt=\"text prompt describing class\" 训练脚本 DreamBooth包含数据集类：\nDreamBoothDataset：对图像和类别图像进行预处理，并对训练提示进行分词 PromptDataset：生成提示嵌入以生成类别图像 如果启用了先验保存损失，则类别图像在此处生成：\n# 包含类别提示的数据集 sample_dataset = PromptDataset(args.class_prompt, num_new_images) sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size) sample_dataloader = accelerator.prepare(sample_dataloader) pipeline.to(accelerator.device) for example in tqdm( sample_dataloader, desc=\"Generating class images\", disable=not accelerator.is_local_main_process ): images = pipeline(example[\"prompt\"]).images 接下来使用main()处理设置训练数据集和训练循环。该脚本加载tokenizer、scheduler和models：\n# Load the tokenizer if args.tokenizer_name: tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_name, revision=args.revision, use_fast=False) elif args.pretrained_model_name_or_path: tokenizer = AutoTokenizer.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"tokenizer\", revision=args.revision, use_fast=False, ) # Load scheduler and models noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"scheduler\") text_encoder = text_encoder_cls.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"text_encoder\", revision=args.revision ) if model_has_vae(args): vae = AutoencoderKL.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"vae\", revision=args.revision ) else: vae = None unet = UNet2DConditionModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"unet\", revision=args.revision ) 然后，创建训练数据集和数据加载器：\ntrain_dataset = DreamBoothDataset( instance_data_root=args.instance_data_dir, instance_prompt=args.instance_prompt, class_data_root=args.class_data_dir if args.with_prior_preservation else None, class_prompt=args.class_prompt, class_num=args.num_class_images, tokenizer=tokenizer, size=args.resolution, center_crop=args.center_crop, encoder_hidden_states=pre_computed_encoder_hidden_states, class_prompt_encoder_hidden_states=pre_computed_class_prompt_encoder_hidden_states, tokenizer_max_length=args.tokenizer_max_length, ) train_dataloader = torch.utils.data.DataLoader( train_dataset, batch_size=args.train_batch_size, shuffle=True, collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation), num_workers=args.dataloader_num_workers, ) 最后，训练循环负责将图像转换为潜空间表示、向输入添加噪声、预测噪声残差以及计算损失等。\n启动训练脚本 添加部分变量到bash环境变量中，启动训练脚本：\nexport MODEL_NAME=\"stable-diffusion-v1-5/stable-diffusion-v1-5\" export INSTANCE_DIR=\"./dog\" export OUTPUT_DIR=\"path_to_saved_model\" accelerate launch train_dreambooth.py \\ --pretrained_model_name_or_path=$MODEL_NAME \\ --instance_data_dir=$INSTANCE_DIR \\ --output_dir=$OUTPUT_DIR \\ --instance_prompt=\"a photo of sks dog\" \\ --resolution=512 \\ --train_batch_size=1 \\ --gradient_accumulation_steps=1 \\ --learning_rate=5e-6 \\ --lr_scheduler=\"constant\" \\ --lr_warmup_steps=0 \\ --max_train_steps=400 \\ --push_to_hub 训练完成后即可使用新训练的模型进行推理。\nTextual Inversion Textual Inversion是一种微调技术，只需几个示例图像即可个性化图像生成模型。此技术的工作原理是学习和更新文本嵌入（新嵌入必须与特殊单词相关联）以匹配提供的示例图像。\n脚本参数 使用以下代码来启动训练：\naccelerate launch textual_inversion.py \\ --gradient_accumulation_steps=4 一些需要指定的重要参数如下：\n-pretrained_model_name_or_path：Hub 上的模型名称或预训练模型的本地路径 -train_data_dir：包含训练数据集（示例图像）的文件夹路径 -output_dir：训练好的模型保存位置 -push_to_hub：是否将训练好的模型推送到Hub -checkpointing_steps-resume_from_checkpoint：在模型训练时保存检查点的频率；如果由于某种原因训练中断，可以通过添加此参数继续训练 -num_vectors：用于学习嵌入的向量数量；增加此参数有助于模型更好地学习，但会增加训练成本 -placeholder_token：将学习到的嵌入与之联系起来的特殊词（你必须在提示中使用该词进行推理） -initializer_token：一个单词，大致描述你正在尝试训练的对象或风格 -learnable_property：无论是在训练模型学习新的“风格”（例如，梵高的绘画风格）还是“对象”（例如，您的狗） 训练脚本 textual inversion有一个自定义数据集类，TextualInversionDataset用于创建数据集，可以自定义图像大小、占位符标记、差值方法、是否裁剪图像等。\n首先加载tokenizer、scheduler和model：\n# Load tokenizer if args.tokenizer_name: tokenizer = CLIPTokenizer.from_pretrained(args.tokenizer_name) elif args.pretrained_model_name_or_path: tokenizer = CLIPTokenizer.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"tokenizer\") # Load scheduler and models noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"scheduler\") text_encoder = CLIPTextModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"text_encoder\", revision=args.revision ) vae = AutoencoderKL.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"vae\", revision=args.revision) unet = UNet2DConditionModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"unet\", revision=args.revision ) 在tokenizer中添加特殊占位符标记，并重新调整嵌入以适应新的标记。\n然后，脚本创建数据集TextualInversionDataset。\ntrain_dataset = TextualInversionDataset( data_root=args.train_data_dir, tokenizer=tokenizer, size=args.resolution, placeholder_token=(\" \".join(tokenizer.convert_ids_to_tokens(placeholder_token_ids))), repeats=args.repeats, learnable_property=args.learnable_property, center_crop=args.center_crop, set=\"train\", ) train_dataloader = torch.utils.data.DataLoader( train_dataset, batch_size=args.train_batch_size, shuffle=True, num_workers=args.dataloader_num_workers ) 最后，训练循环处理从预测噪声残差到更新特殊占位符标记的嵌入权重的所有操作。\n启动训练脚本 在启动脚本之前，如果想跟踪训练过程，可以在训练过程中定期保存生成的图像。将以下参数增加到训练命令中：\n--validation_prompt=\"A train\" --num_validation_images=4 --validation_steps=100 启动训练脚本的命令如下：\nexport MODEL_NAME=\"stable-diffusion-v1-5/stable-diffusion-v1-5\" export DATA_DIR=\"./cat\" accelerate launch textual_inversion.py \\ --pretrained_model_name_or_path=$MODEL_NAME \\ --train_data_dir=$DATA_DIR \\ --learnable_property=\"object\" \\ --placeholder_token=\"\" \\ --initializer_token=\"toy\" \\ --resolution=512 \\ --train_batch_size=1 \\ --gradient_accumulation_steps=4 \\ --max_train_steps=3000 \\ --learning_rate=5.0e-04 \\ --scale_lr \\ --lr_scheduler=\"constant\" \\ --lr_warmup_steps=0 \\ --output_dir=\"textual_inversion_cat\" \\ --push_to_hub 训练结束后，可以使用新训练的模型进行推理：\nfrom diffusers import StableDiffusionPipeline import torch pipeline = StableDiffusionPipeline.from_pretrained(\"stable-diffusion-v1-5/stable-diffusion-v1-5\", torch_dtype=torch.float16).to(\"cuda\") pipeline.load_textual_inversion(\"sd-concepts-library/cat-toy\") image = pipeline(\"A train\", num_inference_steps=50).images[0] image.save(\"cat-train.png\") ",
+  "wordCount" : "3935",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2024-10-07T00:00:00Z",
+  "dateModified": "2024-10-07T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/diffusers-tutorials/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Diffusers Tutorials
+    </h1>
+    <div class="post-meta"><span title='2024-10-07 00:00:00 +0000 UTC'>十月 7, 2024</span>&nbsp;·&nbsp;8 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/Diffusers-Tutorials.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#pipelines-models-and-schedulers" aria-label="Pipelines, models and schedulers">Pipelines, models and schedulers</a><ul>
+                        
+                <li>
+                    <a href="#%e8%a7%a3%e6%9e%84%e5%9f%ba%e6%9c%acpipeline" aria-label="解构基本pipeline">解构基本pipeline</a></li>
+                <li>
+                    <a href="#%e8%a7%a3%e6%9e%84%e7%a8%b3%e5%ae%9a%e6%89%a9%e6%95%a3pipeline" aria-label="解构稳定扩散Pipeline">解构稳定扩散Pipeline</a><ul>
+                        
+                <li>
+                    <a href="#%e5%88%9b%e5%bb%ba%e6%96%87%e6%9c%ac%e5%b5%8c%e5%85%a5-text-embeddings" aria-label="创建文本嵌入 (Text Embeddings)">创建文本嵌入 (Text Embeddings)</a></li>
+                <li>
+                    <a href="#%e5%88%9b%e5%bb%ba%e9%9a%8f%e6%9c%ba%e5%99%aa%e5%a3%b0" aria-label="创建随机噪声">创建随机噪声</a></li>
+                <li>
+                    <a href="#%e5%9b%be%e5%83%8f%e5%8e%bb%e5%99%aa" aria-label="图像去噪">图像去噪</a></li>
+                <li>
+                    <a href="#%e8%a7%a3%e7%a0%81%e5%9b%be%e5%83%8f" aria-label="解码图像">解码图像</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#training-diffusion-model" aria-label="Training Diffusion Model">Training Diffusion Model</a><ul>
+                        
+                <li>
+                    <a href="#dreambooth" aria-label="DreamBooth">DreamBooth</a><ul>
+                        
+                <li>
+                    <a href="#%e8%84%9a%e6%9c%ac%e5%8f%82%e6%95%b0" aria-label="脚本参数">脚本参数</a></li>
+                <li>
+                    <a href="#%e5%85%88%e9%aa%8c%e4%bf%9d%e5%ad%98%e6%8d%9f%e5%a4%b1" aria-label="先验保存损失">先验保存损失</a></li>
+                <li>
+                    <a href="#%e8%ae%ad%e7%bb%83%e8%84%9a%e6%9c%ac" aria-label="训练脚本">训练脚本</a></li>
+                <li>
+                    <a href="#%e5%90%af%e5%8a%a8%e8%ae%ad%e7%bb%83%e8%84%9a%e6%9c%ac" aria-label="启动训练脚本">启动训练脚本</a></li></ul>
+                </li>
+                <li>
+                    <a href="#textual-inversion" aria-label="Textual Inversion">Textual Inversion</a><ul>
+                        
+                <li>
+                    <a href="#%e8%84%9a%e6%9c%ac%e5%8f%82%e6%95%b0-1" aria-label="脚本参数">脚本参数</a></li>
+                <li>
+                    <a href="#%e8%ae%ad%e7%bb%83%e8%84%9a%e6%9c%ac-1" aria-label="训练脚本">训练脚本</a></li>
+                <li>
+                    <a href="#%e5%90%af%e5%8a%a8%e8%ae%ad%e7%bb%83%e8%84%9a%e6%9c%ac-1" aria-label="启动训练脚本">启动训练脚本</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="pipelines-models-and-schedulers">Pipelines, models and schedulers<a hidden class="anchor" aria-hidden="true" href="#pipelines-models-and-schedulers">#</a></h1>
+<h2 id="解构基本pipeline">解构基本pipeline<a hidden class="anchor" aria-hidden="true" href="#解构基本pipeline">#</a></h2>
+<p>pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">diffusers</span> <span class="kn">import</span> <span class="n">DDPMPipeline</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">ddpm</span> <span class="o">=</span> <span class="n">DDPMPipeline</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;google/ddpm-cat-256&#34;</span><span class="p">,</span> <span class="n">use_safetensors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="n">ddpm</span><span class="p">(</span><span class="n">num_inference_steps</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span>
+</span></span></code></pre></div><p>在上述例子中，pipeline中包括一个UNet2DModel和一个DDPMScheduler。pipeline通过获取所需输出大小的随机噪声并将其多次传递给模型对图像进行去噪。每个时间步，模型都会预测噪声残差，调度器会使用它来预测一个噪声更少的图像，重复该步骤直到到达特定的时间步。</p>
+<p>解构pipeline，从模型中重新构建一个pipeline用于去噪过程。</p>
+<ol>
+<li>加载模型和scheduler:</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">diffusers</span> <span class="kn">import</span> <span class="n">DDPMScheduler</span><span class="p">,</span> <span class="n">UNet2DModel</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">scheduler</span> <span class="o">=</span> <span class="n">DDPMScheduler</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;google/ddpm-cat-256&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">UNet2DModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;google/ddpm-cat-256&#34;</span><span class="p">,</span> <span class="n">use_safetensors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="2">
+<li>设置时间步用于去噪过程</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">scheduler</span><span class="o">.</span><span class="n">set_timesteps</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="3">
+<li>设置scheduler的时间步会创建一个张量，其中包含均匀分布的元素，例子中为50个。每个元素对应模型对图像进行去噪步长。在去噪循环中，迭代此张量对图像进行去噪：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">scheduler</span><span class="o">.</span><span class="n">timesteps</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">tensor</span><span class="p">([</span><span class="mi">980</span><span class="p">,</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">940</span><span class="p">,</span> <span class="mi">920</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">880</span><span class="p">,</span> <span class="mi">860</span><span class="p">,</span> <span class="mi">840</span><span class="p">,</span> <span class="mi">820</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">780</span><span class="p">,</span> <span class="mi">760</span><span class="p">,</span> <span class="mi">740</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">700</span><span class="p">,</span> <span class="mi">680</span><span class="p">,</span> <span class="mi">660</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">620</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">580</span><span class="p">,</span> <span class="mi">560</span><span class="p">,</span> <span class="mi">540</span><span class="p">,</span> <span class="mi">520</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="mi">460</span><span class="p">,</span> <span class="mi">440</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">420</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">380</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">340</span><span class="p">,</span> <span class="mi">320</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">280</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">140</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span>  <span class="mi">80</span><span class="p">,</span>  <span class="mi">60</span><span class="p">,</span>  <span class="mi">40</span><span class="p">,</span>  <span class="mi">20</span><span class="p">,</span>   <span class="mi">0</span><span class="p">])</span>
+</span></span></code></pre></div><ol start="4">
+<li>创建一些与输出形状一致的随机噪声：</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sample_size</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sample_size</span>
+</span></span><span class="line"><span class="cl"><span class="n">noise</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><ol start="5">
+<li>编写一个循环来迭代时间步。在每个时间步中，模型会执行UNet2DModel.forward()传递并且返回噪声残差。Scheduler的step()方法会使用噪声残差、时间步和输入，预测上一个时间步的图像（时间步是从大到小，“上一个时间步”指比其数值小的时间步）</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="nb">input</span> <span class="o">=</span> <span class="n">noise</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">timesteps</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">noisy_residual</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span>
+</span></span><span class="line"><span class="cl">    <span class="n">previous_noisy_sample</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">noisy_residual</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">prev_sample</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">input</span> <span class="o">=</span> <span class="n">previous_noisy_sample</span>
+</span></span></code></pre></div><p>上述过程为整个去噪过程。</p>
+<ol start="6">
+<li>最后一步是将去噪输出转换为图像</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="nb">input</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span>
+</span></span></code></pre></div><h2 id="解构稳定扩散pipeline">解构稳定扩散Pipeline<a hidden class="anchor" aria-hidden="true" href="#解构稳定扩散pipeline">#</a></h2>
+<p>稳定扩散 (Stable Diffusion) 是一种文本到图像的潜在扩散模型，使用图像的低维表示而不是实际像素空间，使得它更节省内存。编码器将图像压缩为较小的表示，解码器将压缩后的表示转换为图像。对于文本到图像的生成模型，需要一个<code>tokenizer</code> 和一个<code>encoder</code> 来生成文本嵌入，所以，稳定扩散模型需要三个单独的预训练模型。</p>
+<p>使用from_pretrained()方法加载这些组件，使用stable-diffusion-v1-4模型。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">CLIPTextModel</span><span class="p">,</span> <span class="n">CLIPTokenizer</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">diffusers</span> <span class="kn">import</span> <span class="n">AutoencoderKL</span><span class="p">,</span> <span class="n">UNet2DConditionModel</span><span class="p">,</span> <span class="n">PNDMScheduler</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">vae</span> <span class="o">=</span> <span class="n">AutoencoderKL</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;CompVis/stable-diffusion-v1-4&#34;</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;vae&#34;</span><span class="p">,</span> <span class="n">use_safetensors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">CLIPTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;CompVis/stable-diffusion-v1-4&#34;</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;tokenizer&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">text_encoder</span> <span class="o">=</span> <span class="n">CLIPTextModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;CompVis/stable-diffusion-v1-4&#34;</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;text_encoder&#34;</span><span class="p">,</span> <span class="n">use_safetensors</span><span class="o">=</span><span class="kc">True</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">unet</span> <span class="o">=</span> <span class="n">UNet2DConditionModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;CompVis/stable-diffusion-v1-4&#34;</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;unet&#34;</span><span class="p">,</span> <span class="n">use_safetensors</span><span class="o">=</span><span class="kc">True</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>不使用默认的PNDMScheduler，而是换成UniPCMultistepScheduler：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">diffusers</span> <span class="kn">import</span> <span class="n">UniPCMultistepScheduler</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">scheduler</span> <span class="o">=</span> <span class="n">UniPCMultistepScheduler</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;CompVis/stable-diffusion-v1-4&#34;</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;scheduler&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>为了加快推理速度，将模型移至GPU中，<code>VAE、Encoder、UNet</code>具有可训练的权重。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">torch_device</span> <span class="o">=</span> <span class="s2">&#34;cuda&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">vae</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch_device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">text_encoder</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch_device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">unet</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch_device</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="创建文本嵌入-text-embeddings">创建文本嵌入 (Text Embeddings)<a hidden class="anchor" aria-hidden="true" href="#创建文本嵌入-text-embeddings">#</a></h3>
+<p>将文本tokenized以生成embeddings。文本用于引导扩散模型输出提示中的内容，其中参数<code>guidance_scale</code>决定了在生成图像时应该给予提示多少权重。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">prompt</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;a photograph of an astronaut riding a horse&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">height</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># default height of Stable Diffusion</span>
+</span></span><span class="line"><span class="cl"><span class="n">width</span> <span class="o">=</span> <span class="mi">512</span>  <span class="c1"># default width of Stable Diffusion</span>
+</span></span><span class="line"><span class="cl"><span class="n">num_inference_steps</span> <span class="o">=</span> <span class="mi">25</span>  <span class="c1"># Number of denoising steps</span>
+</span></span><span class="line"><span class="cl"><span class="n">guidance_scale</span> <span class="o">=</span> <span class="mf">7.5</span>  <span class="c1"># Scale for classifier-free guidance</span>
+</span></span><span class="line"><span class="cl"><span class="n">generator</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Seed generator to create the initial latent noise</span>
+</span></span><span class="line"><span class="cl"><span class="n">batch_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+</span></span></code></pre></div><p>对文本进行tokenize并且从prompt中生成嵌入：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 使用分词器对prompt进行分词，并填充到最大长度</span>
+</span></span><span class="line"><span class="cl"><span class="n">text_input</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prompt</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&#34;max_length&#34;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">model_max_length</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&#34;pt&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 使用text_encoder对分词后对prompt生成text_embeddings</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">text_embeddings</span> <span class="o">=</span> <span class="n">text_encoder</span><span class="p">(</span><span class="n">text_input</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch_device</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><p>还需要生成<strong>无条件文本嵌入</strong>，用于填充嵌入。这些嵌入需要有相同的形状（batch_size和seq_length），像条件文本嵌入一样：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># text_input的形状：batch_size * seq_length</span>
+</span></span><span class="line"><span class="cl"><span class="n">max_length</span> <span class="o">=</span> <span class="n">text_input</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">uncond_input</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">([</span><span class="s2">&#34;&#34;</span><span class="p">]</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&#34;max_length&#34;</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&#34;pt&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">uncond_embeddings</span> <span class="o">=</span> <span class="n">text_encoder</span><span class="p">(</span><span class="n">uncond_input</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch_device</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</span></span></code></pre></div><p>将无条件文本嵌入和条件文本嵌入拼接：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">text_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">uncond_embeddings</span><span class="p">,</span> <span class="n">text_embeddings</span><span class="p">])</span>
+</span></span></code></pre></div><h3 id="创建随机噪声">创建随机噪声<a hidden class="anchor" aria-hidden="true" href="#创建随机噪声">#</a></h3>
+<p>接下来，生成一些随机噪声作为去噪过程的起点。作为潜空间的图像表示，它们会被逐渐去噪。图像的潜在表示小于最终的图像尺寸，模型之后会将其转换为最终的512*512尺寸。</p>
+<p>由于VAE每次下采样都会将尺寸的长宽变为原来的1/2，使用以下代码来验证VAE的下采样次数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vae</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">block_out_channels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># vae.config.block_out_channels为卷积层的数量</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -1后时下采样的次数</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 说明经历了3次下采样</span>
+</span></span></code></pre></div><p>生成随机噪声的代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">latents</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">unet</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">8</span><span class="p">,</span> <span class="n">width</span> <span class="o">//</span> <span class="mi">8</span><span class="p">),</span> <span class="c1"># 生成的噪声位于三次下采样之后的潜空间</span>
+</span></span><span class="line"><span class="cl">    <span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">device</span><span class="o">=</span><span class="n">torch_device</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><h3 id="图像去噪">图像去噪<a hidden class="anchor" aria-hidden="true" href="#图像去噪">#</a></h3>
+<p>首先使用初始化噪声分布<code>sigma</code> 缩放输入，是使用UniPCMultistepScheduler调度器的必须步骤。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">latents</span> <span class="o">=</span> <span class="n">latents</span> <span class="o">*</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">init_noise_sigma</span>
+</span></span></code></pre></div><p>创建一个去噪循环，能够逐步将纯噪声转换为在latent space中的图像表示，去噪循环中有三个操作：</p>
+<ol>
+<li>设置去噪期间Scheduler的时间步长</li>
+<li>迭代时间步长</li>
+<li>在每个时间步中，调用UNet模型来预测噪声残差并将其传递给Scheduler来计算之前的噪声样本</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">scheduler</span><span class="o">.</span><span class="n">set_timesteps</span><span class="p">(</span><span class="n">num_inference_steps</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">scheduler</span><span class="o">.</span><span class="n">timesteps</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># expand the latents if we are doing classifier-free guidance to avoid doing two forward passes.</span>
+</span></span><span class="line"><span class="cl">    <span class="n">latent_model_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">latents</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">latent_model_input</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">scale_model_input</span><span class="p">(</span><span class="n">latent_model_input</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># predict the noise residual</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 噪声预测需要输入上一步的潜空间表示、时间步以及文本嵌入</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">noise_pred</span> <span class="o">=</span> <span class="n">unet</span><span class="p">(</span><span class="n">latent_model_input</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">encoder_hidden_states</span><span class="o">=</span><span class="n">text_embeddings</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># perform guidance</span>
+</span></span><span class="line"><span class="cl">    <span class="n">noise_pred_uncond</span><span class="p">,</span> <span class="n">noise_pred_text</span> <span class="o">=</span> <span class="n">noise_pred</span><span class="o">.</span><span class="n">chunk</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># guidance_scale 用于调节文本指导生成的强度</span>
+</span></span><span class="line"><span class="cl">    <span class="n">noise_pred</span> <span class="o">=</span> <span class="n">noise_pred_uncond</span> <span class="o">+</span> <span class="n">guidance_scale</span> <span class="o">*</span> <span class="p">(</span><span class="n">noise_pred_text</span> <span class="o">-</span> <span class="n">noise_pred_uncond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># compute the previous noisy sample x_t -&gt; x_t-1</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 输入预测的噪声、时间步和潜空间表示来计算上一个时间步的潜空间表示</span>
+</span></span><span class="line"><span class="cl">    <span class="n">latents</span> <span class="o">=</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">noise_pred</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">latents</span><span class="p">)</span><span class="o">.</span><span class="n">prev_sample</span>
+</span></span></code></pre></div><h3 id="解码图像">解码图像<a hidden class="anchor" aria-hidden="true" href="#解码图像">#</a></h3>
+<p>最后一步是使用VAE将潜空间表示解码为图像并获取解码输出。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># scale and decode the image latents with vae</span>
+</span></span><span class="line"><span class="cl"><span class="n">latents</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">0.18215</span> <span class="o">*</span> <span class="n">latents</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">image</span> <span class="o">=</span> <span class="n">vae</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">latents</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span>
+</span></span></code></pre></div><p>最后，使用PIL.Image来展示图像。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span>
+</span></span></code></pre></div><h1 id="training-diffusion-model">Training Diffusion Model<a hidden class="anchor" aria-hidden="true" href="#training-diffusion-model">#</a></h1>
+<h2 id="dreambooth">DreamBooth<a hidden class="anchor" aria-hidden="true" href="#dreambooth">#</a></h2>
+<p>首先，下载diffuers示例脚本，安装对应依赖：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">huggingface</span><span class="o">/</span><span class="n">diffusers</span>
+</span></span><span class="line"><span class="cl"><span class="n">cd</span> <span class="n">diffusers</span>
+</span></span><span class="line"><span class="cl"><span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
+</span></span></code></pre></div><p>配置Accelerate环境：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">config</span>
+</span></span></code></pre></div><h3 id="脚本参数">脚本参数<a hidden class="anchor" aria-hidden="true" href="#脚本参数">#</a></h3>
+<p>训练脚本提供了许多参数用于自定义训练运行。启动训练使用以下代码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">launch</span> <span class="n">train_dreambooth</span><span class="o">.</span><span class="n">py</span> 
+</span></span></code></pre></div><p>一些基本且重要的参数：</p>
+<ul>
+<li><code>--pretrained_model_name_or_path</code>: Hub上的模型名称或者预训练模型本地路径</li>
+<li><code>--instance_data_path</code>: 包含训练数据集的文件夹路径</li>
+<li><code>--instance_prompt</code>: 包含示例图片的稀有标记的文本提示</li>
+<li><code>--train_text_encoder</code>: 是否训练文本编码器</li>
+<li><code>--output_dir</code>: 训练好的模型保存地址</li>
+<li><code>--push_to_hub</code>: 是否将训练好的模型推送至hub</li>
+<li><code>--checkpointing_steps</code>: 在模型训练时保存检查点的频率；如果训练因为某种原因中断，可以通过添加<code>--resume_from_checkpoint</code>到训练命令中从该检查点继续训练</li>
+</ul>
+<h3 id="先验保存损失">先验保存损失<a hidden class="anchor" aria-hidden="true" href="#先验保存损失">#</a></h3>
+<p>先验保存损失通过使用模型自己生成的样本来帮助学习更加多样性的图像主体。由于生成的样本图像与提供的图像属于同一类别，因此它们有助于模型保留对该类别的理解同时利用该类别的已知信息来提供新的构图。</p>
+<ul>
+<li><code>--with_prior_preservation</code>: 是否使用先验保留损失</li>
+<li><code>--prior_loss_weight</code>: 控制先验保存损失对模型的影响</li>
+<li><code>--class_data_dir</code>: 包含生成类图像的文件夹路径</li>
+<li><code>--class_prompt</code>: 描述生成类图像的文本提示</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">launch</span> <span class="n">train_dreambooth</span><span class="o">.</span><span class="n">py</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">with_prior_preservation</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">prior_loss_weight</span><span class="o">=</span><span class="mf">1.0</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">class_data_dir</span><span class="o">=</span><span class="s2">&#34;path/to/class/images&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">class_prompt</span><span class="o">=</span><span class="s2">&#34;text prompt describing class&#34;</span>
+</span></span></code></pre></div><h3 id="训练脚本">训练脚本<a hidden class="anchor" aria-hidden="true" href="#训练脚本">#</a></h3>
+<p>DreamBooth包含数据集类：</p>
+<ul>
+<li><code>DreamBoothDataset</code>：对图像和类别图像进行预处理，并对训练提示进行分词</li>
+<li><code>PromptDataset</code>：生成提示嵌入以生成类别图像</li>
+</ul>
+<p>如果启用了先验保存损失，则类别图像在此处生成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># 包含类别提示的数据集</span>
+</span></span><span class="line"><span class="cl"><span class="n">sample_dataset</span> <span class="o">=</span> <span class="n">PromptDataset</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">class_prompt</span><span class="p">,</span> <span class="n">num_new_images</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">sample_dataloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">sample_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sample_batch_size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sample_dataloader</span> <span class="o">=</span> <span class="n">accelerator</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">sample_dataloader</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">accelerator</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sample_dataloader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&#34;Generating class images&#34;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">accelerator</span><span class="o">.</span><span class="n">is_local_main_process</span>
+</span></span><span class="line"><span class="cl"><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">images</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">&#34;prompt&#34;</span><span class="p">])</span><span class="o">.</span><span class="n">images</span>
+</span></span></code></pre></div><p>接下来使用main()处理设置训练数据集和训练循环。该脚本加载<code>tokenizer</code>、<code>scheduler</code>和<code>models</code>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Load the tokenizer</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer_name</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_name</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span> <span class="n">use_fast</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;tokenizer&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">use_fast</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Load scheduler and models</span>
+</span></span><span class="line"><span class="cl"><span class="n">noise_scheduler</span> <span class="o">=</span> <span class="n">DDPMScheduler</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;scheduler&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">text_encoder</span> <span class="o">=</span> <span class="n">text_encoder_cls</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;text_encoder&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">model_has_vae</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vae</span> <span class="o">=</span> <span class="n">AutoencoderKL</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;vae&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">vae</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">unet</span> <span class="o">=</span> <span class="n">UNet2DConditionModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;unet&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>然后，创建训练数据集和数据加载器：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">DreamBoothDataset</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">instance_data_root</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">instance_data_dir</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">instance_prompt</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">instance_prompt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_data_root</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">class_data_dir</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">with_prior_preservation</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_prompt</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">class_prompt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_num</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_class_images</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">center_crop</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">center_crop</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">encoder_hidden_states</span><span class="o">=</span><span class="n">pre_computed_encoder_hidden_states</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_prompt_encoder_hidden_states</span><span class="o">=</span><span class="n">pre_computed_class_prompt_encoder_hidden_states</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer_max_length</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_max_length</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">train_dataloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train_dataset</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">collate_fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">examples</span><span class="p">:</span> <span class="n">collate_fn</span><span class="p">(</span><span class="n">examples</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">with_prior_preservation</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dataloader_num_workers</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>最后，训练循环负责将图像转换为潜空间表示、向输入添加噪声、预测噪声残差以及计算损失等。</p>
+<h3 id="启动训练脚本">启动训练脚本<a hidden class="anchor" aria-hidden="true" href="#启动训练脚本">#</a></h3>
+<p>添加部分变量到bash环境变量中，启动训练脚本：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">export</span> <span class="n">MODEL_NAME</span><span class="o">=</span><span class="s2">&#34;stable-diffusion-v1-5/stable-diffusion-v1-5&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">export</span> <span class="n">INSTANCE_DIR</span><span class="o">=</span><span class="s2">&#34;./dog&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">export</span> <span class="n">OUTPUT_DIR</span><span class="o">=</span><span class="s2">&#34;path_to_saved_model&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">launch</span> <span class="n">train_dreambooth</span><span class="o">.</span><span class="n">py</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">pretrained_model_name_or_path</span><span class="o">=</span><span class="err">$</span><span class="n">MODEL_NAME</span>  \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">instance_data_dir</span><span class="o">=</span><span class="err">$</span><span class="n">INSTANCE_DIR</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">output_dir</span><span class="o">=</span><span class="err">$</span><span class="n">OUTPUT_DIR</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">instance_prompt</span><span class="o">=</span><span class="s2">&#34;a photo of sks dog&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">resolution</span><span class="o">=</span><span class="mi">512</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">train_batch_size</span><span class="o">=</span><span class="mi">1</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">1</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">5e-6</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">lr_scheduler</span><span class="o">=</span><span class="s2">&#34;constant&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">lr_warmup_steps</span><span class="o">=</span><span class="mi">0</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">max_train_steps</span><span class="o">=</span><span class="mi">400</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">push_to_hub</span>
+</span></span></code></pre></div><p>训练完成后即可使用新训练的模型进行推理。</p>
+<h2 id="textual-inversion">Textual Inversion<a hidden class="anchor" aria-hidden="true" href="#textual-inversion">#</a></h2>
+<p><strong>Textual Inversion</strong>是一种微调技术，只需几个示例图像即可个性化图像生成模型。此技术的工作原理是学习和更新文本嵌入（新嵌入必须与特殊单词相关联）以匹配提供的示例图像。</p>
+<h3 id="脚本参数-1">脚本参数<a hidden class="anchor" aria-hidden="true" href="#脚本参数-1">#</a></h3>
+<p>使用以下代码来启动训练：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">launch</span> <span class="n">textual_inversion</span><span class="o">.</span><span class="n">py</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">4</span>
+</span></span></code></pre></div><p>一些需要指定的重要参数如下：</p>
+<ul>
+<li><code>-pretrained_model_name_or_path</code>：Hub 上的模型名称或预训练模型的本地路径</li>
+<li><code>-train_data_dir</code>：包含训练数据集（示例图像）的文件夹路径</li>
+<li><code>-output_dir</code>：训练好的模型保存位置</li>
+<li><code>-push_to_hub</code>：是否将训练好的模型推送到Hub</li>
+<li><code>-checkpointing_steps-resume_from_checkpoint</code>：在模型训练时保存检查点的频率；如果由于某种原因训练中断，可以通过添加此参数继续训练</li>
+<li><code>-num_vectors</code>：用于学习嵌入的向量数量；增加此参数有助于模型更好地学习，但会增加训练成本</li>
+<li><code>-placeholder_token</code>：将学习到的嵌入与之联系起来的特殊词（你必须在提示中使用该词进行推理）</li>
+<li><code>-initializer_token</code>：一个单词，大致描述你正在尝试训练的对象或风格</li>
+<li><code>-learnable_property</code>：无论是在训练模型学习新的“风格”（例如，梵高的绘画风格）还是“对象”（例如，您的狗）</li>
+</ul>
+<h3 id="训练脚本-1">训练脚本<a hidden class="anchor" aria-hidden="true" href="#训练脚本-1">#</a></h3>
+<p>textual inversion有一个自定义数据集类，<code>TextualInversionDataset</code>用于创建数据集，可以自定义图像大小、占位符标记、差值方法、是否裁剪图像等。</p>
+<p>首先加载<code>tokenizer</code>、<code>scheduler</code>和<code>model</code>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Load tokenizer</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">tokenizer_name</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">CLIPTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">tokenizer_name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">CLIPTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;tokenizer&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Load scheduler and models</span>
+</span></span><span class="line"><span class="cl"><span class="n">noise_scheduler</span> <span class="o">=</span> <span class="n">DDPMScheduler</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;scheduler&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">text_encoder</span> <span class="o">=</span> <span class="n">CLIPTextModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;text_encoder&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">vae</span> <span class="o">=</span> <span class="n">AutoencoderKL</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;vae&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">unet</span> <span class="o">=</span> <span class="n">UNet2DConditionModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">args</span><span class="o">.</span><span class="n">pretrained_model_name_or_path</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="s2">&#34;unet&#34;</span><span class="p">,</span> <span class="n">revision</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">revision</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>在tokenizer中添加特殊占位符标记，并重新调整嵌入以适应新的标记。</p>
+<p>然后，脚本创建数据集<code>TextualInversionDataset</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">TextualInversionDataset</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data_root</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">train_data_dir</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">placeholder_token</span><span class="o">=</span><span class="p">(</span><span class="s2">&#34; &#34;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">convert_ids_to_tokens</span><span class="p">(</span><span class="n">placeholder_token_ids</span><span class="p">))),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repeats</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">repeats</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">learnable_property</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">learnable_property</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">center_crop</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">center_crop</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">set</span><span class="o">=</span><span class="s2">&#34;train&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">train_dataloader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dataloader_num_workers</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p>最后，训练循环处理从预测噪声残差到更新特殊占位符标记的嵌入权重的所有操作。</p>
+<h3 id="启动训练脚本-1">启动训练脚本<a hidden class="anchor" aria-hidden="true" href="#启动训练脚本-1">#</a></h3>
+<p>在启动脚本之前，如果想跟踪训练过程，可以在训练过程中定期保存生成的图像。将以下参数增加到训练命令中：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">--</span><span class="n">validation_prompt</span><span class="o">=</span><span class="s2">&#34;A &lt;cat-toy&gt; train&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">--</span><span class="n">num_validation_images</span><span class="o">=</span><span class="mi">4</span>
+</span></span><span class="line"><span class="cl"><span class="o">--</span><span class="n">validation_steps</span><span class="o">=</span><span class="mi">100</span>
+</span></span></code></pre></div><p>启动训练脚本的命令如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">export</span> <span class="n">MODEL_NAME</span><span class="o">=</span><span class="s2">&#34;stable-diffusion-v1-5/stable-diffusion-v1-5&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">export</span> <span class="n">DATA_DIR</span><span class="o">=</span><span class="s2">&#34;./cat&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">accelerate</span> <span class="n">launch</span> <span class="n">textual_inversion</span><span class="o">.</span><span class="n">py</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">pretrained_model_name_or_path</span><span class="o">=</span><span class="err">$</span><span class="n">MODEL_NAME</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">train_data_dir</span><span class="o">=</span><span class="err">$</span><span class="n">DATA_DIR</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">learnable_property</span><span class="o">=</span><span class="s2">&#34;object&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">placeholder_token</span><span class="o">=</span><span class="s2">&#34;&lt;cat-toy&gt;&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">initializer_token</span><span class="o">=</span><span class="s2">&#34;toy&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">resolution</span><span class="o">=</span><span class="mi">512</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">train_batch_size</span><span class="o">=</span><span class="mi">1</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">4</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">max_train_steps</span><span class="o">=</span><span class="mi">3000</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">5.0e-04</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">scale_lr</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">lr_scheduler</span><span class="o">=</span><span class="s2">&#34;constant&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">lr_warmup_steps</span><span class="o">=</span><span class="mi">0</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;textual_inversion_cat&#34;</span> \
+</span></span><span class="line"><span class="cl">  <span class="o">--</span><span class="n">push_to_hub</span>
+</span></span></code></pre></div><p>训练结束后，可以使用新训练的模型进行推理：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">diffusers</span> <span class="kn">import</span> <span class="n">StableDiffusionPipeline</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">StableDiffusionPipeline</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&#34;stable-diffusion-v1-5/stable-diffusion-v1-5&#34;</span><span class="p">,</span> <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&#34;cuda&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">load_textual_inversion</span><span class="p">(</span><span class="s2">&#34;sd-concepts-library/cat-toy&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&#34;A &lt;cat-toy&gt; train&#34;</span><span class="p">,</span> <span class="n">num_inference_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="o">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&#34;cat-train.png&#34;</span><span class="p">)</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/diffusers/">Diffusers</a></li>
+      <li><a href="http://localhost:1313/tags/tutorials/">Tutorials</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/diffusion-model/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>What are Diffusion Models?</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>DASH实验报告</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://github.com/adityatelange/hugo-PaperMod/graphs/contributors">PaperMod Contributors</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

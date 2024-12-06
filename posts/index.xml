@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on M1YAN&#39;s Blog</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>http://localhost:1313/images/papermod-cover.png</url>
+      <link>http://localhost:1313/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.139.3</generator>
+    <language>zh</language>
+    <copyright>PaperMod Contributors</copyright>
+    <lastBuildDate>Fri, 06 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What are Diffusion Models?</title>
+      <link>http://localhost:1313/posts/diffusion-model/</link>
+      <pubDate>Fri, 06 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/diffusion-model/</guid>
+      <description>&lt;h2 id=&#34;生成模型&#34;&gt;生成模型&lt;/h2&gt;
+&lt;p&gt;目前主流的生成模型包括&lt;strong&gt;生成对抗模型 (GAN)&lt;/strong&gt;、&lt;strong&gt;变分自编码器 (VAE)&lt;strong&gt;和&lt;/strong&gt;基于流的模型 (Flow-based models)&lt;/strong&gt;。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Diffusers Tutorials</title>
+      <link>http://localhost:1313/posts/diffusers-tutorials/</link>
+      <pubDate>Mon, 07 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/diffusers-tutorials/</guid>
+      <description>&lt;h1 id=&#34;pipelines-models-and-schedulers&#34;&gt;Pipelines, models and schedulers&lt;/h1&gt;
+&lt;h2 id=&#34;解构基本pipeline&#34;&gt;解构基本pipeline&lt;/h2&gt;
+&lt;p&gt;pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;diffusers&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DDPMPipeline&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;ddpm&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DDPMPipeline&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;from_pretrained&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;google/ddpm-cat-256&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;use_safetensors&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;True&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;to&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;cuda&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;image&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ddpm&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;num_inference_steps&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;25&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;images&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;image&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    <item>
+      <title>DASH实验报告</title>
+      <link>http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/</link>
+      <pubDate>Wed, 17 Apr 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/</guid>
+      <description>&lt;h2 id=&#34;dash系统搭建流程&#34;&gt;DASH系统搭建流程&lt;/h2&gt;
+&lt;h3 id=&#34;客户端搭建&#34;&gt;客户端搭建&lt;/h3&gt;
+&lt;p&gt;首先，用git命令将&lt;code&gt;dash.js&lt;/code&gt;下载到本地.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; git clone https://github.com/Dash-Industry-Forum/dash.js.git
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在dash.js目录下，编译运行&lt;code&gt;dash.js&lt;/code&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>2023年终总结</title>
+      <link>http://localhost:1313/posts/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/</link>
+      <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/</guid>
+      <description>别赶路，去感受路。.</description>
+    </item>
+    <item>
+      <title>极大似然技术编码译码</title>
+      <link>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</link>
+      <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</guid>
+      <description>&lt;h2 id=&#34;1-实验环境&#34;&gt;1 实验环境&lt;/h2&gt;
+&lt;p&gt;语言：C++&lt;/p&gt;
+&lt;h2 id=&#34;2-实验内容&#34;&gt;2 实验内容&lt;/h2&gt;
+&lt;h3 id=&#34;21-编程实现-mn-群码&#34;&gt;2.1 编程实现 $(m,n)$ 群码&lt;/h3&gt;
+&lt;h4 id=&#34;211-输入输出&#34;&gt;2.1.1 输入输出&lt;/h4&gt;
+&lt;p&gt;输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.&lt;/p&gt;
+&lt;p&gt;输出：所有的码字，按原码对应的十进制整数升序排列.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>机器学习：向量化</title>
+      <link>http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/</link>
+      <pubDate>Thu, 26 Oct 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/</guid>
+      <description>&lt;h1 id=&#34;machine-learning-python-numpy-and-vectorization&#34;&gt;Machine Learning: Python, NumPy and Vectorization&lt;/h1&gt;
+&lt;p&gt;A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>《AI时代：命运的抉择》</title>
+      <link>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</link>
+      <pubDate>Thu, 14 Sep 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</guid>
+      <description>&lt;h1 id=&#34;第一章--林辉的独白&#34;&gt;&lt;strong&gt;第一章&lt;/strong&gt;  &lt;strong&gt;林辉的独白&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;赛博世界，第23个世纪。我，&lt;code&gt;林辉&lt;/code&gt;，一个孤寂的码农，生活在这个高度数字化的时代。曾经，这个世界充满了希望，计算机科学的巅峰技术让人类梦想无限。然而，如今，这个世界已然陷入了一片混乱，战争的阴影笼罩着未来。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>微信小程序开发-模板与配置</title>
+      <link>http://localhost:1313/posts/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E9%85%8D%E7%BD%AE/</link>
+      <pubDate>Thu, 31 Aug 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F-%E6%A8%A1%E6%9D%BF%E4%B8%8E%E9%85%8D%E7%BD%AE/</guid>
+      <description>&lt;h1 id=&#34;wxml模板&#34;&gt;WXML模板&lt;/h1&gt;
+&lt;h2 id=&#34;数据绑定&#34;&gt;数据绑定&lt;/h2&gt;
+&lt;h3 id=&#34;1-数据绑定的基本原则&#34;&gt;1. 数据绑定的基本原则&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;在data中定义数据（.js中的data对象中）&lt;/li&gt;
+&lt;li&gt;在WXML中使用数据&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
+    <item>
+      <title>微信小程序开发-起步</title>
+      <link>http://localhost:1313/posts/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91-%E8%B5%B7%E6%AD%A5/</link>
+      <pubDate>Tue, 29 Aug 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91-%E8%B5%B7%E6%AD%A5/</guid>
+      <description>&lt;h1 id=&#34;小程序项目结构&#34;&gt;小程序项目结构&lt;/h1&gt;
+&lt;h3 id=&#34;1基本组成结构&#34;&gt;1.基本组成结构&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;pages用来存放所有小程序页面&lt;/li&gt;
+&lt;li&gt;utils用来存放工具性质的模块&lt;/li&gt;
+&lt;li&gt;app.js 小程序项目的入口文件&lt;/li&gt;
+&lt;li&gt;app.json 小程序项目的全局配置文件&lt;/li&gt;
+&lt;li&gt;app.wxss 小程序项目的全局样式文件&lt;/li&gt;
+&lt;li&gt;project.config.json 用来配置小程序及其页面是否允许被微信索引&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
+    <item>
+      <title>并查集及其应用</title>
+      <link>http://localhost:1313/posts/2023221-%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/</link>
+      <pubDate>Tue, 21 Feb 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023221-%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/</guid>
+      <description>&lt;h1 id=&#34;概论&#34;&gt;概论&lt;/h1&gt;
+&lt;h2 id=&#34;定义&#34;&gt;定义&lt;/h2&gt;
+&lt;p&gt;并查集是一种树型的数据结构，用于处理一些不相交集合的合并及查询问题（即所谓的并、查）。比如说，我们可以用并查集来判断一个森林中有几棵树、某个节点是否属于某棵树等。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>查找二叉搜索树的中序后继节点</title>
+      <link>http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/</link>
+      <pubDate>Thu, 19 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/</guid>
+      <description>&lt;h1 id=&#34;核心思路&#34;&gt;核心思路&lt;/h1&gt;
+&lt;p&gt;对于一个给定的节点，他的中序后继节点有&lt;code&gt;两种情况&lt;/code&gt;:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;给定节点存在右子树时，中序后继节点即为右子树中的最小值&lt;/p&gt;
+&lt;p&gt;若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
+    <item>
+      <title>如何检查一个二叉树是否为二叉搜索树</title>
+      <link>http://localhost:1313/posts/2023119-%E5%A6%82%E4%BD%95%E6%A3%80%E6%9F%A5%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%A0%91%E6%98%AF%E5%90%A6%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</link>
+      <pubDate>Thu, 19 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023119-%E5%A6%82%E4%BD%95%E6%A3%80%E6%9F%A5%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%A0%91%E6%98%AF%E5%90%A6%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/</guid>
+      <description>&lt;h1 id=&#34;原理&#34;&gt;原理&lt;/h1&gt;
+&lt;p&gt;搜索二叉树有2个基本性质可以用于判断：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;左子树中的所有值都小于等于根节点的值，而右子树中的数据都大于根节点的值。&lt;/li&gt;
+&lt;li&gt;二叉搜索树的中序输出后数据按照非递减顺序排列&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;对于第一个性质，假设根节点数据为7，那么左子树最大不能超过7，而右子树都大于7。&lt;/p&gt;
+&lt;p&gt;所以我们可以在函数中增加参数&lt;code&gt;minValue&lt;/code&gt;和&lt;code&gt;maxValue&lt;/code&gt;，用来记录此子树中数据的范围。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>删除一个二叉搜索树的节点</title>
+      <link>http://localhost:1313/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/</link>
+      <pubDate>Thu, 19 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/</guid>
+      <description>&lt;h1 id=&#34;三种情况&#34;&gt;三种情况&lt;/h1&gt;
+&lt;ol&gt;
+&lt;li&gt;Case 1&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;删除的节点没有子节点（即该节点为叶节点）&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;操作：直接delete&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;Case 2&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;删除的节点下有一个子节点&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;操作：用左/右子树代替该节点&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;Case 3&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;删除的节点有两个子节点&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>二叉树的遍历</title>
+      <link>http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/</link>
+      <pubDate>Sun, 15 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/</guid>
+      <description>&lt;h1 id=&#34;tree-traversal&#34;&gt;Tree Traversal&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Tree traversal is a process of visiting each node in the tree exactly once in some order.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;树的遍历有2种方式，&lt;code&gt;Breadth-first（广度优先）&lt;/code&gt;和&lt;code&gt;Depth-first（深度优先）&lt;/code&gt;。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>二叉搜索树的C&#43;&#43;递归实现</title>
+      <link>http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Fri, 13 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/</guid>
+      <description>&lt;h1 id=&#34;树的介绍&#34;&gt;树的介绍&lt;/h1&gt;
+&lt;p&gt;树(Tree)作为一种数据结构，具有一种递归性。一个树可以看作是由根节点(root)以及若干子树构成，而子树又可以继续向下分成根和子树，因此树具有递归性。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;二叉树(binary tree)&lt;/code&gt;是树中的一种，它满足每个节点都有要么2个要么0个子节点的特性。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;二叉搜索树(binary search tree)&lt;/code&gt;满足左侧子树中储存的值都小于等于root，而右侧子树上的值都大于root，并且递归满足。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>队列(Queue)的数组和链表实现</title>
+      <link>http://localhost:1313/posts/2023111-%E9%98%9F%E5%88%97queue%E7%9A%84%E6%95%B0%E7%BB%84%E5%92%8C%E9%93%BE%E8%A1%A8%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Wed, 11 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023111-%E9%98%9F%E5%88%97queue%E7%9A%84%E6%95%B0%E7%BB%84%E5%92%8C%E9%93%BE%E8%A1%A8%E5%AE%9E%E7%8E%B0/</guid>
+      <description>&lt;h1 id=&#34;introduction-of-queue&#34;&gt;Introduction of Queue&lt;/h1&gt;
+&lt;p&gt;队列作为一种抽象数据结构，遵循&lt;code&gt;First-In-First-Out(FIFO)&lt;/code&gt;原则。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>使用栈实现中缀到后缀表达式的转换</title>
+      <link>http://localhost:1313/posts/2023110-%E4%BD%BF%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%AD%E7%BC%80%E5%88%B0%E5%90%8E%E7%BC%80%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E8%BD%AC%E6%8D%A2/</link>
+      <pubDate>Tue, 10 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/2023110-%E4%BD%BF%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%AD%E7%BC%80%E5%88%B0%E5%90%8E%E7%BC%80%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E8%BD%AC%E6%8D%A2/</guid>
+      <description>&lt;h1 id=&#34;前缀中缀与后缀表达式&#34;&gt;前缀、中缀与后缀表达式&lt;/h1&gt;
+&lt;p&gt;计算机中一般使用三种表达式，分别是&lt;code&gt;中缀表达式(Infix)&lt;/code&gt;、&lt;code&gt;前缀表达式(Prefix)&lt;/code&gt;、&lt;code&gt;后缀表达式(Postfix)&lt;/code&gt;。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>栈的应用：检查括号匹配性</title>
+      <link>http://localhost:1313/posts/202319-%E6%A0%88%E7%9A%84%E5%BA%94%E7%94%A8%E6%A3%80%E6%9F%A5%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D%E6%80%A7/</link>
+      <pubDate>Mon, 09 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202319-%E6%A0%88%E7%9A%84%E5%BA%94%E7%94%A8%E6%A3%80%E6%9F%A5%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D%E6%80%A7/</guid>
+      <description>&lt;h1 id=&#34;题目背景&#34;&gt;题目背景&lt;/h1&gt;
+&lt;p&gt;我们都知道，在编程语言中，我们常用多种类型的括号，&lt;code&gt;( )圆括号&lt;/code&gt;、&lt;code&gt;[ ]方括号&lt;/code&gt;、&lt;code&gt;{ }花括号&lt;/code&gt;，当括号不匹配时，编译时会发生错误。那么编译器是如何检验括号匹配性的呢？&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>用栈反转一个字符串或反转一个链表</title>
+      <link>http://localhost:1313/posts/202318-%E7%94%A8%E6%A0%88%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%96%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8/</link>
+      <pubDate>Sun, 08 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202318-%E7%94%A8%E6%A0%88%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%96%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8/</guid>
+      <description>&lt;h1 id=&#34;introduction-of-stack&#34;&gt;Introduction of Stack&lt;/h1&gt;
+&lt;p&gt;栈是一种数据结构，属于抽象数据结构(ADT)，遵循Last-In-First-Out(LIFO)原则。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>双向链表(Doubly Linked List)</title>
+      <link>http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/</link>
+      <pubDate>Thu, 05 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/</guid>
+      <description>双向链表的输出及插入</description>
+    </item>
+    <item>
+      <title>反转链表（迭代及递归实现）</title>
+      <link>http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Tue, 03 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/</guid>
+      <description>&lt;p&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://pic3.zhimg.com/80/v2-c610a28038b0cfba44431bfe4ac48e24_r.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;从上图中可以看出，反转一个链表只需要改变Node.link。&lt;/p&gt;
+&lt;h2 id=&#34;i-迭代实现&#34;&gt;I. 迭代实现&lt;/h2&gt;
+&lt;h3 id=&#34;思路&#34;&gt;思路&lt;/h3&gt;
+&lt;p&gt;设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Linked list - Implementation in C</title>
+      <link>http://localhost:1313/posts/202312-linked-list---implementation-in-c/</link>
+      <pubDate>Mon, 02 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202312-linked-list---implementation-in-c/</guid>
+      <description>&lt;p&gt;链表是一种常见的数据结构，它的基本单位是node，由data和link两部分组成。&lt;/p&gt;
+&lt;h2 id=&#34;创建一个链表需要以下几个步骤&#34;&gt;创建一个链表需要以下几个步骤：&lt;/h2&gt;
+&lt;h3 id=&#34;1创建节点的结构体&#34;&gt;1.创建节点的结构体&lt;/h3&gt;
+&lt;p&gt;一个简单的结构体，由数据和结构体指针构成，代码如下：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>在链表的任意位置插入一个节点</title>
+      <link>http://localhost:1313/posts/202312-%E5%9C%A8%E9%93%BE%E8%A1%A8%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9/</link>
+      <pubDate>Mon, 02 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/202312-%E5%9C%A8%E9%93%BE%E8%A1%A8%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9/</guid>
+      <description>用C语言实现在链表的任意位置插入一个节点</description>
+    </item>
+  </channel>
+</rss>

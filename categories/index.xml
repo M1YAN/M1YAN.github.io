@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Categories on M1YAN&#39;s Blog</title>
+    <link>http://localhost:1313/categories/</link>
+    <description>Recent content in Categories on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>http://localhost:1313/images/papermod-cover.png</url>
+      <link>http://localhost:1313/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.139.3</generator>
+    <language>zh</language>
+    <copyright>PaperMod Contributors</copyright>
+    <lastBuildDate>Mon, 07 Oct 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Diffusers</title>
+      <link>http://localhost:1313/categories/diffusers/</link>
+      <pubDate>Mon, 07 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/categories/diffusers/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>计算机网络大作业</title>
+      <link>http://localhost:1313/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
+      <pubDate>Wed, 17 Apr 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%A4%A7%E4%BD%9C%E4%B8%9A/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>年终总结</title>
+      <link>http://localhost:1313/categories/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/categories/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>大作业</title>
+      <link>http://localhost:1313/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
+      <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>机器学习：向量化 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Machine Learning: Python, NumPy and Vectorization
+A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script><meta property="og:url" content="http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="机器学习：向量化">
+  <meta property="og:description" content="Machine Learning: Python, NumPy and Vectorization A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-10-26T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-10-26T00:00:00+00:00">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="机器学习：向量化">
+<meta name="twitter:description" content="Machine Learning: Python, NumPy and Vectorization
+A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "机器学习：向量化",
+      "item": "http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "机器学习：向量化",
+  "name": "机器学习：向量化",
+  "description": "Machine Learning: Python, NumPy and Vectorization A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "Machine Learning: Python, NumPy and Vectorization A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.\nimport numpy as np # it is an unofficial standard to use np for numpy import time 1.1 Goals In this lab, you will:\nReview the features of NumPy and Python that are used in Course 1 1.2 Useful References NumPy Documentation including a basic introduction: NumPy.org A challenging feature topic: NumPy Broadcasting 2 Python and NumPy Python is the programming language we will be using in this course. It has a set of numeric data types and arithmetic operations. NumPy is a library that extends the base capabilities of python to add a richer data set including more numeric types, vectors, matrices, and many matrix functions. NumPy and python work together fairly seamlessly. Python arithmetic operators work on NumPy data types and many NumPy functions will accept python data types.\n3 Vectors 3.1 Abstract Vectors, as you will use them in this course, are ordered arrays of numbers. In notation, vectors are denoted with lower case bold letters such as $\\mathbf{x}$. The elements of a vector are all the same type. A vector does not, for example, contain both characters and numbers. The number of elements in the array is often referred to as the dimension though mathematicians may prefer rank. The vector shown has a dimension of $n$. The elements of a vector can be referenced with an index. In math settings, indexes typically run from 1 to n. In computer science and these labs, indexing will typically run from 0 to n-1. In notation, elements of a vector, when referenced individually will indicate the index in a subscript, for example, the $0^{th}$ element, of the vector $\\mathbf{x}$ is $x_0$. Note, the x is not bold in this case.\n3.2 NumPy Arrays NumPy’s basic data structure is an indexable, n-dimensional array containing elements of the same type (dtype). Right away, you may notice we have overloaded the term ‘dimension’. Above, it was the number of elements in the vector, here, dimension refers to the number of indexes of an array. A one-dimensional or 1-D array has one index. In Course 1, we will represent vectors as NumPy 1-D arrays.\n1-D array, shape (n,): n elements indexed [0] through [n-1] 3.3 Vector Creation Data creation routines in NumPy will generally have a first parameter which is the shape of the object. This can either be a single value for a 1-D result or a tuple (n,m,…) specifying the shape of the result. Below are examples of creating vectors using these routines.\nNumPy 中的数据创建例程通常会有一个第一个参数，即对象的形状。它既可以是 1-D 结果的单个值，也可以是指定结果形状的元组（n,m,…）。下面是使用这些例程创建向量的示例。\n# NumPy routines which allocate memory and fill arrays with value a = np.zeros(4); print(f\"np.zeros(4) : a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") a = np.zeros((4,)); print(f\"np.zeros(4,) : a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") a = np.random.random_sample(4); print(f\"np.random.random_sample(4): a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") np.zeros(4) : a = [0. 0. 0. 0.], a shape = (4,), a data type = float64 np.zeros(4,) : a = [0. 0. 0. 0.], a shape = (4,), a data type = float64 np.random.random_sample(4): a = [0.56782114 0.98895696 0.02752085 0.54867385], a shape = (4,), a data type = float64 Some data creation routines do not take a shape tuple:\n# NumPy routines which allocate memory and fill arrays with value but do not accept shape as input argument a = np.arange(4.); print(f\"np.arange(4.): a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") a = np.random.rand(4); print(f\"np.random.rand(4): a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") np.arange(4.): a = [0. 1. 2. 3.], a shape = (4,), a data type = float64 np.random.rand(4): a = [0.19846167 0.80498665 0.46939954 0.6431181 ], a shape = (4,), a data type = float64 values can be specified manually as well.\n手动指定向量值\n# NumPy routines which allocate memory and fill with user specified values a = np.array([5,4,3,2]); print(f\"np.array([5,4,3,2]): a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") a = np.array([5.,4,3,2]); print(f\"np.array([5.,4,3,2]): a = {a}, a shape = {a.shape}, a data type = {a.dtype}\") np.array([5,4,3,2]): a = [5 4 3 2], a shape = (4,), a data type = int64 np.array([5.,4,3,2]): a = [5. 4. 3. 2.], a shape = (4,), a data type = float64 These have all created a one-dimensional vector a with four elements. a.shape returns the dimensions. Here we see a.shape = (4,) indicating a 1-d array with 4 elements.\na(shape) = (4,) 表示有四个一维数组元素\n3.4 Operations on Vectors Let’s explore some operations using vectors.\n3.4.1 Indexing Elements of vectors can be accessed via indexing and slicing. NumPy provides a very complete set of indexing and slicing capabilities. We will explore only the basics needed for the course here. Reference Slicing and Indexing for more details.\nIndexing means referring to an element of an array by its position within the array.\nSlicing means getting a subset of elements from an array based on their indices.\nNumPy starts indexing at zero so the 3rd element of an vector $\\mathbf{a}$ is a[2].\n#vector indexing operations on 1-D vectors a = np.arange(10) print(a) #access an element print(f\"a[2].shape: {a[2].shape} a[2] = {a[2]}, Accessing an element returns a scalar\") # access the last element, negative indexes count from the end print(f\"a[-1] = {a[-1]}\") #indexs must be within the range of the vector or they will produce and error try: c = a[10] except Exception as e: print(\"The error message you'll see is:\") print(e) [0 1 2 3 4 5 6 7 8 9] a[2].shape: () a[2] = 2, Accessing an element returns a scalar a[-1] = 9 The error message you'll see is: index 10 is out of bounds for axis 0 with size 10 3.4.2 Slicing Slicing creates an array of indices using a set of three values (start:stop:step). A subset of values is also valid. Its use is best explained by example:\n#vector slicing operations a = np.arange(10) print(f\"a = {a}\") #access 5 consecutive elements (start:stop:step) c = a[2:7:1]; print(\"a[2:7:1] = \", c) # access 3 elements separated by two c = a[2:7:2]; print(\"a[2:7:2] = \", c) # access all elements index 3 and above c = a[3:]; print(\"a[3:] = \", c) # access all elements below index 3 c = a[:3]; print(\"a[:3] = \", c) # access all elements c = a[:]; print(\"a[:] = \", c) a = [0 1 2 3 4 5 6 7 8 9] a[2:7:1] = [2 3 4 5 6] a[2:7:2] = [2 4 6] a[3:] = [3 4 5 6 7 8 9] a[:3] = [0 1 2] a[:] = [0 1 2 3 4 5 6 7 8 9] 3.4.3 Single vector operations There are a number of useful operations that involve operations on a single vector.\na = np.array([1,2,3,4]) print(f\"a : {a}\") # negate elements of a b = -a print(f\"b = -a : {b}\") # sum all elements of a, returns a scalar b = np.sum(a) print(f\"b = np.sum(a) : {b}\") b = np.mean(a) print(f\"b = np.mean(a): {b}\") b = a**2 print(f\"b = a**2 : {b}\") a : [1 2 3 4] b = -a : [-1 -2 -3 -4] b = np.sum(a) : 10 b = np.mean(a): 2.5 b = a**2 : [ 1 4 9 16] 3.4.4 Vector Vector element-wise operations Most of the NumPy arithmetic, logical and comparison operations apply to vectors as well. These operators work on an element-by-element basis. For example $$ c_i = a_i + b_i $$\na = np.array([ 1, 2, 3, 4]) b = np.array([-1,-2, 3, 4]) print(f\"Binary operators work element wise: {a + b}\") Binary operators work element wise: [0 0 6 8] Of course, for this to work correctly, the vectors must be of the same size:\n#try a mismatched vector operation c = np.array([1, 2]) try: d = a + c except Exception as e: print(\"The error message you'll see is:\") print(e) The error message you'll see is: operands could not be broadcast together with shapes (4,) (2,) 3.4.5 Scalar Vector operations Vectors can be ‘scaled’ by scalar values. A scalar value is just a number. The scalar multiplies all the elements of the vector.\na = np.array([1, 2, 3, 4]) # multiply a by a scalar b = 5 * a print(f\"b = 5 * a : {b}\") b = 5 * a : [ 5 10 15 20] 3.4.6 Vector Vector dot product The dot product is a mainstay of Linear Algebra and NumPy. This is an operation used extensively in this course and should be well understood. The dot product is shown below.\nThe dot product multiplies the values in two vectors element-wise and then sums the result. Vector dot product requires the dimensions of the two vectors to be the same.\nLet’s implement our own version of the dot product below:\nUsing a for loop, implement a function which returns the dot product of two vectors. The function to return given inputs $a$ and $b$: $$ x = \\sum_{i=0}^{n-1} a_i b_i $$ Assume both a and b are the same shape.\ndef my_dot(a, b): \"\"\" Compute the dot product of two vectors Args: a (ndarray (n,)): input vector b (ndarray (n,)): input vector with same dimension as a Returns: x (scalar): \"\"\" x=0 for i in range(a.shape[0]): x = x + a[i] * b[i] return x # test 1-D a = np.array([1, 2, 3, 4]) b = np.array([-1, 4, 3, 2]) print(f\"my_dot(a, b) = {my_dot(a, b)}\") my_dot(a, b) = 24 Note, the dot product is expected to return a scalar value.\nLet’s try the same operations using np.dot.\n# test 1-D a = np.array([1, 2, 3, 4]) b = np.array([-1, 4, 3, 2]) c = np.dot(a, b) print(f\"NumPy 1-D np.dot(a, b) = {c}, np.dot(a, b).shape = {c.shape} \") c = np.dot(b, a) print(f\"NumPy 1-D np.dot(b, a) = {c}, np.dot(a, b).shape = {c.shape} \") NumPy 1-D np.dot(a, b) = 24, np.dot(a, b).shape = () NumPy 1-D np.dot(b, a) = 24, np.dot(a, b).shape = () Above, you will note that the results for 1-D matched our implementation.\n3.4.7 The Need for Speed: vector vs for loop We utilized the NumPy library because it improves speed memory efficiency. Let’s demonstrate:\nnp.random.seed(1) a = np.random.rand(10000000) # very large arrays b = np.random.rand(10000000) tic = time.time() # capture start time c = np.dot(a, b) toc = time.time() # capture end time print(f\"np.dot(a, b) = {c:.4f}\") print(f\"Vectorized version duration: {1000*(toc-tic):.4f} ms \") tic = time.time() # capture start time c = my_dot(a,b) toc = time.time() # capture end time print(f\"my_dot(a, b) = {c:.4f}\") print(f\"loop version duration: {1000*(toc-tic):.4f} ms \") del(a);del(b) #remove these big arrays from memory np.dot(a, b) = 2501072.5817 Vectorized version duration: 179.0733 ms my_dot(a, b) = 2501072.5817 loop version duration: 9144.5312 ms So, vectorization provides a large speed up in this example. This is because NumPy makes better use of available data parallelism in the underlying hardware. GPU’s and modern CPU’s implement Single Instruction, Multiple Data (SIMD) pipelines allowing multiple operations to be issued in parallel. This is critical in Machine Learning where the data sets are often very large.\n3.4.8 Vector Vector operations in Course 1 Vector Vector operations will appear frequently in course 1. Here is why:\nGoing forward, our examples will be stored in an array, X_train of dimension (m,n). This will be explained more in context, but here it is important to note it is a 2 Dimensional array or matrix (see next section on matrices). w will be a 1-dimensional vector of shape (n,). we will perform operations by looping through the examples, extracting each example to work on individually by indexing X. For example:X[i] X[i] returns a value of shape (n,), a 1-dimensional vector. Consequently, operations involving X[i] are often vector-vector. That is a somewhat lengthy explanation, but aligning and understanding the shapes of your operands is important when performing vector operations.\n# show common Course 1 example X = np.array([[1],[2],[3],[4]]) w = np.array([2]) c = np.dot(X[1], w) print(f\"X[1] has shape {X[1].shape}\") print(f\"w has shape {w.shape}\") print(f\"c has shape {c.shape}\") X[1] has shape (1,) w has shape (1,) c has shape () 4 Matrices 4.1 Abstract Matrices, are two dimensional arrays. The elements of a matrix are all of the same type. In notation, matrices are denoted with capitol, bold letter such as $\\mathbf{X}$. In this and other labs, m is often the number of rows and n the number of columns. The elements of a matrix can be referenced with a two dimensional index. In math settings, numbers in the index typically run from 1 to n. In computer science and these labs, indexing will run from 0 to n-1.\n4.2 NumPy Arrays NumPy’s basic data structure is an indexable, n-dimensional array containing elements of the same type (dtype). These were described earlier. Matrices have a two-dimensional (2-D) index [m,n].\nIn Course 1, 2-D matrices are used to hold training data. Training data is $m$ examples by $n$ features creating an (m,n) array. Course 1 does not do operations directly on matrices but typically extracts an example as a vector and operates on that. Below you will review:\ndata creation slicing and indexing 4.3 Matrix Creation The same functions that created 1-D vectors will create 2-D or n-D arrays. Here are some examples\nBelow, the shape tuple is provided to achieve a 2-D result. Notice how NumPy uses brackets to denote each dimension. Notice further than NumPy, when printing, will print one row per line.\na = np.zeros((1, 5)) print(f\"a shape = {a.shape}, a = {a}\") a = np.zeros((2, 1)) print(f\"a shape = {a.shape}, a = {a}\") a = np.random.random_sample((1, 1)) print(f\"a shape = {a.shape}, a = {a}\") a shape = (1, 5), a = [[0. 0. 0. 0. 0.]] a shape = (2, 1), a = [[0.] [0.]] a shape = (1, 1), a = [[0.44236513]] One can also manually specify data. Dimensions are specified with additional brackets matching the format in the printing above.\n# NumPy routines which allocate memory and fill with user specified values a = np.array([[5], [4], [3]]); print(f\" a shape = {a.shape}, np.array: a = {a}\") a = np.array([[5], # One can also [4], # separate values [3]]); #into separate rows print(f\" a shape = {a.shape}, np.array: a = {a}\") a shape = (3, 1), np.array: a = [[5] [4] [3]] a shape = (3, 1), np.array: a = [[5] [4] [3]] 4.4 Operations on Matrices Let’s explore some operations using matrices.\n4.4.1 Indexing Matrices include a second index. The two indexes describe [row, column]. Access can either return an element or a row/column. See below:\n#vector indexing operations on matrices a = np.arange(6).reshape(-1, 2) #reshape is a convenient way to create matrices print(f\"a.shape: {a.shape}, \\na= {a}\") #access an element print(f\"\\na[2,0].shape: {a[2, 0].shape}, a[2,0] = {a[2, 0]}, type(a[2,0]) = {type(a[2, 0])} Accessing an element returns a scalar\\n\") #access a row print(f\"a[2].shape: {a[2].shape}, a[2] = {a[2]}, type(a[2]) = {type(a[2])}\") a.shape: (3, 2), a= [[0 1] [2 3] [4 5]] a[2,0].shape: (), a[2,0] = 4, type(a[2,0]) = ",
+  "wordCount" : "3004",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-10-26T00:00:00Z",
+  "dateModified": "2023-10-26T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      机器学习：向量化
+    </h1>
+    <div class="post-meta"><span title='2023-10-26 00:00:00 +0000 UTC'>十月 26, 2023</span>&nbsp;·&nbsp;6 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/%e6%9c%ba%e5%99%a8%e5%ad%a6%e4%b9%a01.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#machine-learning-python-numpy-and-vectorization" aria-label="Machine Learning: Python, NumPy and Vectorization">Machine Learning: Python, NumPy and Vectorization</a><ul>
+                        
+                <li>
+                    <a href="#11-goals" aria-label="1.1 Goals">1.1 Goals</a></li>
+                <li>
+                    <a href="#12-useful-references" aria-label="1.2 Useful References">1.2 Useful References</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2-python-and-numpy" aria-label="2 Python and NumPy">2 Python and NumPy</a></li>
+                <li>
+                    <a href="#3-vectors" aria-label="3 Vectors">3 Vectors</a><ul>
+                        
+                <li>
+                    <a href="#31-abstract" aria-label="3.1 Abstract">3.1 Abstract</a></li>
+                <li>
+                    <a href="#32-numpy-arrays" aria-label="3.2 NumPy Arrays">3.2 NumPy Arrays</a></li>
+                <li>
+                    <a href="#33-vector-creation" aria-label="3.3 Vector Creation">3.3 Vector Creation</a></li>
+                <li>
+                    <a href="#34-operations-on-vectors" aria-label="3.4 Operations on Vectors">3.4 Operations on Vectors</a><ul>
+                        
+                <li>
+                    <a href="#341-indexing" aria-label="3.4.1 Indexing">3.4.1 Indexing</a></li>
+                <li>
+                    <a href="#342-slicing" aria-label="3.4.2 Slicing">3.4.2 Slicing</a></li>
+                <li>
+                    <a href="#343-single-vector-operations" aria-label="3.4.3 Single vector operations">3.4.3 Single vector operations</a></li>
+                <li>
+                    <a href="#344-vector-vector-element-wise-operations" aria-label="3.4.4 Vector Vector element-wise operations">3.4.4 Vector Vector element-wise operations</a></li>
+                <li>
+                    <a href="#345-scalar-vector-operations" aria-label="3.4.5 Scalar Vector operations">3.4.5 Scalar Vector operations</a></li>
+                <li>
+                    <a href="#346-vector-vector-dot-product" aria-label="3.4.6 Vector Vector dot product">3.4.6 Vector Vector dot product</a></li>
+                <li>
+                    <a href="#347-the-need-for-speed-vector-vs-for-loop" aria-label="3.4.7 The Need for Speed: vector vs for loop">3.4.7 The Need for Speed: vector vs for loop</a></li>
+                <li>
+                    <a href="#348-vector-vector-operations-in-course-1" aria-label="3.4.8 Vector Vector operations in Course 1">3.4.8 Vector Vector operations in Course 1</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#4-matrices" aria-label="4 Matrices">4 Matrices</a><ul>
+                        
+                <li>
+                    <a href="#41-abstract" aria-label="4.1 Abstract">4.1 Abstract</a></li>
+                <li>
+                    <a href="#42-numpy-arrays" aria-label="4.2 NumPy Arrays">4.2 NumPy Arrays</a></li>
+                <li>
+                    <a href="#43-matrix-creation" aria-label="4.3 Matrix Creation">4.3 Matrix Creation</a></li>
+                <li>
+                    <a href="#44-operations-on-matrices" aria-label="4.4 Operations on Matrices">4.4 Operations on Matrices</a><ul>
+                        
+                <li>
+                    <a href="#441-indexing" aria-label="4.4.1 Indexing">4.4.1 Indexing</a></li>
+                <li>
+                    <a href="#442-slicing" aria-label="4.4.2 Slicing">4.4.2 Slicing</a></li></ul>
+                </li>
+                <li>
+                    <a href="#congratulations" aria-label="Congratulations!">Congratulations!</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="machine-learning-python-numpy-and-vectorization">Machine Learning: Python, NumPy and Vectorization<a hidden class="anchor" aria-hidden="true" href="#machine-learning-python-numpy-and-vectorization">#</a></h1>
+<p>A brief introduction to some of the scientific computing used in this course. In particular the NumPy scientific computing package and its use with python.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>    <span class="c1"># it is an unofficial standard to use np for numpy</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span></code></pre></div><h2 id="11-goals">1.1 Goals<a hidden class="anchor" aria-hidden="true" href="#11-goals">#</a></h2>
+<p>In this lab, you will:</p>
+<ul>
+<li>Review the features of NumPy and Python that are used in Course 1</li>
+</ul>
+<h2 id="12-useful-references">1.2 Useful References<a hidden class="anchor" aria-hidden="true" href="#12-useful-references">#</a></h2>
+<ul>
+<li>NumPy Documentation including a basic introduction: <a href="https://NumPy.org/doc/stable/">NumPy.org</a></li>
+<li>A challenging feature topic: <a href="https://NumPy.org/doc/stable/user/basics.broadcasting.html">NumPy Broadcasting</a></li>
+</ul>
+<h1 id="2-python-and-numpy">2 Python and NumPy<a hidden class="anchor" aria-hidden="true" href="#2-python-and-numpy">#</a></h1>
+<p>Python is the programming language we will be using in this course. It has a set of numeric data types and arithmetic operations. NumPy is a library that extends the base capabilities of python to add a richer data set including more numeric types, vectors, matrices, and many matrix functions. NumPy and python  work together fairly seamlessly. Python arithmetic operators work on NumPy data types and many NumPy functions will accept python data types.</p>
+<h1 id="3-vectors">3 Vectors<a hidden class="anchor" aria-hidden="true" href="#3-vectors">#</a></h1>
+<h2 id="31-abstract">3.1 Abstract<a hidden class="anchor" aria-hidden="true" href="#31-abstract">#</a></h2>
+<p><img loading="lazy" src="https://z1.ax1x.com/2023/10/26/piZ871x.png"></p>
+<p>Vectors, as you will use them in this course, are ordered arrays of numbers. In notation, vectors are denoted with lower case bold letters such as $\mathbf{x}$.  The elements of a vector are all the same type. A vector does not, for example, contain both characters and numbers. The number of elements in the array is often referred to as the <em>dimension</em> though mathematicians may prefer <em>rank</em>. The vector shown has a dimension of $n$. The elements of a vector can be referenced with an index. In math settings, indexes typically run from 1 to n. In computer science and these labs, indexing will typically run from 0 to n-1.  In notation, elements of a vector, when referenced individually will indicate the index in a subscript, for example, the $0^{th}$ element, of the vector $\mathbf{x}$ is $x_0$. Note, the x is not bold in this case.</p>
+<h2 id="32-numpy-arrays">3.2 NumPy Arrays<a hidden class="anchor" aria-hidden="true" href="#32-numpy-arrays">#</a></h2>
+<p>NumPy&rsquo;s basic data structure is an indexable, n-dimensional <em>array</em> containing elements of the same type (<code>dtype</code>). Right away, you may notice we have overloaded the term &lsquo;dimension&rsquo;. Above, it was the number of elements in the vector, here, dimension refers to the number of indexes of an array. A one-dimensional or 1-D array has one index. In Course 1, we will represent vectors as NumPy 1-D arrays.</p>
+<ul>
+<li>1-D array, shape (n,): n elements indexed [0] through [n-1]</li>
+</ul>
+<h2 id="33-vector-creation">3.3 Vector Creation<a hidden class="anchor" aria-hidden="true" href="#33-vector-creation">#</a></h2>
+<p>Data creation routines in NumPy will generally have a first parameter which is the shape of the object. This can either be a single value for a 1-D result or a tuple (n,m,&hellip;) specifying the shape of the result. Below are examples of creating vectors using these routines.</p>
+<blockquote>
+<p>NumPy 中的数据创建例程通常会有一个第一个参数，即对象的形状。它既可以是 1-D 结果的单个值，也可以是指定结果形状的元组（n,m,&hellip;）。下面是使用这些例程创建向量的示例。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># NumPy routines which allocate memory and fill arrays with value</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.zeros(4) :   a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,));</span>             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.zeros(4,) :  a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.random.random_sample(4): a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>np.zeros(4) :   a = [0. 0. 0. 0.], a shape = (4,), a data type = float64
+np.zeros(4,) :  a = [0. 0. 0. 0.], a shape = (4,), a data type = float64
+np.random.random_sample(4): a = [0.56782114 0.98895696 0.02752085 0.54867385], a shape = (4,), a data type = float64
+</code></pre>
+<p>Some data creation routines do not take a shape tuple:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># NumPy routines which allocate memory and fill arrays with value but do not accept shape as input argument</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">4.</span><span class="p">);</span>              <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.arange(4.):     a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>          <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.random.rand(4): a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>np.arange(4.):     a = [0. 1. 2. 3.], a shape = (4,), a data type = float64
+np.random.rand(4): a = [0.19846167 0.80498665 0.46939954 0.6431181 ], a shape = (4,), a data type = float64
+</code></pre>
+<p>values can be specified manually as well.</p>
+<blockquote>
+<p>手动指定向量值</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># NumPy routines which allocate memory and fill with user specified values</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.array([5,4,3,2]):  a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">,     a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">5.</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.array([5.,4,3,2]): a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">, a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a data type = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>np.array([5,4,3,2]):  a = [5 4 3 2],     a shape = (4,), a data type = int64
+np.array([5.,4,3,2]): a = [5. 4. 3. 2.], a shape = (4,), a data type = float64
+</code></pre>
+<p>These have all created a one-dimensional vector  <code>a</code> with four elements. <code>a.shape</code> returns the dimensions. Here we see a.shape = <code>(4,)</code> indicating a 1-d array with 4 elements.</p>
+<blockquote>
+<p>a(shape) = (4,) 表示有四个一维数组元素</p>
+</blockquote>
+<h2 id="34-operations-on-vectors">3.4 Operations on Vectors<a hidden class="anchor" aria-hidden="true" href="#34-operations-on-vectors">#</a></h2>
+<p>Let&rsquo;s explore some operations using vectors.</p>
+<h3 id="341-indexing">3.4.1 Indexing<a hidden class="anchor" aria-hidden="true" href="#341-indexing">#</a></h3>
+<p>Elements of vectors can be accessed via indexing and slicing. NumPy provides a very complete set of indexing and slicing capabilities. We will explore only the basics needed for the course here. Reference <a href="https://NumPy.org/doc/stable/reference/arrays.indexing.html">Slicing and Indexing</a> for more details.<br>
+<strong>Indexing</strong> means referring to <em>an element</em> of an array by its position within the array.<br>
+<strong>Slicing</strong> means getting a <em>subset</em> of elements from an array based on their indices.<br>
+NumPy starts indexing at zero so the 3rd element of an vector $\mathbf{a}$ is <code>a[2]</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#vector indexing operations on 1-D vectors</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access an element</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a[2].shape: </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> a[2]  = </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, Accessing an element returns a scalar&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access the last element, negative indexes count from the end</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a[-1] = </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#indexs must be within the range of the vector or they will produce and error</span>
+</span></span><span class="line"><span class="cl"><span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The error message you&#39;ll see is:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>[0 1 2 3 4 5 6 7 8 9]
+a[2].shape: () a[2]  = 2, Accessing an element returns a scalar
+a[-1] = 9
+The error message you'll see is:
+index 10 is out of bounds for axis 0 with size 10
+</code></pre>
+<h3 id="342-slicing">3.4.2 Slicing<a hidden class="anchor" aria-hidden="true" href="#342-slicing">#</a></h3>
+<p>Slicing creates an array of indices using a set of three values (<code>start:stop:step</code>). A subset of values is also valid. Its use is best explained by example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#vector slicing operations</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a         = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access 5 consecutive elements (start:stop:step)</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[2:7:1] = &#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access 3 elements separated by two </span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">2</span><span class="p">];</span>     <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[2:7:2] = &#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access all elements index 3 and above</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">:];</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[3:]    = &#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access all elements below index 3</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:</span><span class="mi">3</span><span class="p">];</span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[:3]    = &#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access all elements</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:];</span>         <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[:]     = &#34;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>a         = [0 1 2 3 4 5 6 7 8 9]
+a[2:7:1] =  [2 3 4 5 6]
+a[2:7:2] =  [2 4 6]
+a[3:]    =  [3 4 5 6 7 8 9]
+a[:3]    =  [0 1 2]
+a[:]     =  [0 1 2 3 4 5 6 7 8 9]
+</code></pre>
+<h3 id="343-single-vector-operations">3.4.3 Single vector operations<a hidden class="anchor" aria-hidden="true" href="#343-single-vector-operations">#</a></h3>
+<p>There are a number of useful operations that involve operations on a single vector.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a             : </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># negate elements of a</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span> 
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;b = -a        : </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># sum all elements of a, returns a scalar</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;b = np.sum(a) : </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;b = np.mean(a): </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">**</span><span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;b = a**2      : </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>a             : [1 2 3 4]
+b = -a        : [-1 -2 -3 -4]
+b = np.sum(a) : 10
+b = np.mean(a): 2.5
+b = a**2      : [ 1  4  9 16]
+</code></pre>
+<h3 id="344-vector-vector-element-wise-operations">3.4.4 Vector Vector element-wise operations<a hidden class="anchor" aria-hidden="true" href="#344-vector-vector-element-wise-operations">#</a></h3>
+<p>Most of the NumPy arithmetic, logical and comparison operations apply to vectors as well. These operators work on an element-by-element basis. For example
+$$ c_i = a_i + b_i $$</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Binary operators work element wise: </span><span class="si">{</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>Binary operators work element wise: [0 0 6 8]
+</code></pre>
+<p>Of course, for this to work correctly, the vectors must be of the same size:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#try a mismatched vector operation</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">d</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">c</span>
+</span></span><span class="line"><span class="cl"><span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The error message you&#39;ll see is:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>The error message you'll see is:
+operands could not be broadcast together with shapes (4,) (2,) 
+</code></pre>
+<h3 id="345-scalar-vector-operations">3.4.5 Scalar Vector operations<a hidden class="anchor" aria-hidden="true" href="#345-scalar-vector-operations">#</a></h3>
+<p>Vectors can be &lsquo;scaled&rsquo; by scalar values. A scalar value is just a number. The scalar multiplies all the elements of the vector.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># multiply a by a scalar</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">a</span> 
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;b = 5 * a : </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>b = 5 * a : [ 5 10 15 20]
+</code></pre>
+<h3 id="346-vector-vector-dot-product">3.4.6 Vector Vector dot product<a hidden class="anchor" aria-hidden="true" href="#346-vector-vector-dot-product">#</a></h3>
+<p>The dot product is a mainstay of Linear Algebra and NumPy. This is an operation used extensively in this course and should be well understood. The dot product is shown below.</p>
+<p>The dot product multiplies the values in two vectors element-wise and then sums the result.
+Vector dot product requires the dimensions of the two vectors to be the same.</p>
+<p>Let&rsquo;s implement our own version of the dot product below:</p>
+<p><strong>Using a for loop</strong>, implement a function which returns the dot product of two vectors. The function to return given inputs $a$ and $b$:
+$$ x = \sum_{i=0}^{n-1} a_i b_i $$
+Assume both <code>a</code> and <code>b</code> are the same shape.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">my_dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span> 
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">   Compute the dot product of two vectors
+</span></span></span><span class="line"><span class="cl"><span class="s2"> 
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Args:
+</span></span></span><span class="line"><span class="cl"><span class="s2">      a (ndarray (n,)):  input vector 
+</span></span></span><span class="line"><span class="cl"><span class="s2">      b (ndarray (n,)):  input vector with same dimension as a
+</span></span></span><span class="line"><span class="cl"><span class="s2">    
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Returns:
+</span></span></span><span class="line"><span class="cl"><span class="s2">      x (scalar): 
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">x</span><span class="o">=</span><span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># test 1-D</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;my_dot(a, b) = </span><span class="si">{</span><span class="n">my_dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>my_dot(a, b) = 24
+</code></pre>
+<p>Note, the dot product is expected to return a scalar value.</p>
+<p>Let&rsquo;s try the same operations using <code>np.dot</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># test 1-D</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;NumPy 1-D np.dot(a, b) = </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">, np.dot(a, b).shape = </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> &#34;</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;NumPy 1-D np.dot(b, a) = </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">, np.dot(a, b).shape = </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> &#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>NumPy 1-D np.dot(a, b) = 24, np.dot(a, b).shape = () 
+NumPy 1-D np.dot(b, a) = 24, np.dot(a, b).shape = () 
+</code></pre>
+<p>Above, you will note that the results for 1-D matched our implementation.</p>
+<h3 id="347-the-need-for-speed-vector-vs-for-loop">3.4.7 The Need for Speed: vector vs for loop<a hidden class="anchor" aria-hidden="true" href="#347-the-need-for-speed-vector-vs-for-loop">#</a></h3>
+<p>We utilized the NumPy  library because it improves speed memory efficiency. Let&rsquo;s demonstrate:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>  <span class="c1"># very large arrays</span>
+</span></span><span class="line"><span class="cl"><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># capture start time</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># capture end time</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;np.dot(a, b) =  </span><span class="si">{</span><span class="n">c</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Vectorized version duration: </span><span class="si">{</span><span class="mi">1000</span><span class="o">*</span><span class="p">(</span><span class="n">toc</span><span class="o">-</span><span class="n">tic</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ms &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># capture start time</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">my_dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">toc</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># capture end time</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;my_dot(a, b) =  </span><span class="si">{</span><span class="n">c</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;loop version duration: </span><span class="si">{</span><span class="mi">1000</span><span class="o">*</span><span class="p">(</span><span class="n">toc</span><span class="o">-</span><span class="n">tic</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ms &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">del</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="k">del</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>  <span class="c1">#remove these big arrays from memory</span>
+</span></span></code></pre></div><pre><code>np.dot(a, b) =  2501072.5817
+Vectorized version duration: 179.0733 ms 
+my_dot(a, b) =  2501072.5817
+loop version duration: 9144.5312 ms 
+</code></pre>
+<p>So, vectorization provides a large speed up in this example. This is because NumPy makes better use of available data parallelism in the underlying hardware. GPU&rsquo;s and modern CPU&rsquo;s implement Single Instruction, Multiple Data (SIMD) pipelines allowing multiple operations to be issued in parallel. This is critical in Machine Learning where the data sets are often very large.</p>
+<h3 id="348-vector-vector-operations-in-course-1">3.4.8 Vector Vector operations in Course 1<a hidden class="anchor" aria-hidden="true" href="#348-vector-vector-operations-in-course-1">#</a></h3>
+<p>Vector Vector operations will appear frequently in course 1. Here is why:</p>
+<ul>
+<li>Going forward, our examples will be stored in an array, <code>X_train</code> of dimension (m,n). This will be explained more in context, but here it is important to note it is a 2 Dimensional array or matrix (see next section on matrices).</li>
+<li><code>w</code> will be a 1-dimensional vector of shape (n,).</li>
+<li>we will perform operations by looping through the examples, extracting each example to work on individually by indexing X. For example:<code>X[i]</code></li>
+<li><code>X[i]</code> returns a value of shape (n,), a 1-dimensional vector. Consequently, operations involving <code>X[i]</code> are often vector-vector.</li>
+</ul>
+<p>That is a somewhat lengthy explanation, but aligning and understanding the shapes of your operands is important when performing vector operations.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># show common Course 1 example</span>
+</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">],[</span><span class="mi">4</span><span class="p">]])</span>
+</span></span><span class="line"><span class="cl"><span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">w</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;X[1] has shape </span><span class="si">{</span><span class="n">X</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;w has shape </span><span class="si">{</span><span class="n">w</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;c has shape </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>X[1] has shape (1,)
+w has shape (1,)
+c has shape ()
+</code></pre>
+<h1 id="4-matrices">4 Matrices<a hidden class="anchor" aria-hidden="true" href="#4-matrices">#</a></h1>
+<h2 id="41-abstract">4.1 Abstract<a hidden class="anchor" aria-hidden="true" href="#41-abstract">#</a></h2>
+<p>Matrices, are two dimensional arrays. The elements of a matrix are all of the same type. In notation, matrices are denoted with capitol, bold letter such as $\mathbf{X}$. In this and other labs, <code>m</code> is often the number of rows and <code>n</code> the number of columns. The elements of a matrix can be referenced with a two dimensional index. In math settings, numbers in the index typically run from 1 to n. In computer science and these labs, indexing will run from 0 to n-1.</p>
+<p><img loading="lazy" src="https://z1.ax1x.com/2023/10/26/piZJMid.png"></p>
+<h2 id="42-numpy-arrays">4.2 NumPy Arrays<a hidden class="anchor" aria-hidden="true" href="#42-numpy-arrays">#</a></h2>
+<p>NumPy&rsquo;s basic data structure is an indexable, n-dimensional <em>array</em> containing elements of the same type (<code>dtype</code>). These were described earlier. Matrices have a two-dimensional (2-D) index [m,n].</p>
+<p>In Course 1, 2-D matrices are used to hold training data. Training data is $m$ examples by $n$ features creating an (m,n) array. Course 1 does not do operations directly on matrices but typically extracts an example as a vector and operates on that. Below you will review:</p>
+<ul>
+<li>data creation</li>
+<li>slicing and indexing</li>
+</ul>
+<h2 id="43-matrix-creation">4.3 Matrix Creation<a hidden class="anchor" aria-hidden="true" href="#43-matrix-creation">#</a></h2>
+<p>The same functions that created 1-D vectors will create 2-D or n-D arrays. Here are some examples</p>
+<p>Below, the shape tuple is provided to achieve a 2-D result. Notice how NumPy uses brackets to denote each dimension. Notice further than NumPy, when printing, will print one row per line.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>                                       
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>                     
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>                                                                   
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span> 
+</span></span></code></pre></div><pre><code>a shape = (1, 5), a = [[0. 0. 0. 0. 0.]]
+a shape = (2, 1), a = [[0.]
+ [0.]]
+a shape = (1, 1), a = [[0.44236513]]
+</code></pre>
+<p>One can also manually specify data. Dimensions are specified with additional brackets matching the format in the printing above.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># NumPy routines which allocate memory and fill with user specified values</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]]);</span>   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34; a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, np.array: a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">5</span><span class="p">],</span>   <span class="c1"># One can also</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span><span class="mi">4</span><span class="p">],</span>   <span class="c1"># separate values</span>
+</span></span><span class="line"><span class="cl">              <span class="p">[</span><span class="mi">3</span><span class="p">]]);</span> <span class="c1">#into separate rows</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34; a shape = </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, np.array: a = </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code> a shape = (3, 1), np.array: a = [[5]
+ [4]
+ [3]]
+ a shape = (3, 1), np.array: a = [[5]
+ [4]
+ [3]]
+</code></pre>
+<h2 id="44-operations-on-matrices">4.4 Operations on Matrices<a hidden class="anchor" aria-hidden="true" href="#44-operations-on-matrices">#</a></h2>
+<p>Let&rsquo;s explore some operations using matrices.</p>
+<h3 id="441-indexing">4.4.1 Indexing<a hidden class="anchor" aria-hidden="true" href="#441-indexing">#</a></h3>
+<p>Matrices include a second index. The two indexes describe [row, column]. Access can either return an element or a row/column. See below:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#vector indexing operations on matrices</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1">#reshape is a convenient way to create matrices</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a.shape: </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, </span><span class="se">\n</span><span class="s2">a= </span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access an element</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">a[2,0].shape:   </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a[2,0] = </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">,     type(a[2,0]) = </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> Accessing an element returns a scalar</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access a row</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a[2].shape:   </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">, a[2]   = </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">, type(a[2])   = </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>a.shape: (3, 2), 
+a= [[0 1]
+ [2 3]
+ [4 5]]
+
+a[2,0].shape:   (), a[2,0] = 4,     type(a[2,0]) = &lt;class 'numpy.int64'&gt; Accessing an element returns a scalar
+
+a[2].shape:   (2,), a[2]   = [4 5], type(a[2])   = &lt;class 'numpy.ndarray'&gt;
+</code></pre>
+<p>It is worth drawing attention to the last example. Accessing a matrix by just specifying the row will return a <em>1-D vector</em>.</p>
+<p><strong>Reshape</strong><br>
+The previous example used <a href="https://numpy.org/doc/stable/reference/generated/numpy.reshape.html">reshape</a> to shape the array.<br>
+<code>a = np.arange(6).reshape(-1, 2) </code><br>
+This line of code first created a <em>1-D Vector</em> of six elements. It then reshaped that vector into a <em>2-D</em> array using the reshape command. This could have been written:<br>
+<code>a = np.arange(6).reshape(3, 2) </code><br>
+To arrive at the same 3 row, 2 column array.
+The -1 argument tells the routine to compute the number of rows given the size of the array and the number of columns.</p>
+<h3 id="442-slicing">4.4.2 Slicing<a hidden class="anchor" aria-hidden="true" href="#442-slicing">#</a></h3>
+<p>Slicing creates an array of indices using a set of three values (<code>start:stop:step</code>). A subset of values is also valid. Its use is best explained by example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1">#vector 2-D slicing operations</span>
+</span></span><span class="line"><span class="cl"><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;a = </span><span class="se">\n</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access 5 consecutive elements (start:stop:step)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[0, 2:7:1] = &#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&#34;,  a[0, 2:7:1].shape =&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&#34;a 1-D array&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#access 5 consecutive elements (start:stop:step) in two rows</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[:, 2:7:1] = </span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&#34;,  a[:, 2:7:1].shape =&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&#34;a 2-D array&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access all elements</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[:,:] = </span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[:,:],</span> <span class="s2">&#34;,  a[:,:].shape =&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[:,:]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># access all elements in one row (very common usage)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[1,:] = &#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span> <span class="s2">&#34;,  a[1,:].shape =&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&#34;a 1-D array&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># same as</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;a[1]   = &#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>   <span class="s2">&#34;,  a[1].shape   =&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&#34;a 1-D array&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre><code>a = 
+[[ 0  1  2  3  4  5  6  7  8  9]
+ [10 11 12 13 14 15 16 17 18 19]]
+a[0, 2:7:1] =  [2 3 4 5 6] ,  a[0, 2:7:1].shape = (5,) a 1-D array
+a[:, 2:7:1] = 
+ [[ 2  3  4  5  6]
+ [12 13 14 15 16]] ,  a[:, 2:7:1].shape = (2, 5) a 2-D array
+a[:,:] = 
+ [[ 0  1  2  3  4  5  6  7  8  9]
+ [10 11 12 13 14 15 16 17 18 19]] ,  a[:,:].shape = (2, 10)
+a[1,:] =  [10 11 12 13 14 15 16 17 18 19] ,  a[1,:].shape = (10,) a 1-D array
+a[1]   =  [10 11 12 13 14 15 16 17 18 19] ,  a[1].shape   = (10,) a 1-D array
+</code></pre>
+<h2 id="congratulations">Congratulations!<a hidden class="anchor" aria-hidden="true" href="#congratulations">#</a></h2>
+<p>In this lab you mastered the features of Python and NumPy that are needed for Course 1.</p>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>极大似然技术编码译码</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>《AI时代：命运的抉择》</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://github.com/adityatelange/hugo-PaperMod/graphs/contributors">PaperMod Contributors</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

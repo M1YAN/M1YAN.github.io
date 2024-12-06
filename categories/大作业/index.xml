@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>大作业 on M1YAN&#39;s Blog</title>
+    <link>http://localhost:1313/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
+    <description>Recent content in 大作业 on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>http://localhost:1313/images/papermod-cover.png</url>
+      <link>http://localhost:1313/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.139.3</generator>
+    <language>zh</language>
+    <copyright>PaperMod Contributors</copyright>
+    <lastBuildDate>Wed, 20 Dec 2023 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/%E5%A4%A7%E4%BD%9C%E4%B8%9A/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>极大似然技术编码译码</title>
+      <link>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</link>
+      <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</guid>
+      <description>&lt;h2 id=&#34;1-实验环境&#34;&gt;1 实验环境&lt;/h2&gt;
+&lt;p&gt;语言：C++&lt;/p&gt;
+&lt;h2 id=&#34;2-实验内容&#34;&gt;2 实验内容&lt;/h2&gt;
+&lt;h3 id=&#34;21-编程实现-mn-群码&#34;&gt;2.1 编程实现 $(m,n)$ 群码&lt;/h3&gt;
+&lt;h4 id=&#34;211-输入输出&#34;&gt;2.1.1 输入输出&lt;/h4&gt;
+&lt;p&gt;输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.&lt;/p&gt;
+&lt;p&gt;输出：所有的码字，按原码对应的十进制整数升序排列.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>《AI时代：命运的抉择》</title>
+      <link>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</link>
+      <pubDate>Thu, 14 Sep 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</guid>
+      <description>&lt;h1 id=&#34;第一章--林辉的独白&#34;&gt;&lt;strong&gt;第一章&lt;/strong&gt;  &lt;strong&gt;林辉的独白&lt;/strong&gt;&lt;/h1&gt;
+&lt;p&gt;赛博世界，第23个世纪。我，&lt;code&gt;林辉&lt;/code&gt;，一个孤寂的码农，生活在这个高度数字化的时代。曾经，这个世界充满了希望，计算机科学的巅峰技术让人类梦想无限。然而，如今，这个世界已然陷入了一片混乱，战争的阴影笼罩着未来。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

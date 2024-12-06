@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>反转链表（迭代及递归实现） | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+从上图中可以看出，反转一个链表只需要改变Node.link。
+I. 迭代实现
+思路
+设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script><meta property="og:url" content="http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="反转链表（迭代及递归实现）">
+  <meta property="og:description" content="
+从上图中可以看出，反转一个链表只需要改变Node.link。
+I. 迭代实现 思路 设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-01-03T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-01-03T00:00:00+00:00">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="反转链表（迭代及递归实现）">
+<meta name="twitter:description" content="
+从上图中可以看出，反转一个链表只需要改变Node.link。
+I. 迭代实现
+思路
+设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "反转链表（迭代及递归实现）",
+      "item": "http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "反转链表（迭代及递归实现）",
+  "name": "反转链表（迭代及递归实现）",
+  "description": "\n从上图中可以看出，反转一个链表只需要改变Node.link。\nI. 迭代实现 思路 设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "\n从上图中可以看出，反转一个链表只需要改变Node.link。\nI. 迭代实现 思路 设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。\n代码实现 void Reverse(){ struct Node *current, *prev, *next; current = head; prev = NULL; while(current != NULL){ next = current-\u003enext;//next 用来存储当前Node的next，当Node.next被prev覆盖后，next将值赋 给current从而进入下一个循环。 current-\u003enext = prev; prev = current; current = next; } head = prev; } 完整代码如下：\n#include #include struct Node{ int data; struct Node* next; }; struct Node* head; void Insert(int n){ struct Node* temp = (struct Node*)malloc(sizeof(struct Node)); temp-\u003edata = n; temp-\u003enext = NULL; struct Node* temp1 = head; if(head == NULL){ head = temp; return; } while(temp1-\u003enext != NULL){ temp1 = temp1-\u003enext; } temp1-\u003enext = temp; } void Print(){ struct Node* temp = head; while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003enext; } printf(\"\\n\"); } void Reverse(){ struct Node *current, *prev, *next; current = head; prev = NULL; while(current != NULL){ next = current-\u003enext;//next 用来存储当前Node的next，当Node.next被prev覆盖后，next将值赋 给current从而进入下一个循环。 current-\u003enext = prev; prev = current; current = next; } head = prev; } int main(){ head = NULL; Insert(2); Insert(4); Insert(6); Insert(5); Print(); Reverse(); Print(); return 0; } 输出结果：\n2 4 6 5 5 6 4 2 II. 递归实现 1）递归实现输出的反转 我们先写一个递归形式的Print函数，因为递归需要给函数传参，因此函数形式为Print(struct Node* p)。\nvoid Print(struct Node* p){//p初始为头节点的地址 if(p == NULL){ printf(\"\\n\"); return; } printf(\"%d \",p-\u003edata); Print(p-\u003enext); } 此时总是先输出再调用函数自身，因此是正向输出。如果我们将printf与Print两行代码交换位置，即\nvoid Print(struct Node* p){//p初始为头节点的地址 if(p == NULL) return; Print(p-\u003enext); printf(\"%d \",p-\u003edata); } 那么函数会在输出之前先进行重复调用，进行到递归结束条件后，依次执行输出。\n完整代码如下 #include #include struct Node{ int data; struct Node* next; }; struct Node* head; void Insert(int n){ struct Node* temp = (struct Node*)malloc(sizeof(struct Node)); temp-\u003edata = n; temp-\u003enext = NULL; struct Node* temp1 = head; if(head == NULL){ head = temp; return; } while(temp1-\u003enext != NULL){ temp1 = temp1-\u003enext; } temp1-\u003enext = temp; } void Print(){ struct Node* temp = head; while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003enext; } printf(\"\\n\"); } void ReversePrint(struct Node* p){//p初始为头节点的地址 if(p == NULL) return; ReversePrint(p-\u003enext); printf(\"%d \",p-\u003edata); } int main(){ head = NULL; Insert(2); Insert(4); Insert(6); Insert(5);\tPrint(); ReversePrint(head); return 0; } 输出结果 2 4 6 5 5 6 4 2 2）递归实现链表反转 反转输出并没有实现链表的反转，因为head、next的值都没有发生改变。但是我们依然可以采用递归的方式实现链表的反转。\n设计一个Reverse函数，使得其能够以递归方式实现链表反转。 void Reverse(struct Node* p){//p初始为头节点的地址 if(p-\u003enext == NULL){ head = p; return; } Reverse(p-\u003enext); struct Node* q = p-\u003enext; q-\u003enext = p;//也可以简洁地表示为p-\u003enext-\u003enext = p p-\u003enext = NULL; } 完整代码如下 #include #include struct Node{ int data; struct Node* next; }; struct Node* head; void Insert(int n){ struct Node* temp = (struct Node*)malloc(sizeof(struct Node)); temp-\u003edata = n; temp-\u003enext = NULL; struct Node* temp1 = head; if(head == NULL){ head = temp; return; } while(temp1-\u003enext != NULL){ temp1 = temp1-\u003enext; } temp1-\u003enext = temp; } void Print(){ struct Node* temp = head; while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003enext; } printf(\"\\n\"); } void Reverse(struct Node* p){//p初始为头节点的地址 if(p-\u003enext == NULL){ head = p; return; } Reverse(p-\u003enext); struct Node* q = p-\u003enext; q-\u003enext = p; p-\u003enext = NULL; } int main(){ head = NULL; Insert(2); Insert(4); Insert(6); Insert(5);\tPrint(); Reverse(head); Print(); return 0; } ",
+  "wordCount" : "1031",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-03T00:00:00Z",
+  "dateModified": "2023-01-03T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      反转链表（迭代及递归实现）
+    </h1>
+    <div class="post-meta"><span title='2023-01-03 00:00:00 +0000 UTC'>一月 3, 2023</span>&nbsp;·&nbsp;3 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/202213-%e5%8f%8d%e8%bd%ac%e9%93%be%e8%a1%a8%ef%bc%88%e8%bf%ad%e4%bb%a3%e5%8f%8a%e9%80%92%e5%bd%92%e5%ae%9e%e7%8e%b0%ef%bc%89.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#i-%e8%bf%ad%e4%bb%a3%e5%ae%9e%e7%8e%b0" aria-label="I. 迭代实现">I. 迭代实现</a><ul>
+                        
+                <li>
+                    <a href="#%e6%80%9d%e8%b7%af" aria-label="思路">思路</a></li>
+                <li>
+                    <a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0" aria-label="代码实现">代码实现</a></li></ul>
+                </li>
+                <li>
+                    <a href="#ii-%e9%80%92%e5%bd%92%e5%ae%9e%e7%8e%b0" aria-label="II. 递归实现">II. 递归实现</a><ul>
+                        
+                <li>
+                    <a href="#1%e9%80%92%e5%bd%92%e5%ae%9e%e7%8e%b0%e8%be%93%e5%87%ba%e7%9a%84%e5%8f%8d%e8%bd%ac" aria-label="1）递归实现输出的反转">1）递归实现输出的反转</a><ul>
+                        
+                <li>
+                    <a href="#%e5%ae%8c%e6%95%b4%e4%bb%a3%e7%a0%81%e5%a6%82%e4%b8%8b" aria-label="完整代码如下">完整代码如下</a></li>
+                <li>
+                    <a href="#%e8%be%93%e5%87%ba%e7%bb%93%e6%9e%9c" aria-label="输出结果">输出结果</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2%e9%80%92%e5%bd%92%e5%ae%9e%e7%8e%b0%e9%93%be%e8%a1%a8%e5%8f%8d%e8%bd%ac" aria-label="2）递归实现链表反转">2）递归实现链表反转</a><ul>
+                        
+                <li>
+                    <a href="#%e8%ae%be%e8%ae%a1%e4%b8%80%e4%b8%aareverse%e5%87%bd%e6%95%b0%e4%bd%bf%e5%be%97%e5%85%b6%e8%83%bd%e5%a4%9f%e4%bb%a5%e9%80%92%e5%bd%92%e6%96%b9%e5%bc%8f%e5%ae%9e%e7%8e%b0%e9%93%be%e8%a1%a8%e5%8f%8d%e8%bd%ac" aria-label="设计一个Reverse函数，使得其能够以递归方式实现链表反转。">设计一个Reverse函数，使得其能够以递归方式实现链表反转。</a></li>
+                <li>
+                    <a href="#%e5%ae%8c%e6%95%b4%e4%bb%a3%e7%a0%81%e5%a6%82%e4%b8%8b-1" aria-label="完整代码如下">完整代码如下</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><img loading="lazy" src="https://pic3.zhimg.com/80/v2-c610a28038b0cfba44431bfe4ac48e24_r.jpg"></p>
+<p>从上图中可以看出，反转一个链表只需要改变Node.link。</p>
+<h2 id="i-迭代实现">I. 迭代实现<a hidden class="anchor" aria-hidden="true" href="#i-迭代实现">#</a></h2>
+<h3 id="思路">思路<a hidden class="anchor" aria-hidden="true" href="#思路">#</a></h3>
+<p>设置三个结构体指针Prev、current、next，分别保存之前的节点的地址、目前的节点地址、之后的节点地址。</p>
+<h3 id="代码实现">代码实现<a hidden class="anchor" aria-hidden="true" href="#代码实现">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Reverse</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">Node</span> <span class="o">*</span><span class="n">current</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prev</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span><span class="p">(</span><span class="n">current</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">next</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span><span class="c1">//next 用来存储当前Node的next，当Node.next被prev覆盖后，next将值赋 给current从而进入下一个循环。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">head</span> <span class="o">=</span> <span class="n">prev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>完整代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">struct</span> <span class="n">Node</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Insert</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span><span class="p">)</span><span class="nf">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp1</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">head</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">head</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp1</span> <span class="o">=</span> <span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Print</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Reverse</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">Node</span> <span class="o">*</span><span class="n">current</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">current</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">prev</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span><span class="p">(</span><span class="n">current</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">next</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span><span class="c1">//next 用来存储当前Node的next，当Node.next被prev覆盖后，next将值赋                                       给current从而进入下一个循环。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">current</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">head</span> <span class="o">=</span> <span class="n">prev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="n">head</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Print</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Reverse</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Print</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>输出结果：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span> <span class="mi">6</span> <span class="mi">4</span> <span class="mi">2</span>
+</span></span></code></pre></div><h2 id="ii-递归实现">II. 递归实现<a hidden class="anchor" aria-hidden="true" href="#ii-递归实现">#</a></h2>
+<h3 id="1递归实现输出的反转">1）递归实现输出的反转<a hidden class="anchor" aria-hidden="true" href="#1递归实现输出的反转">#</a></h3>
+<p>我们先写一个递归形式的Print函数，因为递归需要给函数传参，因此函数形式为Print(struct Node* p)。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Print</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span><span class="c1">//p初始为头节点的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">Print</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>此时总是先输出再调用函数自身，因此是正向输出。如果我们将printf与Print两行代码交换位置，即</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Print</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span><span class="c1">//p初始为头节点的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">Print</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>那么函数会在输出之前先进行重复调用，进行到递归结束条件后，依次执行输出。</p>
+<h4 id="完整代码如下">完整代码如下<a hidden class="anchor" aria-hidden="true" href="#完整代码如下">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">struct</span> <span class="n">Node</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Insert</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span><span class="p">)</span><span class="nf">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp1</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">head</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">head</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp1</span> <span class="o">=</span> <span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Print</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">ReversePrint</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span><span class="c1">//p初始为头节点的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">ReversePrint</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="n">head</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>	
+</span></span><span class="line"><span class="cl">	<span class="nf">Print</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ReversePrint</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h4 id="输出结果">输出结果<a hidden class="anchor" aria-hidden="true" href="#输出结果">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="mi">5</span> <span class="mi">6</span> <span class="mi">4</span> <span class="mi">2</span>
+</span></span></code></pre></div><h3 id="2递归实现链表反转">2）递归实现链表反转<a hidden class="anchor" aria-hidden="true" href="#2递归实现链表反转">#</a></h3>
+<p>反转输出并没有实现链表的反转，因为head、next的值都没有发生改变。但是我们依然可以采用递归的方式实现链表的反转。</p>
+<h4 id="设计一个reverse函数使得其能够以递归方式实现链表反转">设计一个Reverse函数，使得其能够以递归方式实现链表反转。<a hidden class="anchor" aria-hidden="true" href="#设计一个reverse函数使得其能够以递归方式实现链表反转">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Reverse</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span><span class="c1">//p初始为头节点的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">head</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    	<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Reverse</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">q</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">q</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span><span class="c1">//也可以简洁地表示为p-&gt;next-&gt;next = p
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h4 id="完整代码如下-1">完整代码如下<a hidden class="anchor" aria-hidden="true" href="#完整代码如下-1">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">struct</span> <span class="n">Node</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Insert</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span><span class="p">)</span><span class="nf">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp1</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">head</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">head</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp1</span> <span class="o">=</span> <span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">temp1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Print</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">temp</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;%d &#34;</span><span class="p">,</span><span class="n">temp</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">Reverse</span><span class="p">(</span><span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span><span class="c1">//p初始为头节点的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">if</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    	<span class="n">head</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    	<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Reverse</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">Node</span><span class="o">*</span> <span class="n">q</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">q</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">	<span class="n">head</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Insert</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>	
+</span></span><span class="line"><span class="cl">	<span class="nf">Print</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Reverse</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">Print</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>双向链表(Doubly Linked List)</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/202312-linked-list---implementation-in-c/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Linked list - Implementation in C</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://github.com/adityatelange/hugo-PaperMod/graphs/contributors">PaperMod Contributors</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

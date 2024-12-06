@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>极大似然技术编码译码 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="离散数学, 编码">
+<meta name="description" content="1 实验环境
+语言：C&#43;&#43;
+2 实验内容
+2.1 编程实现 $(m,n)$ 群码
+2.1.1 输入输出
+输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.
+输出：所有的码字，按原码对应的十进制整数升序排列.">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script><meta property="og:url" content="http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="极大似然技术编码译码">
+  <meta property="og:description" content="1 实验环境 语言：C&#43;&#43;
+2 实验内容 2.1 编程实现 $(m,n)$ 群码 2.1.1 输入输出 输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.
+输出：所有的码字，按原码对应的十进制整数升序排列.">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-12-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-12-20T00:00:00+00:00">
+    <meta property="article:tag" content="离散数学">
+    <meta property="article:tag" content="编码">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="极大似然技术编码译码">
+<meta name="twitter:description" content="1 实验环境
+语言：C&#43;&#43;
+2 实验内容
+2.1 编程实现 $(m,n)$ 群码
+2.1.1 输入输出
+输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.
+输出：所有的码字，按原码对应的十进制整数升序排列.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "极大似然技术编码译码",
+      "item": "http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "极大似然技术编码译码",
+  "name": "极大似然技术编码译码",
+  "description": "1 实验环境 语言：C++\n2 实验内容 2.1 编程实现 $(m,n)$ 群码 2.1.1 输入输出 输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \\times r}$ 部分，其中 $r=n-m$.\n输出：所有的码字，按原码对应的十进制整数升序排列.\n",
+  "keywords": [
+    "离散数学", "编码"
+  ],
+  "articleBody": "1 实验环境 语言：C++\n2 实验内容 2.1 编程实现 $(m,n)$ 群码 2.1.1 输入输出 输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \\times r}$ 部分，其中 $r=n-m$.\n输出：所有的码字，按原码对应的十进制整数升序排列.\n2.1.2 设计思路及核心算法 首先输入 $m,n$：\nstd::cin \u003e\u003e m \u003e\u003e n; 调用 inputH(m,n) 函数输入一致性校验矩阵 $H$：\nBitMatrix H = inputH(m, n); inputH(m,n) 函数代码如下：\nuint64_t inputBit() { std::string line; std::cin \u003e\u003e line; uint64_t x = 0; int k = 0; for (size_t i = 0; i \u003c line.size(); i++) if (line[i] == '1' || line[i] == '0') x |= (line[i] - '0') \u003c\u003c k++; return x; } BitMatrix inputH(int m, int n) { BitMatrix H(n, n - m); for (int i = 0; i \u003c m; i++) H.d[i] = inputBit(); for (int i = m; i \u003c n; i++) H.d[i] = 1 \u003c\u003c (i - m); return H; } inputH 函数传入行列参数m,n，声明一个 BitMatrix 类，用来存放一致性校验矩阵的 $m \\times r$部分.\n调用 HtoH2(H) 函数生成 $m \\times n$ 的编码矩阵： $$ \\left[ \\begin{matrix} I_m \u0026 H_{m\\times r} \\ \\end{matrix} \\right] $$\nBitMatrix HtoH2(BitMatrix \u0026H) { BitMatrix H2(H.n - H.m, H.n); for (int i = 0; i \u003c H.n - H.m; i++) H2.d[i] = 1 \u003c\u003c i; for (int i = 0; i \u003c H.n - H.m; i++) for (int j = 0; j \u003c H.m; j++) H2.d[i] |= (H.d[i] \u003e\u003e j \u0026 1) \u003c\u003c (j + H.n - H.m); return H2; } 定义一个 Bm 矩阵用于存放原码，矩阵每行从上到下按原码对应的十进制递增顺序排列，并进行运算：\n$$ e_H(B^m)=B^m\\times\n\\left[ \\begin{matrix} I_m \u0026 H_{m\\times r} \\ \\end{matrix} \\right] $$\n求出群码对应的矩阵并输出.\nBitMatrix H2 = HtoH2(H), Bm(1 \u003c\u003c m, m); for (int i = 0; i \u003c (1 \u003c\u003c m); i++) for (int j = 0; j \u003c m; j++) Bm.d[i] |= (i \u003e\u003e j \u0026 1) \u003c\u003c (m - j - 1); BitMatrix N = Bm * H2; std::cout \u003c\u003c \"1. e(B^m):\" \u003c\u003c std::endl; for (int i = 0; i \u003c (1 \u003c\u003c m); i++) { std::cout \u003c\u003c \" e(\"; printBit(Bm.d[i], m); std::cout \u003c\u003c \") = \"; printBit(N.d[i], n); std::cout \u003c\u003c std::endl; } 2.2 构造陪集表 2.2.1 设计思路及核心算法 生成 coset table 的算法原理如下：\n首先，定义了一个空的哈希表 cosets 用于存储 coset 的信息，以及一个空的哈希表 visited 用于标记已经访问过的向量；\n创建一个向量 numbers，其中存储了所有可能的向量（共 2^n 个向量），并按照向量中 1 的个数进行排序，从少到多；\n遍历 numbers 中的每个向量 i，对于每个向量，执行以下步骤：\na. 创建一个空的 coset 对象 coset，用于存储属于同一个 coset 的向量；\nb. 对于矩阵 N 的每一行（表示每个 coset），将当前向量 i 与该行的向量 x 进行异或运算，得到新的向量 x' = N.d[j] ^ uint64_t(i)；\nc. 检查 visited 哈希表，如果在 visited 中找到了向量 x'，说明该向量已经属于某个 coset，跳过当前循环；\nd. 如果在 visited 中没有找到向量 x'，则将 x' 添加到当前 coset 中，并将 x' 添加到 visited 哈希表中，值为当前 coset 的索引；\ne. 将当前 coset 的陪集头 e 更新为 coset 中具有最少 1 的个数的向量；\nf. 如果当前 coset 的陪集头 e 在 cosets 哈希表中不存在，则将当前 coset 添加到 cosets 中，并将 e 对应的特征值（通过一致性校验矩阵 H 计算）添加到 syncdrome 哈希表中，值为当前 coset 的索引；\ng. 检查 cosetLeaders 的大小，如果已经达到了 $2^{n-m}$（即余类的数量），则停止循环.\n最后，得到了所有的 coset 信息，并按照 coset 陪集头对应的十进制递增的顺序输出.\n通过上述算法，可以生成所有的 coset，并找到每个 coset 的陪集头和特征值.\n2.2.2 BitMatrix 类 该程序将译码时所需的比特矩阵进行了封装，能够实现乘法 (元素对应异或) 操作.\nclass BitMatrix { public: int n, m; uint64_t d[100]; BitMatrix(int n, int m): n(n), m(m) { memset(d, 0, sizeof(uint64_t) * n); } BitMatrix operator*(const BitMatrix\u0026 rhs) const { assert (m == rhs.n); BitMatrix res(n, rhs.m); for (int i = 0; i \u003c n; i++) for (int k = 0; k \u003c m; k++) if (d[i] \u003e\u003e k \u0026 1) res.d[i] ^= rhs.d[k]; return res; } void print() const { for (int i = 0; i \u003c n; i++) { printBit(d[i], m); std::cout \u003c\u003c std::endl; } } }; 2.2.3 Coset 类 Coset 类由陪集、陪集头及添加操作组成，陪集中的元素使用一维向量进行存储，陪集头用整型变量单独存储，方便调用. 添加操作在每一次执行时更新一次陪集头.\nclass Coset { public: std::vector\u003cuint64_t\u003e d; // coset uint64_t e; // coset leader Coset() : e(0) {} void add(uint64_t x) { if (d.empty()) d.push_back(e = x); else { d.push_back(x); if (bitcount(x) \u003c bitcount(e)) e = x; } } }; 2.3 极大似然译码 基于 2.2 构造陪集表 求出的左陪集表，用和函数 $e_H$ 相关联的极大似然译码函数 $d$ ，对 $x_t\\in B^n$ 进行译码.\n2.3.1 输入输出格式 输入：首行是译码个数 $N$ ，整数格式； 然后是 $N$ 行比特串 $x_t \\in B^n$ ，字符串格式； 输出：$N$行译码结果，格式为 $d(x_t) = b_1 b_2 … b_m$ . 如：d(001011)=001. 2.3.2 设计思路及核心算法 输入 $N$ ，然后输入待解码的 $N$ 个比特串. 输入后需要进行字符串转整数操作；\nstd::cin \u003e\u003e k; for (int i = 0; i \u003c k; i++) { std::cerr \u003c\u003c \"Enter the word #\" \u003c\u003c i + 1 \u003c\u003c \": \"; uint64_t x = inputBit(); /* ...................... */ inputBit() 函数如下：\nuint64_t inputBit() { std::string line; std::cin \u003e\u003e line; uint64_t x = 0; int k = 0; for (size_t i = 0; i \u003c line.size(); i++) if (line[i] == '1' || line[i] == '0') x |= (line[i] - '0') \u003c\u003c k++; return x; } 确定输入的 $x_t$ 位于哪个 coset 中，可通过 visited[x] 得到所属陪集编号；\n取出所属陪集的陪集头 $\\epsilon$ ，与 $x_t$ 进行异或运算，得到的结果必然在群码对应的矩阵 $N$ 中找到，由此得到解码后结果.\n核心代码如下：\nstd::vector\u003cuint64_t \u003e cosetLeaders; for (auto i : numbers) { Coset coset; bool notFound = true; for (int j = 0; j \u003c N.n; j++) { uint64_t x = N.d[j] ^ uint64_t(i); if (visited.find(x) != visited.end()) { notFound = false; break; } visited[x] = cosetLeaders.size(); coset.add(x); } if (notFound) { cosets[coset.e] = coset; syndrome[getSyndrome(coset.e, H)] = cosetLeaders.size(); cosetLeaders.push_back(coset.e); } // if cosetLeaders.size() = 2^(n-m), then stop. // Because there are only 2^(n-m) cosets. if (cosetLeaders.size() == (1 \u003c\u003c (n - m))) break; } /* ............ */ printBit(Bm.d[NtoBm[cosetLeaders[visited[x]] ^ x]], m); 2.4 基于特征值的译码 基于 2.2 构造陪集表 求出的左陪集表，利用函数 $f_H:B^n \\rightarrow B^r，f_H(x) = x\\cdot H$ 求出每个陪集头对应的特征值 (Syndrome) ，并利用特征值，对$x_t \\in B^n$ 进行译码.\n2.4.1 输入输出格式 输入：首行是译码个数N，整数格式； 然后是N行比特串 $x_t \\in B^n$ ，字符串格式； 输出：N行译码所用的特征值、陪集头和译码结果，格式为 $f(x_t)$ = *** ，$\\epsilon$ = ***，$d(xt) = b_1b_2…b_m$. 注：本程序采用的输出方式，对于每一个待解码二进制串输入，输出结果分为两行，第一行为采用极大似然译码计算的结果，结果前用序号 (a) 进行区分，第二行为基于特征值译码的结果，结果前用序号 (b) 区分，例如：\n(a) d(10111) = 10 (b) f(10111) = 100, ε = 00100, d(10111) 2.4.2 设计思路及核心算法 输入 N ，然后输入待解码的 N 个比特串. 输入后需要进行字符串转整数操作；\n通过函数 $f_H(x_t) = x_t \\cdot H$ 计算 $x_t$ 特征值；\nstd::cout \u003c\u003c \" (b) f(\"; //特征值 printBit(x, n); uint64_t s = getSyndrome(x, H); std::cout \u003c\u003c \") = \"; printBit(s, n - m); getSyndrome() 函数细节：\nuint64_t getSyndrome(uint64_t x, BitMatrix \u0026H) { BitMatrix X(1, H.n); X.d[0] = x; return (X * H).d[0]; } 根据所得特征值在哈希表中对应到陪集头；\nstd::cout \u003c\u003c \", ε = \"; //陪集头 printBit(cosetLeaders[syndrome[s]], n); 陪集头与待译码比特串进行异或操作，得到的结果必然在群码对应的矩阵 $N$ 中找到，由此得到解码后结果.\nstd::cout \u003c\u003c \", d(\"; //译码结果 printBit(x, n); std::cout \u003c\u003c \") = \"; printBit(Bm.d[NtoBm[cosetLeaders[syndrome[s]] ^ x]], m); std::cout \u003c\u003c std::endl; 3 代码优化 我们在四个地方优化了原本的代码，使得程序更加高效.\n由于实验中满足 $1",
+  "wordCount" : "3665",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-12-20T00:00:00Z",
+  "dateModified": "2023-12-20T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      极大似然技术编码译码
+    </h1>
+    <div class="post-meta"><span title='2023-12-20 00:00:00 +0000 UTC'>十二月 20, 2023</span>&nbsp;·&nbsp;8 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/%e6%9e%81%e5%a4%a7%e4%bc%bc%e7%84%b6%e6%8a%80%e6%9c%af%e7%bc%96%e7%a0%81%e8%af%91%e7%a0%81.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul><ul>
+                <li>
+                    <a href="#1-%e5%ae%9e%e9%aa%8c%e7%8e%af%e5%a2%83" aria-label="1 实验环境">1 实验环境</a></li>
+                <li>
+                    <a href="#2-%e5%ae%9e%e9%aa%8c%e5%86%85%e5%ae%b9" aria-label="2 实验内容">2 实验内容</a><ul>
+                        
+                <li>
+                    <a href="#21-%e7%bc%96%e7%a8%8b%e5%ae%9e%e7%8e%b0-mn-%e7%be%a4%e7%a0%81" aria-label="2.1 编程实现 $(m,n)$ 群码">2.1 编程实现 $(m,n)$ 群码</a><ul>
+                        
+                <li>
+                    <a href="#211-%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba" aria-label="2.1.1 输入输出">2.1.1 输入输出</a></li>
+                <li>
+                    <a href="#212-%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%af%e5%8f%8a%e6%a0%b8%e5%bf%83%e7%ae%97%e6%b3%95" aria-label="2.1.2 设计思路及核心算法">2.1.2 设计思路及核心算法</a></li></ul>
+                </li>
+                <li>
+                    <a href="#22-%e6%9e%84%e9%80%a0%e9%99%aa%e9%9b%86%e8%a1%a8" aria-label="2.2 构造陪集表">2.2 构造陪集表</a><ul>
+                        
+                <li>
+                    <a href="#221-%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%af%e5%8f%8a%e6%a0%b8%e5%bf%83%e7%ae%97%e6%b3%95" aria-label="2.2.1 设计思路及核心算法">2.2.1 设计思路及核心算法</a></li>
+                <li>
+                    <a href="#222-bitmatrix-%e7%b1%bb" aria-label="2.2.2 BitMatrix 类">2.2.2 BitMatrix 类</a></li>
+                <li>
+                    <a href="#223-coset-%e7%b1%bb" aria-label="2.2.3 Coset 类">2.2.3 Coset 类</a></li></ul>
+                </li>
+                <li>
+                    <a href="#23-%e6%9e%81%e5%a4%a7%e4%bc%bc%e7%84%b6%e8%af%91%e7%a0%81" aria-label="2.3 极大似然译码">2.3 极大似然译码</a><ul>
+                        
+                <li>
+                    <a href="#231-%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba%e6%a0%bc%e5%bc%8f" aria-label="2.3.1 输入输出格式">2.3.1 输入输出格式</a></li>
+                <li>
+                    <a href="#232-%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%af%e5%8f%8a%e6%a0%b8%e5%bf%83%e7%ae%97%e6%b3%95" aria-label="2.3.2 设计思路及核心算法">2.3.2 设计思路及核心算法</a></li></ul>
+                </li>
+                <li>
+                    <a href="#24-%e5%9f%ba%e4%ba%8e%e7%89%b9%e5%be%81%e5%80%bc%e7%9a%84%e8%af%91%e7%a0%81" aria-label="2.4 基于特征值的译码">2.4 基于特征值的译码</a><ul>
+                        
+                <li>
+                    <a href="#241-%e8%be%93%e5%85%a5%e8%be%93%e5%87%ba%e6%a0%bc%e5%bc%8f" aria-label="2.4.1 输入输出格式">2.4.1 输入输出格式</a></li>
+                <li>
+                    <a href="#242-%e8%ae%be%e8%ae%a1%e6%80%9d%e8%b7%af%e5%8f%8a%e6%a0%b8%e5%bf%83%e7%ae%97%e6%b3%95" aria-label="2.4.2 设计思路及核心算法">2.4.2 设计思路及核心算法</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#3-%e4%bb%a3%e7%a0%81%e4%bc%98%e5%8c%96" aria-label="3 代码优化">3 代码优化</a></li>
+                <li>
+                    <a href="#4-%e5%ae%9e%e9%aa%8c%e6%88%90%e6%9e%9c%e7%a4%ba%e4%be%8b" aria-label="4 实验成果示例">4 实验成果示例</a></li></ul>
+                    
+                <li>
+                    <a href="#%e9%99%84%e5%bd%95%e6%ba%90%e4%bb%a3%e7%a0%81" aria-label="附录：源代码">附录：源代码</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="1-实验环境">1 实验环境<a hidden class="anchor" aria-hidden="true" href="#1-实验环境">#</a></h2>
+<p>语言：C++</p>
+<h2 id="2-实验内容">2 实验内容<a hidden class="anchor" aria-hidden="true" href="#2-实验内容">#</a></h2>
+<h3 id="21-编程实现-mn-群码">2.1 编程实现 $(m,n)$ 群码<a hidden class="anchor" aria-hidden="true" href="#21-编程实现-mn-群码">#</a></h3>
+<h4 id="211-输入输出">2.1.1 输入输出<a hidden class="anchor" aria-hidden="true" href="#211-输入输出">#</a></h4>
+<p>输入：$m,n$ 和一致性校验矩阵 $H$ 中的 $H_{m \times r}$ 部分，其中 $r=n-m$.</p>
+<p>输出：所有的码字，按原码对应的十进制整数升序排列.</p>
+<h4 id="212-设计思路及核心算法">2.1.2 设计思路及核心算法<a hidden class="anchor" aria-hidden="true" href="#212-设计思路及核心算法">#</a></h4>
+<ol>
+<li>
+<p>首先输入 $m,n$：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>调用 <code>inputH(m,n)</code> 函数输入一致性校验矩阵 $H$：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="n">H</span> <span class="o">=</span> <span class="n">inputH</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span></code></pre></div><p><code>inputH(m,n)</code> 函数代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="nf">inputBit</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">line</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;1&#39;</span> <span class="o">||</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">x</span> <span class="o">|=</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="nf">inputH</span><span class="p">(</span><span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputBit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">H</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>inputH</code> 函数传入行列参数m,n，声明一个 <code>BitMatrix</code> 类，用来存放一致性校验矩阵的 $m \times r$部分.</p>
+</li>
+<li>
+<p>调用 <code>HtoH2(H)</code> 函数生成 $m \times n$ 的编码矩阵：
+$$
+\left[
+\begin{matrix}
+I_m &amp; H_{m\times r} \
+\end{matrix}
+\right]
+$$</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="nf">HtoH2</span><span class="p">(</span><span class="n">BitMatrix</span> <span class="o">&amp;</span><span class="n">H</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H2</span><span class="p">(</span><span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">,</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H2</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">H2</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="p">(</span><span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">j</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">H2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>定义一个 <code>Bm</code> 矩阵用于存放原码，矩阵每行从上到下按原码对应的十进制递增顺序排列，并进行运算：</p>
+<p>$$
+e_H(B^m)=B^m\times<br>
+\left[
+\begin{matrix}
+I_m &amp; H_{m\times r} \
+\end{matrix}
+\right]
+$$</p>
+<p>求出群码对应的矩阵并输出.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="n">H2</span> <span class="o">=</span> <span class="n">HtoH2</span><span class="p">(</span><span class="n">H</span><span class="p">),</span> <span class="n">Bm</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;&gt;</span> <span class="n">j</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="n">N</span> <span class="o">=</span> <span class="n">Bm</span> <span class="o">*</span> <span class="n">H2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;1. e(B^m):&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;  e(&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printBit</span><span class="p">(</span><span class="n">N</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="22-构造陪集表">2.2 构造陪集表<a hidden class="anchor" aria-hidden="true" href="#22-构造陪集表">#</a></h3>
+<h4 id="221-设计思路及核心算法">2.2.1 设计思路及核心算法<a hidden class="anchor" aria-hidden="true" href="#221-设计思路及核心算法">#</a></h4>
+<p>生成 <code>coset table</code> 的算法原理如下：</p>
+<ol>
+<li>
+<p>首先，定义了一个空的哈希表 <code>cosets</code> 用于存储 coset 的信息，以及一个空的哈希表 <code>visited</code> 用于标记已经访问过的向量；</p>
+</li>
+<li>
+<p>创建一个向量 <code>numbers</code>，其中存储了所有可能的向量（共 2^n 个向量），并按照向量中 1 的个数进行排序，从少到多；</p>
+</li>
+<li>
+<p>遍历 <code>numbers</code> 中的每个向量 <code>i</code>，对于每个向量，执行以下步骤：</p>
+<p>a. 创建一个空的 coset 对象 <code>coset</code>，用于存储属于同一个 coset 的向量；</p>
+<p>b. 对于矩阵 <code>N</code> 的每一行（表示每个 coset），将当前向量 <code>i</code> 与该行的向量 <code>x</code> 进行异或运算，得到新的向量 <code>x' = N.d[j] ^ uint64_t(i)</code>；</p>
+<p>c. 检查 <code>visited</code> 哈希表，如果在 <code>visited</code> 中找到了向量 <code>x'</code>，说明该向量已经属于某个 coset，跳过当前循环；</p>
+<p>d. 如果在 <code>visited</code> 中没有找到向量 <code>x'</code>，则将 <code>x'</code> 添加到当前 coset 中，并将 <code>x'</code> 添加到 <code>visited</code> 哈希表中，值为当前 coset 的索引；</p>
+<p>e. 将当前 coset 的陪集头 <code>e</code> 更新为 coset 中具有最少 1 的个数的向量；</p>
+<p>f. 如果当前 coset 的陪集头 <code>e</code> 在 <code>cosets</code> 哈希表中不存在，则将当前 coset 添加到 <code>cosets</code> 中，并将 <code>e</code> 对应的特征值（通过一致性校验矩阵 <code>H</code> 计算）添加到 <code>syncdrome</code> 哈希表中，值为当前 coset 的索引；</p>
+<p>g. 检查 <code>cosetLeaders</code> 的大小，如果已经达到了 $2^{n-m}$（即余类的数量），则停止循环.</p>
+</li>
+<li>
+<p>最后，得到了所有的 coset 信息，并按照 coset 陪集头对应的十进制递增的顺序输出.</p>
+</li>
+</ol>
+<p>通过上述算法，可以生成所有的 coset，并找到每个 coset 的陪集头和特征值.</p>
+<h4 id="222-bitmatrix-类">2.2.2 <code>BitMatrix</code> 类<a hidden class="anchor" aria-hidden="true" href="#222-bitmatrix-类">#</a></h4>
+<p>该程序将译码时所需的比特矩阵进行了封装，能够实现乘法 (元素对应异或) 操作.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BitMatrix</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">d</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">)</span><span class="o">:</span> <span class="n">n</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">m</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="k">operator</span><span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">BitMatrix</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">BitMatrix</span> <span class="nf">res</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">k</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">res</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">print</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">printBit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><h4 id="223-coset-类">2.2.3 <code>Coset</code> 类<a hidden class="anchor" aria-hidden="true" href="#223-coset-类">#</a></h4>
+<p><code>Coset</code> 类由陪集、陪集头及添加操作组成，陪集中的元素使用一维向量进行存储，陪集头用整型变量单独存储，方便调用. 添加操作在每一次执行时更新一次陪集头.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Coset</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span> <span class="n">d</span><span class="p">;</span> <span class="c1">// coset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">uint64_t</span> <span class="n">e</span><span class="p">;</span> <span class="c1">// coset leader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Coset</span><span class="p">()</span> <span class="o">:</span> <span class="n">e</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">add</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">            <span class="n">d</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">e</span> <span class="o">=</span> <span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">d</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">bitcount</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bitcount</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="n">e</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><h3 id="23-极大似然译码">2.3 极大似然译码<a hidden class="anchor" aria-hidden="true" href="#23-极大似然译码">#</a></h3>
+<p>基于 <a href="/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/#22-构造陪集表">2.2 构造陪集表</a> 求出的左陪集表，用和函数 $e_H$ 相关联的极大似然译码函数 $d$ ，对 $x_t\in B^n$ 进行译码.</p>
+<h4 id="231-输入输出格式">2.3.1 输入输出格式<a hidden class="anchor" aria-hidden="true" href="#231-输入输出格式">#</a></h4>
+<ul>
+<li>输入：首行是译码个数 $N$ ，整数格式；</li>
+<li>然后是 $N$ 行比特串 $x_t \in B^n$ ，字符串格式；</li>
+<li>输出：$N$行译码结果，格式为 $d(x_t) = b_1 b_2 &hellip; b_m$ . 如：<code>d(001011)=001</code>.</li>
+</ul>
+<h4 id="232-设计思路及核心算法">2.3.2 设计思路及核心算法<a hidden class="anchor" aria-hidden="true" href="#232-设计思路及核心算法">#</a></h4>
+<ol>
+<li>
+<p>输入 $N$ ，然后输入待解码的 $N$ 个比特串. 输入后需要进行字符串转整数操作；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">k</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Enter the word #&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;: &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">inputBit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">    ......................
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span></code></pre></div><p><code>inputBit()</code> 函数如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="nf">inputBit</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">line</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;1&#39;</span> <span class="o">||</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">x</span> <span class="o">|=</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>确定输入的 $x_t$ 位于哪个 <code>coset</code> 中，可通过 <code>visited[x]</code> 得到所属陪集编号；</p>
+</li>
+<li>
+<p>取出所属陪集的陪集头 $\epsilon$ ，与 $x_t$ 进行异或运算，得到的结果必然在群码对应的矩阵 $N$ 中找到，由此得到解码后结果.</p>
+<p>核心代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint64_t</span> <span class="o">&gt;</span> <span class="n">cosetLeaders</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">i</span> <span class="p">:</span> <span class="n">numbers</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Coset</span> <span class="n">coset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">bool</span> <span class="n">notFound</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">.</span><span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">N</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">^</span> <span class="kt">uint64_t</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="n">visited</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">notFound</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">coset</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">notFound</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cosets</span><span class="p">[</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">coset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">syndrome</span><span class="p">[</span><span class="n">getSyndrome</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">,</span> <span class="n">H</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// if cosetLeaders.size() = 2^(n-m), then stop. 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// Because there are only 2^(n-m) cosets.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">)))</span> <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">............
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="24-基于特征值的译码">2.4 基于特征值的译码<a hidden class="anchor" aria-hidden="true" href="#24-基于特征值的译码">#</a></h3>
+<p>基于 <a href="/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/#22-构造陪集表">2.2 构造陪集表</a> 求出的左陪集表，利用函数 $f_H:B^n \rightarrow B^r，f_H(x) = x\cdot H$ 求出每个陪集头对应的<strong>特征值 (Syndrome)</strong> ，并利用特征值，对$x_t \in B^n$ 进行译码.</p>
+<h4 id="241-输入输出格式">2.4.1 输入输出格式<a hidden class="anchor" aria-hidden="true" href="#241-输入输出格式">#</a></h4>
+<ul>
+<li>输入：首行是译码个数N，整数格式；</li>
+<li>然后是N行比特串 $x_t \in B^n$ ，字符串格式；</li>
+<li>输出：N行译码所用的特征值、陪集头和译码结果，格式为 $f(x_t)$ = *** ，$\epsilon$ = ***，$d(xt) = b_1b_2&hellip;b_m$.</li>
+</ul>
+<p><strong>注：本程序采用的输出方式，对于每一个待解码二进制串输入，输出结果分为两行，第一行为采用极大似然译码计算的结果，结果前用序号 (a) 进行区分，第二行为基于特征值译码的结果，结果前用序号 (b) 区分，例如：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">(a) d(10111) = 10
+</span></span><span class="line"><span class="cl">(b) f(10111) = 100, ε = 00100, d(10111) 
+</span></span></code></pre></div><h4 id="242-设计思路及核心算法">2.4.2 设计思路及核心算法<a hidden class="anchor" aria-hidden="true" href="#242-设计思路及核心算法">#</a></h4>
+<ol>
+<li>
+<p>输入 N ，然后输入待解码的 N 个比特串. 输入后需要进行字符串转整数操作；</p>
+</li>
+<li>
+<p>通过函数 $f_H(x_t) = x_t \cdot H$ 计算 $x_t$ 特征值；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; (b) f(&#34;</span><span class="p">;</span> <span class="c1">//特征值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printBit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">getSyndrome</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">H</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">printBit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span></code></pre></div><p><code>getSyndrome()</code> 函数细节：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="nf">getSyndrome</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">,</span> <span class="n">BitMatrix</span> <span class="o">&amp;</span><span class="n">H</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">X</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">X</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">H</span><span class="p">).</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>根据所得特征值在哈希表中对应到陪集头；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, ε = &#34;</span><span class="p">;</span> <span class="c1">//陪集头
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printBit</span><span class="p">(</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">syndrome</span><span class="p">[</span><span class="n">s</span><span class="p">]],</span> <span class="n">n</span><span class="p">);</span>
+</span></span></code></pre></div></li>
+<li>
+<p>陪集头与待译码比特串进行异或操作，得到的结果必然在群码对应的矩阵 $N$ 中找到，由此得到解码后结果.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, d(&#34;</span><span class="p">;</span> <span class="c1">//译码结果
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printBit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">syndrome</span><span class="p">[</span><span class="n">s</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="3-代码优化">3 代码优化<a hidden class="anchor" aria-hidden="true" href="#3-代码优化">#</a></h2>
+<p>我们在四个地方优化了原本的代码，使得程序更加高效.</p>
+<ol>
+<li>
+<p>由于实验中满足 $1&lt;m&lt;n&lt;7$，所以使用 <code>uint64_t</code> 替代数组，并使用位运算进行相应计算，同时降低了空间复杂度和时间复杂度；</p>
+<p>其中，矩阵乘法的核心代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 30-33
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">k</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">res</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+</span></span></code></pre></div><p>普通的矩阵乘法的时间复杂度是 $O(n^3)$，而使用位运算后，时间复杂度降低到了 $O(n^2)$.</p>
+</li>
+<li>
+<p>当已经找到了所有的陪集时，就可以停止循环，不需要再继续遍历；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 132
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">)))</span> <span class="k">break</span><span class="p">;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>使用哈希表记录每一个码字所属的陪集，在解码的时候可以直接查找，而不需要再次遍历；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 123, 记录每一个码字所属的陪集
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 155, 直接解码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span></code></pre></div><p>该哈希表还可以快速地判断当前陪集是否重复，减少了计算量；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 119-122, 判断当前陪集是否重复
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="n">visited</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">notFound</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>考虑到 $1&lt;m&lt;n&lt;7$，所以码字的范围最大不超过 $2^8 = 256$，所以实际上可以使用数组代替哈希表，降低部分常数.</p>
+</li>
+<li>
+<p>特征值解码方式也使用了类似的方式；</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 128, 记录每一个特征值对应的陪集(头)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">syndrome</span><span class="p">[</span><span class="n">getSyndrome</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">,</span> <span class="n">H</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 155, 直接获取特征值对应的陪集头并进行异或运算
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">syndrome</span><span class="p">[</span><span class="n">s</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span></code></pre></div></li>
+<li>
+<p>使用了 <code>lowbit</code> 快速计算最低位的 1 的位置，加快了 <code>bitcount</code> 的速度.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// main.cpp, Line 17
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="n">n</span> <span class="o">-=</span> <span class="n">n</span> <span class="o">&amp;</span> <span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="o">++</span><span class="p">;</span>
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="4-实验成果示例">4 实验成果示例<a hidden class="anchor" aria-hidden="true" href="#4-实验成果示例">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">$ ./main # 运行
+</span></span><span class="line"><span class="cl">2 5 # 输入m n
+</span></span><span class="line"><span class="cl">011
+</span></span><span class="line"><span class="cl">101 #这两行是一致性校验矩阵中的 H_{m*r} 部分
+</span></span><span class="line"><span class="cl">1. e(B^m):
+</span></span><span class="line"><span class="cl">  e(00) = 00000
+</span></span><span class="line"><span class="cl">  e(01) = 01101
+</span></span><span class="line"><span class="cl">  e(10) = 10011
+</span></span><span class="line"><span class="cl">  e(11) = 11110
+</span></span><span class="line"><span class="cl">2. Cosets:
+</span></span><span class="line"><span class="cl">  00000 | 00000 01101 10011 11110
+</span></span><span class="line"><span class="cl">  00001 | 00001 01100 10010 11111
+</span></span><span class="line"><span class="cl">  00010 | 00010 01111 10001 11100
+</span></span><span class="line"><span class="cl">  00100 | 00100 01001 10111 11010
+</span></span><span class="line"><span class="cl">  01000 | 01000 00101 11011 10110
+</span></span><span class="line"><span class="cl">  10000 | 10000 11101 00011 01110
+</span></span><span class="line"><span class="cl">  00110 | 00110 01011 10101 11000
+</span></span><span class="line"><span class="cl">  01010 | 01010 00111 11001 10100
+</span></span><span class="line"><span class="cl">Enter the number of words to decode: 3 # 在输出码字和陪集之后，在这里输入你要测试的次数
+</span></span><span class="line"><span class="cl">Enter the word #1: 10111
+</span></span><span class="line"><span class="cl"> (a) d(10111) = 10
+</span></span><span class="line"><span class="cl"> (b) f(10111) = 100, ε = 00100, d(10111) = 10 #输出译码的结果
+</span></span><span class="line"><span class="cl">······
+</span></span></code></pre></div><h1 id="附录源代码">附录：源代码<a hidden class="anchor" aria-hidden="true" href="#附录源代码">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cstring&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cstdio&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cstdint&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;cassert&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="kt">void</span> <span class="nf">printBit</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">i</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">bitcount</span><span class="p">(</span><span class="n">T</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="n">n</span> <span class="o">-=</span> <span class="n">n</span> <span class="o">&amp;</span> <span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="n">s</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">BitMatrix</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">d</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">)</span><span class="o">:</span> <span class="n">n</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">m</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">memset</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="k">operator</span><span class="o">*</span><span class="p">(</span><span class="k">const</span> <span class="n">BitMatrix</span><span class="o">&amp;</span> <span class="n">rhs</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">BitMatrix</span> <span class="nf">res</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">rhs</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">k</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">res</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="n">rhs</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">print</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">printBit</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Coset</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span> <span class="n">d</span><span class="p">;</span> <span class="c1">// coset
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">uint64_t</span> <span class="n">e</span><span class="p">;</span> <span class="c1">// coset leader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Coset</span><span class="p">()</span> <span class="o">:</span> <span class="n">e</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">add</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">            <span class="n">d</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">e</span> <span class="o">=</span> <span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">d</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">bitcount</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bitcount</span><span class="p">(</span><span class="n">e</span><span class="p">))</span> <span class="n">e</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="nf">inputBit</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">line</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">line</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;1&#39;</span> <span class="o">||</span> <span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">x</span> <span class="o">|=</span> <span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="nf">inputH</span><span class="p">(</span><span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputBit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">m</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">H</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">BitMatrix</span> <span class="nf">HtoH2</span><span class="p">(</span><span class="n">BitMatrix</span> <span class="o">&amp;</span><span class="n">H</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H2</span><span class="p">(</span><span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">,</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">H2</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">H2</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="p">(</span><span class="n">H</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">j</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span> <span class="o">-</span> <span class="n">H</span><span class="p">.</span><span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">H2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">uint64_t</span> <span class="nf">getSyndrome</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">,</span> <span class="n">BitMatrix</span> <span class="o">&amp;</span><span class="n">H</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">X</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">H</span><span class="p">.</span><span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">X</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">(</span><span class="n">X</span> <span class="o">*</span> <span class="n">H</span><span class="p">).</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">m</span> <span class="o">&gt;&gt;</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">m</span> <span class="o">&amp;&amp;</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">64</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H</span> <span class="o">=</span> <span class="n">inputH</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">H2</span> <span class="o">=</span> <span class="n">HtoH2</span><span class="p">(</span><span class="n">H</span><span class="p">),</span> <span class="n">Bm</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">m</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">|=</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;&gt;</span> <span class="n">j</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">m</span> <span class="o">-</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BitMatrix</span> <span class="n">N</span> <span class="o">=</span> <span class="n">Bm</span> <span class="o">*</span> <span class="n">H2</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;1. e(B^m):&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;  e(&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">N</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="p">,</span> <span class="n">Coset</span><span class="o">&gt;</span> <span class="n">cosets</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">visited</span><span class="p">,</span> <span class="n">NtoBm</span><span class="p">,</span> <span class="n">syndrome</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">.</span><span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">NtoBm</span><span class="p">[</span><span class="n">N</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">numbers</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">n</span><span class="p">);</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="n">numbers</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">numbers</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">numbers</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">ca</span> <span class="o">=</span> <span class="n">bitcount</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">cb</span> <span class="o">=</span> <span class="n">bitcount</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ca</span> <span class="o">==</span> <span class="n">cb</span> <span class="o">?</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="nl">b</span> <span class="p">:</span> <span class="n">ca</span> <span class="o">&lt;</span> <span class="n">cb</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">});</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">uint64_t</span> <span class="o">&gt;</span> <span class="n">cosetLeaders</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">i</span> <span class="p">:</span> <span class="n">numbers</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Coset</span> <span class="n">coset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">bool</span> <span class="n">notFound</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">.</span><span class="n">n</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">N</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">^</span> <span class="kt">uint64_t</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">visited</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="n">visited</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">notFound</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">coset</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">notFound</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cosets</span><span class="p">[</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">coset</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">syndrome</span><span class="p">[</span><span class="n">getSyndrome</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">,</span> <span class="n">H</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cosetLeaders</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">e</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// if cosetLeaders.size() = 2^(n-m), then stop.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// Because there are only 2^(n-m) cosets.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">cosetLeaders</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">)))</span> <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;2. Cosets:&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">i</span><span class="p">:</span> <span class="n">cosetLeaders</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;  &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Coset</span> <span class="n">coset</span> <span class="o">=</span> <span class="n">cosets</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; |&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">coset</span><span class="p">.</span><span class="n">d</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">printBit</span><span class="p">(</span><span class="n">coset</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Enter the number of words to decode: &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">k</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">k</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;Enter the word #&#34;</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;: &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">uint64_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">inputBit</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; (a) d(&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34; (b) f(&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">uint64_t</span> <span class="n">s</span> <span class="o">=</span> <span class="n">getSyndrome</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">H</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, ε = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">syndrome</span><span class="p">[</span><span class="n">s</span><span class="p">]],</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, d(&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;) = &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printBit</span><span class="p">(</span><span class="n">Bm</span><span class="p">.</span><span class="n">d</span><span class="p">[</span><span class="n">NtoBm</span><span class="p">[</span><span class="n">cosetLeaders</span><span class="p">[</span><span class="n">syndrome</span><span class="p">[</span><span class="n">s</span><span class="p">]]</span> <span class="o">^</span> <span class="n">x</span><span class="p">]],</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/">离散数学</a></li>
+      <li><a href="http://localhost:1313/tags/%E7%BC%96%E7%A0%81/">编码</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>2023年终总结</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A01/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>机器学习：向量化</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://github.com/adityatelange/hugo-PaperMod/graphs/contributors">PaperMod Contributors</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

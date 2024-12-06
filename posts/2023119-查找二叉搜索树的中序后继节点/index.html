@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>查找二叉搜索树的中序后继节点 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="核心思路
+对于一个给定的节点，他的中序后继节点有两种情况:
+
+给定节点存在右子树时，中序后继节点即为右子树中的最小值
+若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先
+">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script><meta property="og:url" content="http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="查找二叉搜索树的中序后继节点">
+  <meta property="og:description" content="核心思路 对于一个给定的节点，他的中序后继节点有两种情况:
+给定节点存在右子树时，中序后继节点即为右子树中的最小值
+若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-01-19T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-01-19T00:00:00+00:00">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="查找二叉搜索树的中序后继节点">
+<meta name="twitter:description" content="核心思路
+对于一个给定的节点，他的中序后继节点有两种情况:
+
+给定节点存在右子树时，中序后继节点即为右子树中的最小值
+若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先
+">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "查找二叉搜索树的中序后继节点",
+      "item": "http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "查找二叉搜索树的中序后继节点",
+  "name": "查找二叉搜索树的中序后继节点",
+  "description": "核心思路 对于一个给定的节点，他的中序后继节点有两种情况:\n给定节点存在右子树时，中序后继节点即为右子树中的最小值\n若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先\n",
+  "keywords": [
+    
+  ],
+  "articleBody": "核心思路 对于一个给定的节点，他的中序后继节点有两种情况:\n给定节点存在右子树时，中序后继节点即为右子树中的最小值\n若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先\nCode BstNode* Find(BstNode* root, int data) {//寻找给定data的地址 if (root == NULL)return NULL; if (data \u003c root-\u003edata) return Find(root-\u003eleft, data); else if (data \u003e root-\u003edata) return Find(root-\u003eright, data); else return root; } BstNode* Getsuccessor(BstNode* root, int data) { BstNode* current = Find(root, data); if (current == NULL)return NULL; if (current-\u003eright != NULL) { return FindMin(current-\u003eright); } else { BstNode* successor = NULL; BstNode* ancestor = root; while (ancestor != current) { if (current-\u003edata \u003c ancestor-\u003edata) { successor = ancestor; ancestor = ancestor-\u003eleft; } else { ancestor = ancestor-\u003eright; } } return ancestor; } } ",
+  "wordCount" : "190",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-19T00:00:00Z",
+  "dateModified": "2023-01-19T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/2023119-%E6%9F%A5%E6%89%BE%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E5%90%8E%E7%BB%A7%E8%8A%82%E7%82%B9/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      查找二叉搜索树的中序后继节点
+    </h1>
+    <div class="post-meta"><span title='2023-01-19 00:00:00 +0000 UTC'>一月 19, 2023</span>&nbsp;·&nbsp;1 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/2023119-%e6%9f%a5%e6%89%be%e4%ba%8c%e5%8f%89%e6%90%9c%e7%b4%a2%e6%a0%91%e7%9a%84%e4%b8%ad%e5%ba%8f%e5%90%8e%e7%bb%a7%e8%8a%82%e7%82%b9.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e6%a0%b8%e5%bf%83%e6%80%9d%e8%b7%af" aria-label="核心思路">核心思路</a></li>
+                <li>
+                    <a href="#code" aria-label="Code">Code</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="核心思路">核心思路<a hidden class="anchor" aria-hidden="true" href="#核心思路">#</a></h1>
+<p>对于一个给定的节点，他的中序后继节点有<code>两种情况</code>:</p>
+<blockquote>
+<p>给定节点存在右子树时，中序后继节点即为右子树中的最小值</p>
+<p>若不存在右子树，则中序后继节点为给定节点所在的左子树的祖先</p>
+</blockquote>
+<h1 id="code">Code<a hidden class="anchor" aria-hidden="true" href="#code">#</a></h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="n">BstNode</span><span class="o">*</span> <span class="nf">Find</span><span class="p">(</span><span class="n">BstNode</span><span class="o">*</span> <span class="n">root</span><span class="p">,</span> <span class="kt">int</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span><span class="c1">//寻找给定data的地址
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span><span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">root</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="k">return</span> <span class="n">Find</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">root</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="k">return</span> <span class="n">Find</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="k">return</span> <span class="n">root</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">BstNode</span><span class="o">*</span> <span class="nf">Getsuccessor</span><span class="p">(</span><span class="n">BstNode</span><span class="o">*</span> <span class="n">root</span><span class="p">,</span> <span class="kt">int</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">BstNode</span><span class="o">*</span> <span class="n">current</span> <span class="o">=</span> <span class="n">Find</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">data</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">current</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span><span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">right</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">FindMin</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">BstNode</span><span class="o">*</span> <span class="n">successor</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">BstNode</span><span class="o">*</span> <span class="n">ancestor</span> <span class="o">=</span> <span class="n">root</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span> <span class="p">(</span><span class="n">ancestor</span> <span class="o">!=</span> <span class="n">current</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">ancestor</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="n">successor</span> <span class="o">=</span> <span class="n">ancestor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">				<span class="n">ancestor</span> <span class="o">=</span> <span class="n">ancestor</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">			<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="n">ancestor</span> <span class="o">=</span> <span class="n">ancestor</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">ancestor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/2023221-%E5%B9%B6%E6%9F%A5%E9%9B%86%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>并查集及其应用</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/2023119-%E5%A6%82%E4%BD%95%E6%A3%80%E6%9F%A5%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%A0%91%E6%98%AF%E5%90%A6%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>如何检查一个二叉树是否为二叉搜索树</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://github.com/adityatelange/hugo-PaperMod/graphs/contributors">PaperMod Contributors</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
