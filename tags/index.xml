@@ -2,86 +2,86 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on M1YAN&#39;s Blog</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>https://m1yan.github.io/tags/</link>
     <description>Recent content in Tags on M1YAN&#39;s Blog</description>
     <image>
       <title>M1YAN&#39;s Blog</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
     <lastBuildDate>Mon, 07 Oct 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://m1yan.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Diffusers</title>
-      <link>http://localhost:1313/tags/diffusers/</link>
+      <link>https://m1yan.github.io/tags/diffusers/</link>
       <pubDate>Mon, 07 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/diffusers/</guid>
+      <guid>https://m1yan.github.io/tags/diffusers/</guid>
       <description></description>
     </item>
     <item>
       <title>Tutorials</title>
-      <link>http://localhost:1313/tags/tutorials/</link>
+      <link>https://m1yan.github.io/tags/tutorials/</link>
       <pubDate>Mon, 07 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/tutorials/</guid>
+      <guid>https://m1yan.github.io/tags/tutorials/</guid>
       <description></description>
     </item>
     <item>
       <title>大作业</title>
-      <link>http://localhost:1313/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
+      <link>https://m1yan.github.io/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
       <pubDate>Wed, 17 Apr 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</guid>
+      <guid>https://m1yan.github.io/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</guid>
       <description></description>
     </item>
     <item>
       <title>计算机网络</title>
-      <link>http://localhost:1313/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/</link>
+      <link>https://m1yan.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/</link>
       <pubDate>Wed, 17 Apr 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/</guid>
+      <guid>https://m1yan.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/</guid>
       <description></description>
     </item>
     <item>
       <title>2023</title>
-      <link>http://localhost:1313/tags/2023/</link>
+      <link>https://m1yan.github.io/tags/2023/</link>
       <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/2023/</guid>
+      <guid>https://m1yan.github.io/tags/2023/</guid>
       <description></description>
     </item>
     <item>
       <title>年终总结</title>
-      <link>http://localhost:1313/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</link>
+      <link>https://m1yan.github.io/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</link>
       <pubDate>Sun, 31 Dec 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</guid>
+      <guid>https://m1yan.github.io/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</guid>
       <description></description>
     </item>
     <item>
       <title>编码</title>
-      <link>http://localhost:1313/tags/%E7%BC%96%E7%A0%81/</link>
+      <link>https://m1yan.github.io/tags/%E7%BC%96%E7%A0%81/</link>
       <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E7%BC%96%E7%A0%81/</guid>
+      <guid>https://m1yan.github.io/tags/%E7%BC%96%E7%A0%81/</guid>
       <description></description>
     </item>
     <item>
       <title>离散数学</title>
-      <link>http://localhost:1313/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</link>
+      <link>https://m1yan.github.io/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</link>
       <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</guid>
+      <guid>https://m1yan.github.io/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</guid>
       <description></description>
     </item>
     <item>
       <title>AI</title>
-      <link>http://localhost:1313/tags/ai/</link>
+      <link>https://m1yan.github.io/tags/ai/</link>
       <pubDate>Thu, 14 Sep 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/ai/</guid>
+      <guid>https://m1yan.github.io/tags/ai/</guid>
       <description></description>
     </item>
     <item>
       <title>科幻小说</title>
-      <link>http://localhost:1313/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</link>
+      <link>https://m1yan.github.io/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</link>
       <pubDate>Thu, 14 Sep 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</guid>
+      <guid>https://m1yan.github.io/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</guid>
       <description></description>
     </item>
   </channel>

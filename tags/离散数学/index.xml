@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>离散数学 on M1YAN&#39;s Blog</title>
-    <link>http://localhost:1313/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</link>
+    <link>https://m1yan.github.io/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/</link>
     <description>Recent content in 离散数学 on M1YAN&#39;s Blog</description>
     <image>
       <title>M1YAN&#39;s Blog</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
     <lastBuildDate>Wed, 20 Dec 2023 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://m1yan.github.io/tags/%E7%A6%BB%E6%95%A3%E6%95%B0%E5%AD%A6/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>极大似然技术编码译码</title>
-      <link>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</link>
+      <link>https://m1yan.github.io/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</link>
       <pubDate>Wed, 20 Dec 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</guid>
+      <guid>https://m1yan.github.io/posts/%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E6%8A%80%E6%9C%AF%E7%BC%96%E7%A0%81%E8%AF%91%E7%A0%81/</guid>
       <description>&lt;h2 id=&#34;1-实验环境&#34;&gt;1 实验环境&lt;/h2&gt;
 &lt;p&gt;语言：C++&lt;/p&gt;
 &lt;h2 id=&#34;2-实验内容&#34;&gt;2 实验内容&lt;/h2&gt;

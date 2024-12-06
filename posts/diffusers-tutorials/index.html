@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -17,16 +17,16 @@ image = ddpm(num_inference_steps=25).images[0]
 image
 ">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/diffusers-tutorials/">
+<link rel="canonical" href="https://m1yan.github.io/posts/diffusers-tutorials/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/diffusers-tutorials/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/diffusers-tutorials/">
 <noscript>
     <style>
         #theme-toggle,
@@ -79,7 +79,7 @@ image
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/diffusers-tutorials/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/diffusers-tutorials/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="Diffusers Tutorials">
   <meta property="og:description" content="Pipelines, models and schedulers 解构基本pipeline pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像
@@ -91,9 +91,9 @@ from diffusers import DDPMPipeline ddpm = DDPMPipeline.from_pretrained(&#34;goog
     <meta property="article:modified_time" content="2024-10-07T00:00:00+00:00">
     <meta property="article:tag" content="Diffusers">
     <meta property="article:tag" content="Tutorials">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="Diffusers Tutorials">
 <meta name="twitter:description" content="Pipelines, models and schedulers
 解构基本pipeline
@@ -115,13 +115,13 @@ image
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "Diffusers Tutorials",
-      "item": "http://localhost:1313/posts/diffusers-tutorials/"
+      "item": "https://m1yan.github.io/posts/diffusers-tutorials/"
     }
   ]
 }
@@ -139,7 +139,7 @@ image
   "articleBody": "Pipelines, models and schedulers 解构基本pipeline pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像\nfrom diffusers import DDPMPipeline ddpm = DDPMPipeline.from_pretrained(\"google/ddpm-cat-256\", use_safetensors=True).to(\"cuda\") image = ddpm(num_inference_steps=25).images[0] image 在上述例子中，pipeline中包括一个UNet2DModel和一个DDPMScheduler。pipeline通过获取所需输出大小的随机噪声并将其多次传递给模型对图像进行去噪。每个时间步，模型都会预测噪声残差，调度器会使用它来预测一个噪声更少的图像，重复该步骤直到到达特定的时间步。\n解构pipeline，从模型中重新构建一个pipeline用于去噪过程。\n加载模型和scheduler: from diffusers import DDPMScheduler, UNet2DModel scheduler = DDPMScheduler.from_pretrained(\"google/ddpm-cat-256\") model = UNet2DModel.from_pretrained(\"google/ddpm-cat-256\", use_safetensors=True).to(\"cuda\") 设置时间步用于去噪过程 scheduler.set_timesteps(50) 设置scheduler的时间步会创建一个张量，其中包含均匀分布的元素，例子中为50个。每个元素对应模型对图像进行去噪步长。在去噪循环中，迭代此张量对图像进行去噪： scheduler.timesteps tensor([980, 960, 940, 920, 900, 880, 860, 840, 820, 800, 780, 760, 740, 720, 700, 680, 660, 640, 620, 600, 580, 560, 540, 520, 500, 480, 460, 440, 420, 400, 380, 360, 340, 320, 300, 280, 260, 240, 220, 200, 180, 160, 140, 120, 100, 80, 60, 40, 20, 0]) 创建一些与输出形状一致的随机噪声： import torch sample_size = model.config.sample_size noise = torch.randn((1, 3, sample_size, sample_size), device=\"cuda\") 编写一个循环来迭代时间步。在每个时间步中，模型会执行UNet2DModel.forward()传递并且返回噪声残差。Scheduler的step()方法会使用噪声残差、时间步和输入，预测上一个时间步的图像（时间步是从大到小，“上一个时间步”指比其数值小的时间步） input = noise for t in scheduler.timesteps: with torch.no_grad(): noisy_residual = model(input, t).sample previous_noisy_sample = scheduler.step(noisy_residual, t, input).prev_sample input = previous_noisy_sample 上述过程为整个去噪过程。\n最后一步是将去噪输出转换为图像 from PIL import Image import numpy as np image = (input / 2 + 0.5).clamp(0, 1).squeeze() image = (image.permute(1, 2, 0) * 255).round().to(torch.uint8).cpu().numpy() image = Image.fromarray(image) image 解构稳定扩散Pipeline 稳定扩散 (Stable Diffusion) 是一种文本到图像的潜在扩散模型，使用图像的低维表示而不是实际像素空间，使得它更节省内存。编码器将图像压缩为较小的表示，解码器将压缩后的表示转换为图像。对于文本到图像的生成模型，需要一个tokenizer 和一个encoder 来生成文本嵌入，所以，稳定扩散模型需要三个单独的预训练模型。\n使用from_pretrained()方法加载这些组件，使用stable-diffusion-v1-4模型。\nfrom PIL import Image import torch from transformers import CLIPTextModel, CLIPTokenizer from diffusers import AutoencoderKL, UNet2DConditionModel, PNDMScheduler vae = AutoencoderKL.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"vae\", use_safetensors=True) tokenizer = CLIPTokenizer.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"tokenizer\") text_encoder = CLIPTextModel.from_pretrained( \"CompVis/stable-diffusion-v1-4\", subfolder=\"text_encoder\", use_safetensors=True ) unet = UNet2DConditionModel.from_pretrained( \"CompVis/stable-diffusion-v1-4\", subfolder=\"unet\", use_safetensors=True ) 不使用默认的PNDMScheduler，而是换成UniPCMultistepScheduler：\nfrom diffusers import UniPCMultistepScheduler scheduler = UniPCMultistepScheduler.from_pretrained(\"CompVis/stable-diffusion-v1-4\", subfolder=\"scheduler\") 为了加快推理速度，将模型移至GPU中，VAE、Encoder、UNet具有可训练的权重。\ntorch_device = \"cuda\" vae.to(torch_device) text_encoder.to(torch_device) unet.to(torch_device) 创建文本嵌入 (Text Embeddings) 将文本tokenized以生成embeddings。文本用于引导扩散模型输出提示中的内容，其中参数guidance_scale决定了在生成图像时应该给予提示多少权重。\nprompt = [\"a photograph of an astronaut riding a horse\"] height = 512 # default height of Stable Diffusion width = 512 # default width of Stable Diffusion num_inference_steps = 25 # Number of denoising steps guidance_scale = 7.5 # Scale for classifier-free guidance generator = torch.manual_seed(0) # Seed generator to create the initial latent noise batch_size = len(prompt) 对文本进行tokenize并且从prompt中生成嵌入：\n# 使用分词器对prompt进行分词，并填充到最大长度 text_input = tokenizer( prompt, padding=\"max_length\", max_length=tokenizer.model_max_length, truncation=True, return_tensors=\"pt\" ) # 使用text_encoder对分词后对prompt生成text_embeddings with torch.no_grad(): text_embeddings = text_encoder(text_input.input_ids.to(torch_device))[0] 还需要生成无条件文本嵌入，用于填充嵌入。这些嵌入需要有相同的形状（batch_size和seq_length），像条件文本嵌入一样：\n# text_input的形状：batch_size * seq_length max_length = text_input.input_ids.shape[-1] uncond_input = tokenizer([\"\"] * batch_size, padding=\"max_length\", max_length=max_length, return_tensors=\"pt\") uncond_embeddings = text_encoder(uncond_input.input_ids.to(torch_device))[0] 将无条件文本嵌入和条件文本嵌入拼接：\ntext_embeddings = torch.cat([uncond_embeddings, text_embeddings]) 创建随机噪声 接下来，生成一些随机噪声作为去噪过程的起点。作为潜空间的图像表示，它们会被逐渐去噪。图像的潜在表示小于最终的图像尺寸，模型之后会将其转换为最终的512*512尺寸。\n由于VAE每次下采样都会将尺寸的长宽变为原来的1/2，使用以下代码来验证VAE的下采样次数：\n2 ** (len(vae.config.block_out_channels) - 1) == 8 # vae.config.block_out_channels为卷积层的数量 # -1后时下采样的次数 # 说明经历了3次下采样 生成随机噪声的代码：\nlatents = torch.randn( (batch_size, unet.config.in_channels, height // 8, width // 8), # 生成的噪声位于三次下采样之后的潜空间 generator=generator, device=torch_device, ) 图像去噪 首先使用初始化噪声分布sigma 缩放输入，是使用UniPCMultistepScheduler调度器的必须步骤。\nlatents = latents * scheduler.init_noise_sigma 创建一个去噪循环，能够逐步将纯噪声转换为在latent space中的图像表示，去噪循环中有三个操作：\n设置去噪期间Scheduler的时间步长 迭代时间步长 在每个时间步中，调用UNet模型来预测噪声残差并将其传递给Scheduler来计算之前的噪声样本 from tqdm.auto import tqdm scheduler.set_timesteps(num_inference_steps) for t in tqdm(scheduler.timesteps): # expand the latents if we are doing classifier-free guidance to avoid doing two forward passes. latent_model_input = torch.cat([latents] * 2) latent_model_input = scheduler.scale_model_input(latent_model_input, timestep=t) # predict the noise residual # 噪声预测需要输入上一步的潜空间表示、时间步以及文本嵌入 with torch.no_grad(): noise_pred = unet(latent_model_input, t, encoder_hidden_states=text_embeddings).sample # perform guidance noise_pred_uncond, noise_pred_text = noise_pred.chunk(2) # guidance_scale 用于调节文本指导生成的强度 noise_pred = noise_pred_uncond + guidance_scale * (noise_pred_text - noise_pred_uncond) # compute the previous noisy sample x_t -\u003e x_t-1 # 输入预测的噪声、时间步和潜空间表示来计算上一个时间步的潜空间表示 latents = scheduler.step(noise_pred, t, latents).prev_sample 解码图像 最后一步是使用VAE将潜空间表示解码为图像并获取解码输出。\n# scale and decode the image latents with vae latents = 1 / 0.18215 * latents with torch.no_grad(): image = vae.decode(latents).sample 最后，使用PIL.Image来展示图像。\nimage = (image / 2 + 0.5).clamp(0, 1).squeeze() image = (image.permute(1, 2, 0) * 255).to(torch.uint8).cpu().numpy() image = Image.fromarray(image) image Training Diffusion Model DreamBooth 首先，下载diffuers示例脚本，安装对应依赖：\ngit clone https://github.com/huggingface/diffusers cd diffusers pip install . 配置Accelerate环境：\naccelerate config 脚本参数 训练脚本提供了许多参数用于自定义训练运行。启动训练使用以下代码：\naccelerate launch train_dreambooth.py 一些基本且重要的参数：\n--pretrained_model_name_or_path: Hub上的模型名称或者预训练模型本地路径 --instance_data_path: 包含训练数据集的文件夹路径 --instance_prompt: 包含示例图片的稀有标记的文本提示 --train_text_encoder: 是否训练文本编码器 --output_dir: 训练好的模型保存地址 --push_to_hub: 是否将训练好的模型推送至hub --checkpointing_steps: 在模型训练时保存检查点的频率；如果训练因为某种原因中断，可以通过添加--resume_from_checkpoint到训练命令中从该检查点继续训练 先验保存损失 先验保存损失通过使用模型自己生成的样本来帮助学习更加多样性的图像主体。由于生成的样本图像与提供的图像属于同一类别，因此它们有助于模型保留对该类别的理解同时利用该类别的已知信息来提供新的构图。\n--with_prior_preservation: 是否使用先验保留损失 --prior_loss_weight: 控制先验保存损失对模型的影响 --class_data_dir: 包含生成类图像的文件夹路径 --class_prompt: 描述生成类图像的文本提示 accelerate launch train_dreambooth.py \\ --with_prior_preservation \\ --prior_loss_weight=1.0 \\ --class_data_dir=\"path/to/class/images\" \\ --class_prompt=\"text prompt describing class\" 训练脚本 DreamBooth包含数据集类：\nDreamBoothDataset：对图像和类别图像进行预处理，并对训练提示进行分词 PromptDataset：生成提示嵌入以生成类别图像 如果启用了先验保存损失，则类别图像在此处生成：\n# 包含类别提示的数据集 sample_dataset = PromptDataset(args.class_prompt, num_new_images) sample_dataloader = torch.utils.data.DataLoader(sample_dataset, batch_size=args.sample_batch_size) sample_dataloader = accelerator.prepare(sample_dataloader) pipeline.to(accelerator.device) for example in tqdm( sample_dataloader, desc=\"Generating class images\", disable=not accelerator.is_local_main_process ): images = pipeline(example[\"prompt\"]).images 接下来使用main()处理设置训练数据集和训练循环。该脚本加载tokenizer、scheduler和models：\n# Load the tokenizer if args.tokenizer_name: tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_name, revision=args.revision, use_fast=False) elif args.pretrained_model_name_or_path: tokenizer = AutoTokenizer.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"tokenizer\", revision=args.revision, use_fast=False, ) # Load scheduler and models noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"scheduler\") text_encoder = text_encoder_cls.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"text_encoder\", revision=args.revision ) if model_has_vae(args): vae = AutoencoderKL.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"vae\", revision=args.revision ) else: vae = None unet = UNet2DConditionModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"unet\", revision=args.revision ) 然后，创建训练数据集和数据加载器：\ntrain_dataset = DreamBoothDataset( instance_data_root=args.instance_data_dir, instance_prompt=args.instance_prompt, class_data_root=args.class_data_dir if args.with_prior_preservation else None, class_prompt=args.class_prompt, class_num=args.num_class_images, tokenizer=tokenizer, size=args.resolution, center_crop=args.center_crop, encoder_hidden_states=pre_computed_encoder_hidden_states, class_prompt_encoder_hidden_states=pre_computed_class_prompt_encoder_hidden_states, tokenizer_max_length=args.tokenizer_max_length, ) train_dataloader = torch.utils.data.DataLoader( train_dataset, batch_size=args.train_batch_size, shuffle=True, collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation), num_workers=args.dataloader_num_workers, ) 最后，训练循环负责将图像转换为潜空间表示、向输入添加噪声、预测噪声残差以及计算损失等。\n启动训练脚本 添加部分变量到bash环境变量中，启动训练脚本：\nexport MODEL_NAME=\"stable-diffusion-v1-5/stable-diffusion-v1-5\" export INSTANCE_DIR=\"./dog\" export OUTPUT_DIR=\"path_to_saved_model\" accelerate launch train_dreambooth.py \\ --pretrained_model_name_or_path=$MODEL_NAME \\ --instance_data_dir=$INSTANCE_DIR \\ --output_dir=$OUTPUT_DIR \\ --instance_prompt=\"a photo of sks dog\" \\ --resolution=512 \\ --train_batch_size=1 \\ --gradient_accumulation_steps=1 \\ --learning_rate=5e-6 \\ --lr_scheduler=\"constant\" \\ --lr_warmup_steps=0 \\ --max_train_steps=400 \\ --push_to_hub 训练完成后即可使用新训练的模型进行推理。\nTextual Inversion Textual Inversion是一种微调技术，只需几个示例图像即可个性化图像生成模型。此技术的工作原理是学习和更新文本嵌入（新嵌入必须与特殊单词相关联）以匹配提供的示例图像。\n脚本参数 使用以下代码来启动训练：\naccelerate launch textual_inversion.py \\ --gradient_accumulation_steps=4 一些需要指定的重要参数如下：\n-pretrained_model_name_or_path：Hub 上的模型名称或预训练模型的本地路径 -train_data_dir：包含训练数据集（示例图像）的文件夹路径 -output_dir：训练好的模型保存位置 -push_to_hub：是否将训练好的模型推送到Hub -checkpointing_steps-resume_from_checkpoint：在模型训练时保存检查点的频率；如果由于某种原因训练中断，可以通过添加此参数继续训练 -num_vectors：用于学习嵌入的向量数量；增加此参数有助于模型更好地学习，但会增加训练成本 -placeholder_token：将学习到的嵌入与之联系起来的特殊词（你必须在提示中使用该词进行推理） -initializer_token：一个单词，大致描述你正在尝试训练的对象或风格 -learnable_property：无论是在训练模型学习新的“风格”（例如，梵高的绘画风格）还是“对象”（例如，您的狗） 训练脚本 textual inversion有一个自定义数据集类，TextualInversionDataset用于创建数据集，可以自定义图像大小、占位符标记、差值方法、是否裁剪图像等。\n首先加载tokenizer、scheduler和model：\n# Load tokenizer if args.tokenizer_name: tokenizer = CLIPTokenizer.from_pretrained(args.tokenizer_name) elif args.pretrained_model_name_or_path: tokenizer = CLIPTokenizer.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"tokenizer\") # Load scheduler and models noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"scheduler\") text_encoder = CLIPTextModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"text_encoder\", revision=args.revision ) vae = AutoencoderKL.from_pretrained(args.pretrained_model_name_or_path, subfolder=\"vae\", revision=args.revision) unet = UNet2DConditionModel.from_pretrained( args.pretrained_model_name_or_path, subfolder=\"unet\", revision=args.revision ) 在tokenizer中添加特殊占位符标记，并重新调整嵌入以适应新的标记。\n然后，脚本创建数据集TextualInversionDataset。\ntrain_dataset = TextualInversionDataset( data_root=args.train_data_dir, tokenizer=tokenizer, size=args.resolution, placeholder_token=(\" \".join(tokenizer.convert_ids_to_tokens(placeholder_token_ids))), repeats=args.repeats, learnable_property=args.learnable_property, center_crop=args.center_crop, set=\"train\", ) train_dataloader = torch.utils.data.DataLoader( train_dataset, batch_size=args.train_batch_size, shuffle=True, num_workers=args.dataloader_num_workers ) 最后，训练循环处理从预测噪声残差到更新特殊占位符标记的嵌入权重的所有操作。\n启动训练脚本 在启动脚本之前，如果想跟踪训练过程，可以在训练过程中定期保存生成的图像。将以下参数增加到训练命令中：\n--validation_prompt=\"A train\" --num_validation_images=4 --validation_steps=100 启动训练脚本的命令如下：\nexport MODEL_NAME=\"stable-diffusion-v1-5/stable-diffusion-v1-5\" export DATA_DIR=\"./cat\" accelerate launch textual_inversion.py \\ --pretrained_model_name_or_path=$MODEL_NAME \\ --train_data_dir=$DATA_DIR \\ --learnable_property=\"object\" \\ --placeholder_token=\"\" \\ --initializer_token=\"toy\" \\ --resolution=512 \\ --train_batch_size=1 \\ --gradient_accumulation_steps=4 \\ --max_train_steps=3000 \\ --learning_rate=5.0e-04 \\ --scale_lr \\ --lr_scheduler=\"constant\" \\ --lr_warmup_steps=0 \\ --output_dir=\"textual_inversion_cat\" \\ --push_to_hub 训练结束后，可以使用新训练的模型进行推理：\nfrom diffusers import StableDiffusionPipeline import torch pipeline = StableDiffusionPipeline.from_pretrained(\"stable-diffusion-v1-5/stable-diffusion-v1-5\", torch_dtype=torch.float16).to(\"cuda\") pipeline.load_textual_inversion(\"sd-concepts-library/cat-toy\") image = pipeline(\"A train\", num_inference_steps=50).images[0] image.save(\"cat-train.png\") ",
   "wordCount" : "3935",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2024-10-07T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2024-10-07T00:00:00Z",
   "dateModified": "2024-10-07T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -147,14 +147,14 @@ image
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/diffusers-tutorials/"
+    "@id": "https://m1yan.github.io/posts/diffusers-tutorials/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -176,7 +176,7 @@ image
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -200,7 +200,7 @@ image
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -208,17 +208,17 @@ image
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -240,7 +240,7 @@ image
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       Diffusers Tutorials
     </h1>
@@ -685,16 +685,16 @@ image
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="http://localhost:1313/tags/diffusers/">Diffusers</a></li>
-      <li><a href="http://localhost:1313/tags/tutorials/">Tutorials</a></li>
+      <li><a href="https://m1yan.github.io/tags/diffusers/">Diffusers</a></li>
+      <li><a href="https://m1yan.github.io/tags/tutorials/">Tutorials</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/diffusion-model/">
+  <a class="prev" href="https://m1yan.github.io/posts/diffusion-model/">
     <span class="title">« 上一页</span>
     <br>
     <span>What are Diffusion Models?</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/">
+  <a class="next" href="https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/">
     <span class="title">下一页 »</span>
     <br>
     <span>DASH实验报告</span>

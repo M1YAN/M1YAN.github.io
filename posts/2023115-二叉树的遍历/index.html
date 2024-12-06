@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -13,16 +13,16 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
 
 树的遍历有2种方式，Breadth-first（广度优先）和Depth-first（深度优先）。">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
+<link rel="canonical" href="https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
 <noscript>
     <style>
         #theme-toggle,
@@ -75,7 +75,7 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="二叉树的遍历">
   <meta property="og:description" content="Tree Traversal Tree traversal is a process of visiting each node in the tree exactly once in some order.
@@ -85,9 +85,9 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2023-01-15T00:00:00+00:00">
     <meta property="article:modified_time" content="2023-01-15T00:00:00+00:00">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="二叉树的遍历">
 <meta name="twitter:description" content="Tree Traversal
 
@@ -105,13 +105,13 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "二叉树的遍历",
-      "item": "http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/"
+      "item": "https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/"
     }
   ]
 }
@@ -129,7 +129,7 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
   "articleBody": "Tree Traversal Tree traversal is a process of visiting each node in the tree exactly once in some order.\n树的遍历有2种方式，Breadth-first（广度优先）和Depth-first（深度优先）。\nBreadth-first（广度优先） 按照广度优先，对二叉树的遍历方式主要是Level-order（层序遍历）。\nLevel-order（层序遍历） 层序遍历即对一个二叉树每层从上到下，从左到右进行遍历。\n上图层序遍历顺序即为F D J B E G K A C I H.\n实现 用队列可以实现层序遍历。因为队列有First-In-First-Out(FIFO)原则，我们可以先让root进入队列，在访问节点时，让其左右节点进入队列。\n实现层序遍历的代码如下：\n代码 #include//可以直接调用库函数使用队列，其基本语法与Stack类似 void LevelOrder(BstNode* root) { if (root == NULL)return; queue\u003cBstNode*\u003e Q; Q.push(root); while (!Q.empty()) { BstNode* current = Q.front(); cout \u003c\u003c current-\u003edata \u003c\u003c \" \"; if (current-\u003eleft != NULL)Q.push(current-\u003eleft); if (current-\u003eright != NULL)Q.push(current-\u003eright); Q.pop(); } } Depth-first（深度优先） 深度优先有三个排序方法，Preorder（前序）、Inorder（中序）和Postorder（后序）。\n类型 Order Preorder (DLR) Inorder (LDR) Postorder (LRD) 上图三种不同方式的排列顺序分别为：\nPreorder: F D B A C E J G I H K\nInorder: A B C D E F G H I J K\nPostorder: A C B E D H I G K J F\n实现 三种顺序都可以用递归来简洁地写出，代码如下：\n代码 void Preorder(BstNode* root) { if (root == NULL)return; printf(\"%d \", root-\u003edata); Preorder(root-\u003eleft); Preorder(root-\u003eright); } void Inorder(BstNode* root) { if (root == NULL)return; Inorder(root-\u003eleft); printf(\"%d \", root-\u003edata); Inorder(root-\u003eright); } void Postorder(BstNode* root) { if (root == NULL)return; Postorder(root-\u003eleft); Postorder(root-\u003eright); printf(\"%d \", root-\u003edata); } 最后附上完整代码，输出树的高度，层序遍历，前序，中序，后序\n#include #include using namespace std; struct BstNode { int data; BstNode* left; BstNode* right; }; void LevelOrder(BstNode* root) { if (root == NULL)return; queue\u003cBstNode*\u003e Q; Q.push(root); while (!Q.empty()) { BstNode* current = Q.front(); cout \u003c\u003c current-\u003edata \u003c\u003c \" \"; if (current-\u003eleft != NULL)Q.push(current-\u003eleft); if (current-\u003eright != NULL)Q.push(current-\u003eright); Q.pop(); } printf(\"\\n\"); } void Preorder(BstNode* root) { if (root == NULL)return; printf(\"%d \", root-\u003edata); Preorder(root-\u003eleft); Preorder(root-\u003eright); } void Inorder(BstNode* root) { if (root == NULL)return; Inorder(root-\u003eleft); printf(\"%d \", root-\u003edata); Inorder(root-\u003eright); } void Postorder(BstNode* root) { if (root == NULL)return; Postorder(root-\u003eleft); Postorder(root-\u003eright); printf(\"%d \", root-\u003edata); } BstNode* GetNewNode(int data) { BstNode* NewNode = new BstNode(); NewNode-\u003edata = data; NewNode-\u003eleft = NewNode-\u003eright = NULL; return NewNode; } BstNode* Insert(BstNode* root,int data) { if (root == NULL) root = GetNewNode(data); else if (data \u003c= root-\u003edata) { root-\u003eleft = Insert(root-\u003eleft, data); } else root-\u003eright = Insert(root-\u003eright, data); return root; } int max(int a, int b) { if (a \u003e b)return a; else return b; } int FindHeight(BstNode* root) { if (root == NULL) { return -1; } return max(FindHeight(root-\u003eleft), FindHeight(root-\u003eright)) + 1; } int main() { BstNode* root = NULL; root = Insert(root,3); root = Insert(root, 6); root = Insert(root, 2); root = Insert(root, 1); root = Insert(root, 7); root = Insert(root, 5); root = Insert(root, 8); root = Insert(root, 4); printf(\"Height of tree is %d\\n\", FindHeight(root)); cout \u003c\u003c \"LevelOrder:\"; LevelOrder(root); cout \u003c\u003c \"Preorder:\"; Preorder(root); cout \u003c\u003c endl; cout \u003c\u003c \"Inorder:\"; Inorder(root); cout \u003c\u003c endl; cout \u003c\u003c \"Postorder:\"; Postorder(root); return 0; } ",
   "wordCount" : "839",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-15T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2023-01-15T00:00:00Z",
   "dateModified": "2023-01-15T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -137,14 +137,14 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/"
+    "@id": "https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -166,7 +166,7 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -190,7 +190,7 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -198,17 +198,17 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -230,7 +230,7 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       二叉树的遍历
     </h1>
@@ -446,12 +446,12 @@ Tree traversal is a process of visiting each node in the tree exactly once in so
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/">
+  <a class="prev" href="https://m1yan.github.io/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/">
     <span class="title">« 上一页</span>
     <br>
     <span>删除一个二叉搜索树的节点</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+  <a class="next" href="https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
     <span class="title">下一页 »</span>
     <br>
     <span>二叉搜索树的C&#43;&#43;递归实现</span>

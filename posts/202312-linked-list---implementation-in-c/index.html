@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -12,16 +12,16 @@
 1.创建节点的结构体
 一个简单的结构体，由数据和结构体指针构成，代码如下：">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/202312-linked-list---implementation-in-c/">
+<link rel="canonical" href="https://m1yan.github.io/posts/202312-linked-list---implementation-in-c/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/202312-linked-list---implementation-in-c/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/202312-linked-list---implementation-in-c/">
 <noscript>
     <style>
         #theme-toggle,
@@ -74,7 +74,7 @@
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/202312-linked-list---implementation-in-c/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/202312-linked-list---implementation-in-c/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="Linked list - Implementation in C">
   <meta property="og:description" content="链表是一种常见的数据结构，它的基本单位是node，由data和link两部分组成。
@@ -84,9 +84,9 @@
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2023-01-02T00:00:00+00:00">
     <meta property="article:modified_time" content="2023-01-02T00:00:00+00:00">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="Linked list - Implementation in C">
 <meta name="twitter:description" content="链表是一种常见的数据结构，它的基本单位是node，由data和link两部分组成。
 创建一个链表需要以下几个步骤：
@@ -103,13 +103,13 @@
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "Linked list - Implementation in C",
-      "item": "http://localhost:1313/posts/202312-linked-list---implementation-in-c/"
+      "item": "https://m1yan.github.io/posts/202312-linked-list---implementation-in-c/"
     }
   ]
 }
@@ -127,7 +127,7 @@
   "articleBody": "链表是一种常见的数据结构，它的基本单位是node，由data和link两部分组成。\n创建一个链表需要以下几个步骤： 1.创建节点的结构体 一个简单的结构体，由数据和结构体指针构成，代码如下：\nstruct Node{ int data; struct Node* link; }; 2.创建变量保存头节点的地址 struct Node* head; head = NULL; 3.在堆区为节点开辟一个动态空间 struct Node* temp = (struct Node*)malloc(sizeof(struct Node)); 4.为节点赋值 temp-\u003edata = 2; temp-\u003elink = NULL; 5.更改头节点的地址 head = temp; 下面尝试遍历一个链表，并逐个数输出 struct Node* temp1 = head; while(temp -\u003e link != NULL){ printf(\"%d \",temp1-\u003edata); temp1 = temp1-\u003elink; } ",
   "wordCount" : "202",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-02T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2023-01-02T00:00:00Z",
   "dateModified": "2023-01-02T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -135,14 +135,14 @@
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/202312-linked-list---implementation-in-c/"
+    "@id": "https://m1yan.github.io/posts/202312-linked-list---implementation-in-c/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -164,7 +164,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -188,7 +188,7 @@
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -196,17 +196,17 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -228,7 +228,7 @@
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       Linked list - Implementation in C
     </h1>
@@ -296,12 +296,12 @@
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+  <a class="prev" href="https://m1yan.github.io/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
     <span class="title">« 上一页</span>
     <br>
     <span>反转链表（迭代及递归实现）</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/202312-%E5%9C%A8%E9%93%BE%E8%A1%A8%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9/">
+  <a class="next" href="https://m1yan.github.io/posts/202312-%E5%9C%A8%E9%93%BE%E8%A1%A8%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9/">
     <span class="title">下一页 »</span>
     <br>
     <span>在链表的任意位置插入一个节点</span>

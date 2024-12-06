@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -13,16 +13,16 @@
  git clone https://github.com/Dash-Industry-Forum/dash.js.git
 在dash.js目录下，编译运行dash.js.">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/">
+<link rel="canonical" href="https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/">
 <noscript>
     <style>
         #theme-toggle,
@@ -75,7 +75,7 @@
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="DASH实验报告">
   <meta property="og:description" content="DASH系统搭建流程 客户端搭建 首先，用git命令将dash.js下载到本地.
@@ -87,9 +87,9 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
     <meta property="article:modified_time" content="2024-04-17T00:00:00+00:00">
     <meta property="article:tag" content="大作业">
     <meta property="article:tag" content="计算机网络">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="DASH实验报告">
 <meta name="twitter:description" content="DASH系统搭建流程
 客户端搭建
@@ -107,13 +107,13 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "DASH实验报告",
-      "item": "http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/"
+      "item": "https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/"
     }
   ]
 }
@@ -131,7 +131,7 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
   "articleBody": "DASH系统搭建流程 客户端搭建 首先，用git命令将dash.js下载到本地.\ngit clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下，编译运行dash.js.\n{% message color:danger size: “icon:fa-brands fa-npm” title: %} cd dash.js npm install npm run start {% endmessage %}\n编译完成后，会自动在浏览器页面打开dash系统的网页，点击超链接here进入。点击Load按钮，如果可以正常播放演示视频，说明客户端没有问题。\n部署服务器 使用nginx来部署HTTP服务器。由于后续服务器限速等操作在Linux系统中较为方便，将服务器部署在虚拟机上。\n采用的操作系统版本为Ubuntu 22.04.4 LTS。\n可以使用Linux apt直接安装nginx。\nsudo apt-get install nginx (也可以去官网下载安装包进行安装)\n打开/nginx/conf文件夹下的nginx.conf配置文件，将配置文件内容全部替换为下面代码。这里使用8888端口对外提供下载能力。\nuser root; worker_processes 4; events { use epoll; worker_connections 204800; } http { include mime.types; default_type application/octet-stream; sendfile on; tcp_nopush on; keepalive_timeout 65; tcp_nodelay on; gzip on; client_header_buffer_size 4k; server { listen 8888; server_name 127.0.0.1; add_header Access-Control-Allow-Origin *; add_header Access-Control-Allow-Headers X-Requested-With; add_header Access-Control-Allow-Methods GET,POST,OPTIONS; location / { root home/miyan/Videos; //这里填写所要播放的视频存放的绝对路径 autoindex on; } } } 在nginx.conf所在的文件夹右键打开terminal，输入下面命令启动nginx。\nnginx -p . -c ./nginx.conf 如果要关闭nginx，则使用下面命令来结束进程。\npkill -9 nginx (如果操作权限不够，可以使用下面命令后输入系统密码进入root模式)\nsu root 从服务器中获取视频 首先需要关闭浏览器的缓存，保证客户端请求的视频来自服务器。\n在客户端上方地址栏中填写URL，格式为：http://服务器ip:端口号/视频的mpd文件存放在服务器的路径。\n以我的URL为例：\nhttp://192.168.133.128:8888/Video/bbb-manifest-refresh.mpd\n点击Load按钮，即可播放服务器中的视频，Show Options按钮中可以选择视频流的算法，可以通过视频下方的统计图来观察实时的视频缓冲区大小和比特率。\n实现ABR算法 这里我们采用BBA0算法来实现。\nBBA0算法配置 Dash.js的结构如下图所示：\n配置播放器需要进入文件夹dash.js/samples/dash-if-reference-player。文件夹结构如下：\ndashjs_config.json是播放器配置文件 index.html是播放器前端页面 app/main.js是页面控制逻辑实现 app/rules中包括ABR算法 首先在app/rules中添加算法文件ABB0Rule.js，在index.html中引用该文件：\n\u003cscript src=\"app/main.js\"\u003e\u003c/script\u003e \u003cscript src=\"app/rules/DownloadRatioRule.js\"\u003e\u003c/script\u003e \u003cscript src=\"app/rules/ThroughputRule.js\"\u003e\u003c/script\u003e + \u003cscript src=\"app/rules/BBA0Rule.js\"\u003e\u003c/script\u003e 在app/main.js中修改规则：\nif ($scope.customABRRulesSelected) { - $scope.player.addABRCustomRule('qualitySwitchRules', 'DownloadRatioRule', DownloadRatioRule); /* jshint ignore:line */ - $scope.player.addABRCustomRule('qualitySwitchRules', 'ThroughputRule', CustomThroughputRule); /* jshint ignore:line */ + // $scope.player.addABRCustomRule('qualitySwitchRules', 'DownloadRatioRule', DownloadRatioRule); /* jshint ignore:line */ + // $scope.player.addABRCustomRule('qualitySwitchRules', 'ThroughputRule', CustomThroughputRule); /* jshint ignore:line */ + $scope.player.addABRCustomRule('qualitySwitchRules', 'BBA0Rule', CustomBBA0Rule); /* jshint ignore:line */ } else { - $scope.player.removeABRCustomRule('DownloadRatioRule'); - $scope.player.removeABRCustomRule('ThroughputRule'); + // $scope.player.removeABRCustomRule('DownloadRatioRule'); + // $scope.player.removeABRCustomRule('ThroughputRule'); + $scope.player.removeABRCustomRule('BBA0Rule'); } }; 修改配置文件dashjs_config.json来修改buffer大小，使得更适应实验环境。\n{ \"streaming\": { \"buffer\": { \"stableBufferTime\": 24, \"bufferTimeAtTopQuality\": 24, \"bufferTimeAtTopQualityLongForm\": 20 } }, \"debug\": { \"logLevel\": 4 } } Dash协议和ABR算法 在解释BBA0算法原理之前，先来了解一下视频流式传播的原理。\n区别于之前将整个视频缓存到本地再播放的技术，流式传输允许一边下载一边播放。所采取的方法是将视频和音频切割成一小段一小段的视频，每个视频包含几秒钟的内容。客户端会在本地维护一个缓冲区buffer，每次播放到T时刻后，会请求后续[T,T+k]时间段内的视频块，然后保存在本地的buffer里，这样就可以实现边下边播。\n在现实生活中，不同客户端面临的网络状况不同，因此服务器需要准备不同码率的视频块，以根据网络情况，动态调整传输的视频质量。\nDash协议简述 Dash (Dynamic Adaptive Streaming over HTTP)协议是一种自适应动态选择传输码率的传输协议。Dash要求服务器准备不同码率和分辨率的视频切片和MPD文件，视频传输时，首先请求MPD文件并进行解析。之后，客户端会根据网络情况，buffer水平等信息对后续视频码率的请求进行动态调整。下图很好地描述了Dash系统的工作原理。\n其中的MPD文件包含了视频切片列表，以及每个切片的描述信息（包括码率、分辨率等）。文件结构如下图所示：\nABR算法简介 ABR算法（自适应码率调节算法）的目的是让用户有更好的观看视频体验。ABR算法的评价标准为用户体验质量 (QoD, Quality of Experience)，包括高视频质量、低卡顿时间、少质量切换、低启动延迟等。\nBBA0算法 BBA0算法的js实现代码如下：\n/*global dashjs*/ let CustomBBA0Rule; function CustomBBA0RuleClass() { let factory = dashjs.FactoryMaker; let SwitchRequest = factory.getClassFactoryByName('SwitchRequest'); let DashMetrics = factory.getSingletonFactoryByName('DashMetrics'); let Debug = factory.getSingletonFactoryByName('Debug'); let context = this.context; let instance, logger; const reservoir = 5; const cushion = 10; let ratePrev = 0; function setup() { logger = Debug(context).getInstance().getLogger(instance); } function getMaxIndex(rulesContext) { let mediaInfo = rulesContext.getMediaInfo(); let mediaType = mediaInfo.type; if (mediaType != \"video\") { return SwitchRequest(context).create(0); } let abrController = rulesContext.getAbrController(); let dashMetrics = DashMetrics(context).getInstance(); let rateMap = {}; let bitrateList = abrController.getBitrateList(mediaInfo) .map(function(bitrateInfo){ return bitrateInfo.bitrate; }); let bitrateCnt = bitrateList.length; let step = cushion / (bitrateCnt - 1); for (let i = 0; i \u003c bitrateCnt; i++) { rateMap[reservoir + i * step] = bitrateList[i]; } let rateMin = bitrateList[0]; let rateMax = bitrateList[bitrateCnt - 1]; ratePrev = ratePrev \u003e rateMin ? ratePrev : rateMin; let ratePlus = rateMax; let rateMinus = rateMin; if (ratePrev === rateMax) { ratePlus = rateMax; } else { for (let i = 0; i \u003c bitrateCnt; i++) { if (bitrateList[i] \u003e ratePrev) { ratePlus = bitrateList[i]; break; } } } if (ratePrev === rateMin) { rateMinus = rateMin; } else { for (let i = bitrateCnt - 1; i \u003e= 0; i--) { if (bitrateList[i] \u003c ratePrev) { rateMinus = bitrateList[i]; break; } } } let currentBufferLevel = dashMetrics.getCurrentBufferLevel(mediaType, true); let func = function(bufferLevel) { if (bufferLevel \u003c reservoir) { return rateMap[cushion + reservoir]; } else if (bufferLevel \u003e cushion + reservoir) { return rateMap[reservoir]; } else { let index = Math.round((bufferLevel - reservoir) / step) *step + reservoir; return rateMap[index]; } }; let fBufferLevel = func(currentBufferLevel); let rateNext; if(currentBufferLevel \u003c= reservoir) { rateNext = rateMin; } else if (currentBufferLevel \u003e= cushion + reservoir) { rateNext = rateMax; } else if (fBufferLevel \u003e= ratePlus) { for (let i = bitrateCnt; i \u003e= 0; i--) { if (bitrateList[i] \u003c= fBufferLevel) { rateNext = bitrateList[i]; break; } } } else if (fBufferLevel \u003c= rateMinus) { for (let i = 0; i \u003c bitrateCnt; i++) { if (bitrateList[i] \u003e fBufferLevel) { rateNext = bitrateList[i]; break; } } } else { rateNext = ratePrev; } let quality = 0; for (let i = 0; i \u003c bitrateCnt; i++) { if (bitrateList[i] == rateNext) { quality = i; break; } } logger.info(\"[BBA0Rule] CurrentBufferLevel = \" + currentBufferLevel); logger.info(\"[BBA0Rule] Bitrate list = \" + bitrateList); logger.info(\"[BBA0Rule] Previous bitrate = \" + ratePrev); logger.info(\"[BBA0Rule] Next bitrate = \" + rateNext); logger.info(\"[BBA0Rule] Quality = \" + quality); ratePrev = rateNext; return SwitchRequest(context).create( quality, { name: CustomBBA0RuleClass.__dashjs_factory_name }, SwitchRequest.PRIORITY.STRONG ); } instance = { getMaxIndex: getMaxIndex }; setup(); return instance; } CustomBBA0RuleClass.__dashjs_factory_name = 'CustomBBA0Rule'; CustomBBA0Rule = dashjs.FactoryMaker.getClassFactory(CustomBBA0RuleClass); 这段代码实现了一个自定义的基于缓冲区的自适应比特率调整规则，称为 BBA0Rule。下面是算法的基本原理和解释：\n缓冲区分级：\n规则将缓冲区分为两个区间：reservoir 和 cushion。Reservoir 是一个较小的缓冲区域，cushion 是一个较大的缓冲区域。 如果当前缓冲区低于 reservoir，则会选择最高比特率。 如果当前缓冲区高于 cushion + reservoir，则会选择最低比特率。 在两个区间之间，根据当前缓冲区的位置，线性地分配比特率。 比特率调整：\n如果当前缓冲区低于 reservoir，选择最高比特率。 如果当前缓冲区高于 cushion + reservoir，选择最低比特率。 如果当前缓冲区在两个区间之间，则根据当前缓冲区的位置线性地调整比特率。 计算当前缓冲区在两个区间之间的相对位置： 首先，算法计算当前缓冲区水平相对于 reservoir 的位置，即当前缓冲区水平减去 reservoir。然后，它将这个相对位置除以 cushion 减去 reservoir，得到一个介于 0 到 1 之间的值，表示当前缓冲区在两个区间之间的相对位置。 线性插值： 然后，算法使用这个相对位置来进行线性插值。它将相对位置乘以 bitrateList 中相邻比特率的差异，然后加上 reservoir 对应的比特率。这样就得到了一个介于最小和最大比特率之间的插值比特率，这个插值比特率取决于当前缓冲区的水平。 选择比特率： 最后，根据线性插值得到的比特率，算法将其作为下一个选择的比特率。这个插值比特率在两个区间之间提供了一个平滑的过渡，使得在缓冲区水平变化时，比特率的调整更加连续和平稳。 变量：\nreservoir：较小的缓冲区域大小。 cushion：较大的缓冲区域大小。 ratePrev：上一个选择的比特率。 rateMap：用于存储不同缓冲区水平下的比特率。 实现细节：\n规则通过获取媒体信息、ABR 控制器和 Dash 指标等来执行决策。 通过调整当前缓冲区水平来选择适当的比特率。 记录每次的选择，以便下一次选择时使用。 日志输出：\n在选择比特率时输出相关的日志信息，包括当前缓冲区水平、比特率列表、上一个选择的比特率、下一个选择的比特率和选择的质量等信息。 这种规则的核心思想是根据当前缓冲区的状态来调整比特率，以平衡视频质量和播放的连续性。Buffer水平与视频速率的关系如下图所示。\n限速条件下测试Dash系统 linux系统自带的tc命令可以对网络带宽进行限制。\n首先可以执行下面命令来获取网卡名称：\nifconfig 其中，ens33即为网卡名称，下面的192.168.133.128为主机ip地址。\n执行下面的命令可以为网卡限制带宽：\ntc qdisc add dev ens33 root tbf rate 500Kbit latency 50ms burst 15kb #将eth0网卡限速到500Kbit/s，15bk的buffer，TBF最多产生50ms的延迟 #tbf是Token Bucket Filter的简写，适合于把流速降低到某个值 执行下面命令可以取消限制：\ntc qdisc del dev ens33 root 单一限速条件 无限速条件 可以看到缓冲区大小稳定的上下波动，视频播放为最高质量，说明此时网络较为稳定且网速较快，可以完成“边下边播”的任务。\n限速300kb，15kb buffer，最大50ms延迟 此时网速较慢，视频很卡顿。视频质量和buffer水平都很低。\n限速800kb，15kb buffer，最大50ms延迟 此时视频质量和buffer水平较300kb时均有上升，但视频质量仍然一般。\n模拟网络波动情况 在服务器端运行该python文件，来控制网速不断发生变化。\n#控制带宽随时间变化 import os import json import time tpt = [300,500,700,900,1200,1800,2000,1500,1200,900,700,500,300] while 1: for v in tpt: os.system(\"sudo tc qdisc add dev eth0 root tbf rate {}kbit latency 50ms burst 15kb\".format(v)) print(v) time.sleep(5) os.system(\"sudo tc qdisc del dev eth0 root\") buffer水平和视频码率变化如下图所示：\n可以看出，当buffer水平升高时，会导致视频切换到更高的码率；buffer水平下降时，会让视频切换到更低的码率。同时buffer也在不断的消耗和补充。\n",
   "wordCount" : "3643",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2024-04-17T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2024-04-17T00:00:00Z",
   "dateModified": "2024-04-17T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -139,14 +139,14 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/"
+    "@id": "https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -168,7 +168,7 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -192,7 +192,7 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -200,17 +200,17 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -232,7 +232,7 @@ git clone https://github.com/Dash-Industry-Forum/dash.js.git 在dash.js目录下
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       DASH实验报告
     </h1>
@@ -674,16 +674,16 @@ npm run start
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="http://localhost:1313/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/">大作业</a></li>
-      <li><a href="http://localhost:1313/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li>
+      <li><a href="https://m1yan.github.io/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/">大作业</a></li>
+      <li><a href="https://m1yan.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/diffusers-tutorials/">
+  <a class="prev" href="https://m1yan.github.io/posts/diffusers-tutorials/">
     <span class="title">« 上一页</span>
     <br>
     <span>Diffusers Tutorials</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/">
+  <a class="next" href="https://m1yan.github.io/posts/2023%E5%B9%B4%E7%BB%88%E6%8A%A5%E5%91%8A/">
     <span class="title">下一页 »</span>
     <br>
     <span>2023年终总结</span>

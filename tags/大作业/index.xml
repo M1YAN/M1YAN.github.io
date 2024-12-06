@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>大作业 on M1YAN&#39;s Blog</title>
-    <link>http://localhost:1313/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
+    <link>https://m1yan.github.io/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/</link>
     <description>Recent content in 大作业 on M1YAN&#39;s Blog</description>
     <image>
       <title>M1YAN&#39;s Blog</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
     <lastBuildDate>Wed, 17 Apr 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://m1yan.github.io/tags/%E5%A4%A7%E4%BD%9C%E4%B8%9A/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>DASH实验报告</title>
-      <link>http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/</link>
+      <link>https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/</link>
       <pubDate>Wed, 17 Apr 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/dash%E5%AE%9E%E9%AA%8C/</guid>
+      <guid>https://m1yan.github.io/posts/dash%E5%AE%9E%E9%AA%8C/</guid>
       <description>&lt;h2 id=&#34;dash系统搭建流程&#34;&gt;DASH系统搭建流程&lt;/h2&gt;
 &lt;h3 id=&#34;客户端搭建&#34;&gt;客户端搭建&lt;/h3&gt;
 &lt;p&gt;首先，用git命令将&lt;code&gt;dash.js&lt;/code&gt;下载到本地.&lt;/p&gt;

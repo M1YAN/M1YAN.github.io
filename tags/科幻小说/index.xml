@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>科幻小说 on M1YAN&#39;s Blog</title>
-    <link>http://localhost:1313/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</link>
+    <link>https://m1yan.github.io/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/</link>
     <description>Recent content in 科幻小说 on M1YAN&#39;s Blog</description>
     <image>
       <title>M1YAN&#39;s Blog</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
     <lastBuildDate>Thu, 14 Sep 2023 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://m1yan.github.io/tags/%E7%A7%91%E5%B9%BB%E5%B0%8F%E8%AF%B4/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>《AI时代：命运的抉择》</title>
-      <link>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</link>
+      <link>https://m1yan.github.io/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</link>
       <pubDate>Thu, 14 Sep 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</guid>
+      <guid>https://m1yan.github.io/posts/ai%E6%97%B6%E4%BB%A3%E5%91%BD%E8%BF%90%E7%9A%84%E6%8A%89%E6%8B%A9-generated-by-chatgpt/</guid>
       <description>&lt;h1 id=&#34;第一章--林辉的独白&#34;&gt;&lt;strong&gt;第一章&lt;/strong&gt;  &lt;strong&gt;林辉的独白&lt;/strong&gt;&lt;/h1&gt;
 &lt;p&gt;赛博世界，第23个世纪。我，&lt;code&gt;林辉&lt;/code&gt;，一个孤寂的码农，生活在这个高度数字化的时代。曾经，这个世界充满了希望，计算机科学的巅峰技术让人类梦想无限。然而，如今，这个世界已然陷入了一片混乱，战争的阴影笼罩着未来。&lt;/p&gt;</description>
     </item>

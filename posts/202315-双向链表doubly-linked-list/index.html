@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -9,16 +9,16 @@
 <meta name="keywords" content="">
 <meta name="description" content="双向链表的输出及插入">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
+<link rel="canonical" href="https://m1yan.github.io/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
 <noscript>
     <style>
         #theme-toggle,
@@ -71,7 +71,7 @@
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="双向链表(Doubly Linked List)">
   <meta property="og:description" content="双向链表的输出及插入">
@@ -80,9 +80,9 @@
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2023-01-05T00:00:00+00:00">
     <meta property="article:modified_time" content="2023-01-05T00:00:00+00:00">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="双向链表(Doubly Linked List)">
 <meta name="twitter:description" content="双向链表的输出及插入">
 
@@ -96,13 +96,13 @@
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "双向链表(Doubly Linked List)",
-      "item": "http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/"
+      "item": "https://m1yan.github.io/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/"
     }
   ]
 }
@@ -120,7 +120,7 @@
   "articleBody": "双向链表介绍 双向链表的结构如下：\nstruct Node{ int data; struct Node* prev; struct Node* next; }; 可以看到双向链表的节点是由两个结构体指针及相关数据构成的，因此可以更方便地对链表中的节点进行访问和数据的修改。\n双向链表的实现 进行几个基本操作：头部插入(InsertAtHead)、尾部插入(InsertAtTail)、打印(Print)、反向打印(ReversePrint)。\n头部插入(InsertAtHead) 插入时要先在堆区开辟一块动态内存，为了避免代码重复，我们设计一个函数GetNewNode(int x)，可以在堆区新建一个节点，存储数据x，同时返回堆区内存的地址。\nstruct Node* GetNewNode(int x){ struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); newNode-\u003edata = x; newNode-\u003enext = NULL; newNode-\u003eprev = NULL; return newNode; } 再进行头部插入\nvoid InsertAtHead(int x){ struct Node* newNode = GetNewNode(x); if(head == NULL){ head = newNode; return; } head-\u003eprev = newNode; newNode-\u003enext = head; head = newNode; } 尾部插入(InsertAtTail) 只需要先遍历到最后一个节点，再进行插入操作即可。\nvoid InsertAtTail(int x){ struct Node* newNode = GetNewNode(x); if(head == NULL){ head = newNode; return; } struct Node* temp = head; while(temp-\u003enext != NULL){ temp = temp-\u003enext; } temp-\u003enext = newNode; newNode-\u003eprev = temp; } 打印(Print) void Print(){ struct Node* temp = head; printf(\"Forward: \"); while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003enext; } printf(\"\\n\"); } 反向打印(ReversePrint) 同样需要先遍历到最后一个节点。\nvoid ReversePrint(){ struct Node* temp = head; while(temp-\u003enext != NULL){ temp = temp-\u003enext; } printf(\"Reverse: \"); while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003eprev; } printf(\"\\n\"); } 完整实现如下： #include #include struct Node{ int data; struct Node* prev; struct Node* next; }; struct Node* head = NULL; struct Node* GetNewNode(int x){ struct Node* newNode = (struct Node*)malloc(sizeof(struct Node)); newNode-\u003edata = x; newNode-\u003enext = NULL; newNode-\u003eprev = NULL; return newNode; } void InsertAtHead(int x){ struct Node* newNode = GetNewNode(x); if(head == NULL){ head = newNode; return; } head-\u003eprev = newNode; newNode-\u003enext = head; head = newNode; } void InsertAtTail(int x){ struct Node* newNode = GetNewNode(x); if(head == NULL){ head = newNode; return; } struct Node* temp = head; while(temp-\u003enext != NULL){ temp = temp-\u003enext; } temp-\u003enext = newNode; newNode-\u003eprev = temp; } void Print(){ struct Node* temp = head; printf(\"Forward: \"); while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003enext; } printf(\"\\n\"); } void ReversePrint(){ struct Node* temp = head; while(temp-\u003enext != NULL){ temp = temp-\u003enext; } printf(\"Reverse: \"); while(temp != NULL){ printf(\"%d \",temp-\u003edata); temp = temp-\u003eprev; } printf(\"\\n\"); } int main(){ InsertAtTail(1);Print(); InsertAtHead(3);Print(); InsertAtHead(2);Print(); InsertAtHead(4);Print(); InsertAtTail(5);Print(); ReversePrint(); return 0; } 输出结果：\nForward: 1 Forward: 3 1 Forward: 2 3 1 Forward: 4 2 3 1 Forward: 4 2 3 1 5 Reverse: 5 1 3 2 4 ",
   "wordCount" : "684",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-05T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2023-01-05T00:00:00Z",
   "dateModified": "2023-01-05T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -128,14 +128,14 @@
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/"
+    "@id": "https://m1yan.github.io/posts/202315-%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8doubly-linked-list/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -157,7 +157,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -181,7 +181,7 @@
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -189,17 +189,17 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -221,7 +221,7 @@
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       双向链表(Doubly Linked List)
     </h1>
@@ -416,12 +416,12 @@
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/202318-%E7%94%A8%E6%A0%88%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%96%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8/">
+  <a class="prev" href="https://m1yan.github.io/posts/202318-%E7%94%A8%E6%A0%88%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%96%E5%8F%8D%E8%BD%AC%E4%B8%80%E4%B8%AA%E9%93%BE%E8%A1%A8/">
     <span class="title">« 上一页</span>
     <br>
     <span>用栈反转一个字符串或反转一个链表</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+  <a class="next" href="https://m1yan.github.io/posts/202213-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%E8%BF%AD%E4%BB%A3%E5%8F%8A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
     <span class="title">下一页 »</span>
     <br>
     <span>反转链表（迭代及递归实现）</span>

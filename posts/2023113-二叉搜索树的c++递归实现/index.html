@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" dir="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
@@ -12,16 +12,16 @@
 二叉树(binary tree)是树中的一种，它满足每个节点都有要么2个要么0个子节点的特性。
 二叉搜索树(binary search tree)满足左侧子树中储存的值都小于等于root，而右侧子树上的值都大于root，并且递归满足。">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+<link rel="canonical" href="https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="zh" href="http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
 <noscript>
     <style>
         #theme-toggle,
@@ -74,7 +74,7 @@
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
+</script><meta property="og:url" content="https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c&#43;&#43;%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="二叉搜索树的C&#43;&#43;递归实现">
   <meta property="og:description" content="树的介绍 树(Tree)作为一种数据结构，具有一种递归性。一个树可以看作是由根节点(root)以及若干子树构成，而子树又可以继续向下分成根和子树，因此树具有递归性。
@@ -85,9 +85,9 @@
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2023-01-13T00:00:00+00:00">
     <meta property="article:modified_time" content="2023-01-13T00:00:00+00:00">
-      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
 <meta name="twitter:title" content="二叉搜索树的C&#43;&#43;递归实现">
 <meta name="twitter:description" content="树的介绍
 树(Tree)作为一种数据结构，具有一种递归性。一个树可以看作是由根节点(root)以及若干子树构成，而子树又可以继续向下分成根和子树，因此树具有递归性。
@@ -104,13 +104,13 @@
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://m1yan.github.io/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "二叉搜索树的C++递归实现",
-      "item": "http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c++%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
+      "item": "https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c++%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
     }
   ]
 }
@@ -128,7 +128,7 @@
   "articleBody": "树的介绍 树(Tree)作为一种数据结构，具有一种递归性。一个树可以看作是由根节点(root)以及若干子树构成，而子树又可以继续向下分成根和子树，因此树具有递归性。\n二叉树(binary tree)是树中的一种，它满足每个节点都有要么2个要么0个子节点的特性。\n二叉搜索树(binary search tree)满足左侧子树中储存的值都小于等于root，而右侧子树上的值都大于root，并且递归满足。\n搜索效率比较 Operation Array Linked-list Array(sorted) BST Search(n) O(n) O(n) O(logn) O(logn) Insert(x) O(1) O(1) O(n) O(logn) Remove(n) O(n) O(n) O(n) O(logn) 可以看出二叉搜索树在处理数据方面更有优势。\n二叉搜索树的递归实现 #include using namespace std; struct BstNode { int data; struct BstNode* left; struct BstNode* right; }; BstNode* GetNewNode(int data) { BstNode* NewNode = (BstNode*)malloc(sizeof(BstNode)); NewNode-\u003edata = data; NewNode-\u003eleft = NULL; NewNode-\u003eright = NULL; return NewNode; } BstNode* Insert(BstNode* root, int data) { if (root == NULL) { root = GetNewNode(data); } else if (data \u003c= root-\u003edata) { root-\u003eleft = Insert(root-\u003eleft, data); } else { root-\u003eright = Insert(root-\u003eright, data); } return root; } bool Search(BstNode* root, int data) { if (root == NULL) return false; else if (root-\u003edata == data) return true; else if (data \u003c= root-\u003edata) return Search(root-\u003eleft, data); else return Search(root-\u003eright, data); } int main() { BstNode* root; root = NULL; root = Insert(root, 15); root = Insert(root, 10); root = Insert(root, 10); root = Insert(root, 25); root = Insert(root, 8); root = Insert(root, 12); int number; cout \u003c\u003c \"Enter number be searched\\n\"; cin \u003e\u003e number; if (Search(root, number))cout \u003c\u003c \"Found\\n\"; else cout \u003c\u003c \"Not Found\\n\"; } 用二叉搜索树查找最大最小值 我们发现，一直向左节点走会找到最小值，而一直向右节点走会找到最大值。\n代码如下（最小值是迭代实现，最大值是递归实现） #include using namespace std; struct BstNode { int data; BstNode* left; BstNode* right; }; int FindMin(BstNode* root) { if (root == NULL) { printf(\"Error:Tree is empty\\n\"); return -1; } while (root-\u003eleft != NULL) { root = root-\u003eleft; } return root-\u003edata; } int FindMaxRecursion(BstNode* root) { if (root == NULL) { printf(\"Error\\n\"); return -1; } else if (root-\u003eright == NULL) { return root-\u003edata; } return FindMaxRecursion(root-\u003eright); } BstNode* GetNewNode(int data) { BstNode* NewNode = new BstNode(); NewNode-\u003edata = data; NewNode-\u003eleft = NewNode-\u003eright = NULL; return NewNode; } BstNode* Insert(BstNode* root, int data) { if (root == NULL) { root = GetNewNode(data); } else if (data \u003c= root-\u003edata) { root-\u003eleft = Insert(root-\u003eleft, data); } else { root-\u003eright = Insert(root-\u003eright, data); } return root; } int main() { BstNode* root = NULL; root = Insert(root, 10); root = Insert(root, 15); root = Insert(root, 5); root = Insert(root, 25); root = Insert(root, 20); printf(\"The max is %d\\n\", FindMaxRecursion(root)); printf(\"The min is %d\\n\", FindMin(root)); return 0; } ",
   "wordCount" : "636",
   "inLanguage": "zh",
-  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2023-01-13T00:00:00Z",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2023-01-13T00:00:00Z",
   "dateModified": "2023-01-13T00:00:00Z",
   "author":{
     "@type": "Person",
@@ -136,14 +136,14 @@
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c++%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
+    "@id": "https://m1yan.github.io/posts/2023113-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84c++%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0/"
   },
   "publisher": {
     "@type": "Organization",
     "name": "M1YAN's Blog",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://m1yan.github.io/favicon.ico"
     }
   }
 }
@@ -165,7 +165,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -189,7 +189,7 @@
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="http://localhost:1313/en/" title="English"
+                        <a href="https://m1yan.github.io/en/" title="English"
                             aria-label="English">English</a>
                     </li>
                 </ul>
@@ -197,17 +197,17 @@
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/archives" title="归档">
+                <a href="https://m1yan.github.io/archives" title="归档">
                     <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/search/" title="搜索">
+                <a href="https://m1yan.github.io/search/" title="搜索">
                     <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/tags/" title="标签">
+                <a href="https://m1yan.github.io/tags/" title="标签">
                     <span>标签</span>
                 </a>
             </li>
@@ -229,7 +229,7 @@
 
 <article class="post-single">
   <header class="post-header">
-    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
     <h1 class="post-title entry-hint-parent">
       二叉搜索树的C&#43;&#43;递归实现
     </h1>
@@ -423,12 +423,12 @@
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
+  <a class="prev" href="https://m1yan.github.io/posts/2023115-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%81%8D%E5%8E%86/">
     <span class="title">« 上一页</span>
     <br>
     <span>二叉树的遍历</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/2023111-%E9%98%9F%E5%88%97queue%E7%9A%84%E6%95%B0%E7%BB%84%E5%92%8C%E9%93%BE%E8%A1%A8%E5%AE%9E%E7%8E%B0/">
+  <a class="next" href="https://m1yan.github.io/posts/2023111-%E9%98%9F%E5%88%97queue%E7%9A%84%E6%95%B0%E7%BB%84%E5%92%8C%E9%93%BE%E8%A1%A8%E5%AE%9E%E7%8E%B0/">
     <span class="title">下一页 »</span>
     <br>
     <span>队列(Queue)的数组和链表实现</span>

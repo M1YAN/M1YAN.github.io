@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Diffusers on M1YAN&#39;s Blog</title>
-    <link>http://localhost:1313/categories/diffusers/</link>
+    <link>https://m1yan.github.io/categories/diffusers/</link>
     <description>Recent content in Diffusers on M1YAN&#39;s Blog</description>
     <image>
       <title>M1YAN&#39;s Blog</title>
-      <url>http://localhost:1313/images/papermod-cover.png</url>
-      <link>http://localhost:1313/images/papermod-cover.png</link>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
     </image>
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
     <lastBuildDate>Mon, 07 Oct 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/categories/diffusers/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://m1yan.github.io/categories/diffusers/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Diffusers Tutorials</title>
-      <link>http://localhost:1313/posts/diffusers-tutorials/</link>
+      <link>https://m1yan.github.io/posts/diffusers-tutorials/</link>
       <pubDate>Mon, 07 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/diffusers-tutorials/</guid>
+      <guid>https://m1yan.github.io/posts/diffusers-tutorials/</guid>
       <description>&lt;h1 id=&#34;pipelines-models-and-schedulers&#34;&gt;Pipelines, models and schedulers&lt;/h1&gt;
 &lt;h2 id=&#34;解构基本pipeline&#34;&gt;解构基本pipeline&lt;/h2&gt;
 &lt;p&gt;pipeline是一种快速简便运行推理模型的方法，只需要四行代码即可生成图像&lt;/p&gt;
