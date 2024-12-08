@@ -19,7 +19,10 @@
       <link>https://m1yan.github.io/posts/diffusion-model/</link>
       <pubDate>Fri, 06 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://m1yan.github.io/posts/diffusion-model/</guid>
-      <description>&lt;h2 id=&#34;生成模型&#34;&gt;生成模型&lt;/h2&gt;
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Update: 增加了条件生成以及潜在扩散模型的介绍。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;生成模型&#34;&gt;生成模型&lt;/h2&gt;
 &lt;p&gt;目前主流的生成模型包括&lt;strong&gt;生成对抗模型 (GAN)&lt;/strong&gt;、&lt;strong&gt;变分自编码器 (VAE)&lt;strong&gt;和&lt;/strong&gt;基于流的模型 (Flow-based models)&lt;/strong&gt;。&lt;/p&gt;</description>
     </item>
     <item>
