@@ -12,12 +12,12 @@
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
-    <lastBuildDate>Fri, 06 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 07 Dec 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>What are Diffusion Models?</title>
       <link>https://m1yan.github.io/posts/diffusion-model/</link>
-      <pubDate>Fri, 06 Dec 2024 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 07 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://m1yan.github.io/posts/diffusion-model/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;Update: 增加了条件生成以及潜在扩散模型的介绍。&lt;/p&gt;
