@@ -903,9 +903,7 @@ $$
 <div>
 其中，$\epsilon_\theta(\mathbf{x}_t, t)$ 是无条件噪声预测器，$\nabla_{\mathbf{x}_t} \log p_\phi(y | \mathbf{x}_t)$ 是分类器对类别 $y$ 的梯度，$w$是分类器引导强度的调节参数，$\sqrt{1 - \bar{\alpha}_t}$ 用于将梯度项映射到噪声空间。
 ### Classifier-Free Guidance
-<div>
-<p>没有独立的分类器$p_\phi(y | \mathbf{x}<em>t)$ ，可以通过合并条件和非条件引导的扩散步骤来实现无分类器引导的条件扩散。为了避免训练一个显式的分类器 $p</em>\theta(y | \mathbf{x}_t)$，Classifier-Free Guidance通过直接学习两个噪声预测器来实现条件生成。</p>
-<div>
+<p>没有独立的分类器<div>$p_\phi(y | \mathbf{x}<em>t)$<div> ，可以通过合并条件和非条件引导的扩散步骤来实现无分类器引导的条件扩散。为了避免训练一个显式的分类器 <div>$p</em>\theta(y | \mathbf{x}_t)$<div>，Classifier-Free Guidance通过直接学习两个噪声预测器来实现条件生成。</p>
 <ol>
 <li><strong>条件噪声预测器</strong>$\epsilon_\theta(\mathbf{x}_t, t, y)$：基于目标条件 y 的噪声预测器。</li>
 <li><strong>无条件噪声预测器</strong> $\epsilon_\theta(\mathbf{x}_t, t)$：不依赖任何条件的噪声预测器。</li>
