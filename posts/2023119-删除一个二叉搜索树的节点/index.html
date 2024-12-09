@@ -28,7 +28,7 @@ Case 3
 删除的节点有两个子节点">
 <meta name="author" content="Mi Yan">
 <link rel="canonical" href="https://m1yan.github.io/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.c4782b89f68695987ac3327804dadaa374d4f68636f3ea50f6acc6f1df8707cc.css" integrity="sha256-xHgrifaGlZh6wzJ4BNrao3TU9oY28&#43;pQ9qzG8d&#43;HB8w=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.796cdda2dc2c1ba2d9bd1136b6714f8a6e6843a312ef58e78f7bfa778206d8f2.css" integrity="sha256-eWzdotwsG6LZvRE2tnFPim5oQ6MS71jnj3v6d4IG2PI=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://m1yan.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
@@ -89,7 +89,12 @@ Case 3
           throwOnError : false
         });
     });
-</script><meta property="og:url" content="https://m1yan.github.io/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/">
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/2023119-%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E8%8A%82%E7%82%B9/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
   <meta property="og:title" content="删除一个二叉搜索树的节点">
   <meta property="og:description" content="三种情况 Case 1 删除的节点没有子节点（即该节点为叶节点）
@@ -400,6 +405,50 @@ Case 3
         <path d="M12 6H0l6-6z" />
     </svg>
 </a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
 
 <script>
     let menu = document.getElementById('menu')
