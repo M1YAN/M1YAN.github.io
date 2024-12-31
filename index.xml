@@ -12,8 +12,23 @@
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>PaperMod Contributors</copyright>
-    <lastBuildDate>Sat, 07 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 30 Dec 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2024年终总结</title>
+      <link>https://m1yan.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</link>
+      <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</guid>
+      <description>&lt;h1 id=&#34;2024年终总结&#34;&gt;2024年终总结&lt;/h1&gt;
+&lt;h2 id=&#34;序&#34;&gt;序&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;I used to rule the world
+Seas would rise when I gave the word
+Now in the morning I sleep alone
+Sweep the streets I used to own&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Viva La Vida&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</description>
+    </item>
     <item>
       <title>What are Diffusion Models?</title>
       <link>https://m1yan.github.io/posts/diffusion-model/</link>
@@ -267,22 +282,6 @@
       <pubDate>Mon, 02 Jan 2023 00:00:00 +0000</pubDate>
       <guid>https://m1yan.github.io/posts/202312-%E5%9C%A8%E9%93%BE%E8%A1%A8%E7%9A%84%E4%BB%BB%E6%84%8F%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9/</guid>
       <description>用C语言实现在链表的任意位置插入一个节点</description>
-    </item>
-    <item>
-      <title></title>
-      <link>https://m1yan.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://m1yan.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</guid>
-      <description>&lt;h1 id=&#34;2024年终总结&#34;&gt;2024年终总结&lt;/h1&gt;
-&lt;h2 id=&#34;序&#34;&gt;序&lt;/h2&gt;
-&lt;blockquote&gt;
-&lt;p&gt;I used to rule the world
-Seas would rise when I gave the word
-Now in the morning I sleep alone
-Sweep the streets I used to own&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;Viva La Vida&lt;/em&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;我喜欢在晾衣服的时候听歌，许久未听的《Viva La Vida》在耳边突然响起。窗外寒风萧瑟，与歌词居然格外的相配。我看向屋内，温暖的灯光和各自忙碌的舍友与我隔离开来，忽然有种恍惚之感。记得我第一次听这首歌是因为这首歌是某个魔方速拧混剪视频的配乐，当时上小学还是初中的我对魔方特别的痴迷。当时的那个小孩似乎突然就站在了异乡的某个角落。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

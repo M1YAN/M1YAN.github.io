@@ -185,6 +185,21 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">如何检查一个二叉树是否为二叉搜索树
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>原理 搜索二叉树有2个基本性质可以用于判断：
+左子树中的所有值都小于等于根节点的值，而右子树中的数据都大于根节点的值。 二叉搜索树的中序输出后数据按照非递减顺序排列 对于第一个性质，假设根节点数据为7，那么左子树最大不能超过7，而右子树都大于7。
+所以我们可以在函数中增加参数minValue和maxValue，用来记录此子树中数据的范围。
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2023-01-19 00:00:00 +0000 UTC'>一月 19, 2023</span>&nbsp;·&nbsp;1 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to 如何检查一个二叉树是否为二叉搜索树" href="https://m1yan.github.io/posts/2023119-%E5%A6%82%E4%BD%95%E6%A3%80%E6%9F%A5%E4%B8%80%E4%B8%AA%E4%BA%8C%E5%8F%89%E6%A0%91%E6%98%AF%E5%90%A6%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">删除一个二叉搜索树的节点
     </h2>
   </header>
@@ -253,19 +268,6 @@ Case 3 删除的节点有两个子节点
   </div>
   <footer class="entry-footer"><span title='2023-01-10 00:00:00 +0000 UTC'>一月 10, 2023</span>&nbsp;·&nbsp;3 分钟&nbsp;·&nbsp;Mi Yan</footer>
   <a class="entry-link" aria-label="post link to 使用栈实现中缀到后缀表达式的转换" href="https://m1yan.github.io/posts/2023110-%E4%BD%BF%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E4%B8%AD%E7%BC%80%E5%88%B0%E5%90%8E%E7%BC%80%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E8%BD%AC%E6%8D%A2/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">栈的应用：检查括号匹配性
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>题目背景 我们都知道，在编程语言中，我们常用多种类型的括号，( )圆括号、[ ]方括号、{ }花括号，当括号不匹配时，编译时会发生错误。那么编译器是如何检验括号匹配性的呢？
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2023-01-09 00:00:00 +0000 UTC'>一月 9, 2023</span>&nbsp;·&nbsp;2 分钟&nbsp;·&nbsp;Mi Yan</footer>
-  <a class="entry-link" aria-label="post link to 栈的应用：检查括号匹配性" href="https://m1yan.github.io/posts/202319-%E6%A0%88%E7%9A%84%E5%BA%94%E7%94%A8%E6%A3%80%E6%9F%A5%E6%8B%AC%E5%8F%B7%E5%8C%B9%E9%85%8D%E6%80%A7/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">
