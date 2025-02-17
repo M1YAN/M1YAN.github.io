@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Diffusion Model for Video Generation | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+全文为Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.的中文翻译版本。
+
+在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/posts/video_generation/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d77bdc992da4cb34344677f4385e53cf34c99acf4c535ef64a740cb221eac3d0.css" integrity="sha256-13vcmS2kyzQ0Rnf0OF5TzzTJms9MU172SnQMsiHqw9A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/video_generation/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/video_generation/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="Diffusion Model for Video Generation">
+  <meta property="og:description" content=" 全文为Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.的中文翻译版本。
+在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-02-17T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-02-17T00:00:00+00:00">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="Diffusion Model for Video Generation">
+<meta name="twitter:description" content="
+全文为Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.的中文翻译版本。
+
+在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://m1yan.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Diffusion Model for Video Generation",
+      "item": "https://m1yan.github.io/posts/video_generation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Diffusion Model for Video Generation",
+  "name": "Diffusion Model for Video Generation",
+  "description": " 全文为Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.的中文翻译版本。\n在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：\n",
+  "keywords": [
+    
+  ],
+  "articleBody": " 全文为Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.的中文翻译版本。\n在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：\n它对跨帧的时间一致性有额外的要求，这自然需要将更多的世界知识编码到模型中。（例如物体运动的物理规则） 与文本或者图像相比，收集大量高质量、高维度的视频数据更加困难，文本视频对的获取也更加困难和复杂。 从头开始建模一个视频生成模型 首先，让我们回顾一下设计和训练扩散视频模型的方法，这意味着我们不依赖预先训练的图像生成器。\n参数以及关于采样的相关知识 设 $x \\sim q_{real}$ 是从实际数据分布中采样的数据点。现在我们在时间上添加少量的高斯噪声，产生一系列噪声变化 $x$ ，表示为 ${\\textbf{z}_t | t = 1, …,T}$，噪声随着 $t$ 的增加而增加，最后一个 $q(\\textbf{z}_T) \\sim \\mathcal{N}(\\textbf{0}, \\textbf{I})$。噪声添加的前向过程是一个高斯过程。使用 $\\alpha_t, \\sigma_t$ 定义高斯过程的可微分噪声公式：\n$$ q(\\textbf{z}_t|\\textbf{x}) = \\mathcal{N}(\\textbf{z}_t; \\alpha_t\\textbf{x}, \\sigma_t^2\\textbf{I}) $$ 为了表示 $q(\\textbf{z}_t|\\textbf{z}_s), 0 \\leq s \u003c t \\leq T$，我们有： $$ \\begin{aligned} \\textbf{z}_t \u0026= \\alpha_t \\textbf{x} + \\sigma_t \\bf{\\epsilon}_t \\\\ \\textbf{z}_s \u0026= \\alpha_s \\textbf{x} + \\sigma_s \\bf{\\epsilon}_s \\\\ \\textbf{z}_t \u0026= \\frac{\\alpha_t}{\\alpha_s}\\bf{z}_t + \\sigma_t\\bf{\\epsilon}_t - \\frac{\\alpha_t\\sigma_s}{\\alpha_s}\\bf{\\epsilon}_s \\\\ Thus\\ q(\\bf{z}_t|\\bf{z}_s) \u0026= \\mathcal{N}(\\bf{z}_t; \\frac{\\alpha_t}{\\alpha_s}\\bf{z}_s, (1- \\frac{\\alpha_t^2\\sigma_s^2}{\\sigma_t^2\\alpha_s^2})\\sigma_t^2\\bf{I}) \\end{aligned} $$ 设对数信噪比为 $\\lambda_t = log[\\alpha_t^2 / \\sigma_t^2]$ ，我们可以将DDIM更新表示为：\n$$ q(\\bf{z}_t|\\bf{z}_s) = \\mathcal{N}(\\bf{z}_t, \\frac{\\alpha_t}{\\alpha_s}\\bf{z}_t, \\sigma_{t|s}^2\\bf{I}) \\ where \\ \\sigma_{t|s}^2 = (1-e^{\\lambda_t-\\lambda_s})\\sigma_t^2 $$ 有一个特殊的 $\\bf{v}$ 预测（$\\bf{v} = \\alpha_t\\bf{\\epsilon} - \\sigma_t\\bf{x}$ ）参数化，由Salimans和Ho（2022）提出。与参数化 $\\epsilon$ 相比，它被证明能够有助于避免视频生成中的偏色现象。 $\\bf{v}$ 参数化是通过角度坐标中的技巧得出的。首先，我们定义 $\\phi_t = arctan(\\sigma_t/\\alpha_t)$ ，因此我们有 $\\alpha_\\phi = cos\\phi, \\sigma_\\phi = sin\\phi, \\bf{z}_\\phi = cos\\phi \\bf{x} + sin\\phi \\bf{\\epsilon}$ 。$\\bf{z}_t$ 的速率可以表示为：\n$$ \\bf{v_t} = \\nabla_t \\bf{z}_t = \\frac{dcos\\phi}{d\\phi}\\bf{x}+\\frac{dsin\\phi}{d\\phi}\\bf{\\epsilon} = cos\\phi \\bf{\\epsilon} - sin\\phi \\bf{x} $$ 然后我们可以推断， $$ \\begin{aligned} \\sin \\phi \\mathbf{x} \u0026 =\\cos \\phi \\boldsymbol{\\epsilon}-\\mathbf{v}_{\\phi} \\\\ \u0026 =\\frac{\\cos \\phi}{\\sin \\phi}\\left(\\mathbf{z}_{\\phi}-\\cos \\phi \\mathbf{x}\\right)-\\mathbf{v}_{\\phi} \\\\ \\sin ^{2} \\phi \\mathbf{x} \u0026 =\\cos \\phi \\mathbf{z}_{\\phi}-\\cos ^{2} \\phi \\mathbf{x}-\\sin \\phi \\mathbf{v}_{\\phi} \\\\ \\mathbf{x} \u0026 =\\cos \\phi \\mathbf{z}_{\\phi}-\\sin \\phi \\mathbf{v}_{\\phi} \\\\ \\text { Similarly } \\boldsymbol{\\epsilon} \u0026 =\\sin \\phi \\mathbf{z}_{\\phi}+\\cos \\phi \\mathbf{v}_{\\phi} \\end{aligned} $$ 相应地，DDIM的更新规则也会更新： $$ \\begin{aligned} \\mathbf{z}_{\\phi_{s}} \u0026 =\\cos \\phi_{s} \\hat{\\mathbf{x}}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right)+\\sin \\phi_{s} \\hat{\\epsilon}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right) \\quad \\\\ \u0026; \\hat{\\mathbf{x}}_{\\theta}(.), \\hat{\\epsilon}_{\\theta}(.) \\text { are two models to predict } \\mathbf{x}, \\boldsymbol{\\epsilon} \\text { based on } \\mathbf{z}_{\\phi_{t}} \\\\ \u0026 =\\cos \\phi_{s}\\left(\\cos \\phi_{t} \\mathbf{z}_{\\phi_{t}}-\\sin \\phi_{t} \\hat{\\mathbf{v}}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right)\\right)+\\sin \\phi_{s}\\left(\\sin \\phi_{t} \\mathbf{z}_{\\phi_{t}}+\\cos \\phi_{t} \\hat{\\mathbf{v}}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right)\\right) \\\\ \u0026 =\\left(\\cos \\phi_{s} \\cos \\phi_{t}+\\sin \\phi_{s} \\sin \\phi_{t}\\right) \\mathbf{z}_{\\phi_{t}}+\\left(\\sin \\phi_{s} \\cos \\phi_{t}-\\cos \\phi_{s} \\sin \\phi_{t}\\right) \\hat{\\mathbf{v}}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right) \\\\ \u0026 =\\cos \\left(\\phi_{s}-\\phi_{t}\\right) \\mathbf{z}_{\\phi_{t}}+\\sin \\left(\\phi_{s}-\\phi_{t}\\right) \\hat{\\mathbf{v}}_{\\theta}\\left(\\mathbf{z}_{\\phi_{t}}\\right) \\quad \\\\ \u0026; \\text { trigonometric identity functions. } \\end{aligned} $$ 图1:可视化扩散更新步骤在角度坐标中的工作原理（图片来源：Salimans Ho, 2022) 模型的 $\\bf{v}$ 预测是预测 $\\bf{v}_\\phi=cos\\phi\\boldsymbol{\\epsilon} - sin\\phi\\bf{x} = \\alpha_t \\boldsymbol{\\epsilon} - \\sigma_t \\bf{x}$ 。\n在视频生成的情形中，我们需要扩散模型运行多个步骤的上采样，以延长视频长度或提高帧数。这需要对以第一个 $\\bf{x}^a$ 为条件的第二个图像 $\\bf{x}^b \\sim p_\\theta(\\bf{x}^b|\\bf{x}^a)$ 进行采样，其中 $\\bf{x}^b$ 可能是自回归扩展的帧或者低帧数视频中间缺失的帧。\n$\\bf{x}^b$ 的采样不仅需要自身对应的噪声变量外，还需要考虑 $\\bf{x}^a$ 条件。视频扩散模型（VDM; Ho \u0026 Salimans, 2022）提出了使用调整后的降噪模型的重建指导方法，使得采样 $\\bf{x}^b$ 可以适当地以以下基于 $\\bf{x}^a$ 的条件进行：\n$$ \\begin{align} \\mathbb{E}_q[\\mathbf{x}^b | \\mathbf{z}_t, \\mathbf{x}^a] \u0026= \\mathbb{E}_q[\\mathbf{x}^b | \\mathbf{z}_t] + \\frac{\\sigma_t^2}{\\alpha_t} \\nabla_{\\mathbf{z}_t^b} \\log q(\\mathbf{x}^a | \\mathbf{z}_t) \\\\ q(\\mathbf{x}^a | \\mathbf{z}_t) \u0026\\approx \\mathcal{N}\\left[\\hat{\\mathbf{x}}_\\theta^a(\\mathbf{z}_t), \\frac{\\sigma_t^2}{\\alpha_t^2} \\mathbf{I}\\right] \\\\ \\tilde{\\mathbf{x}}_\\theta^b(\\mathbf{z}_t) \u0026= \\hat{\\mathbf{x}}_\\theta^b(\\mathbf{z}_t) - \\frac{w_r \\alpha_t}{2} \\nabla_{\\mathbf{z}_t^b} \\left\\| \\mathbf{x}^a - \\hat{\\mathbf{x}}_\\theta^a(\\mathbf{z}_t) \\right\\|_2^2 \\end{align} $$ 其中，$\\hat{\\mathbf{x}}_\\theta^a(\\mathbf{z}_t)$ 和 $\\hat{\\mathbf{x}}_\\theta^b(\\mathbf{z}_t)$ 是由去噪模型 $\\bf{x}^a$ 和 $\\bf{x}^b$ 提供的重建图像。并且 $\\omega_r$ 是一个加权因子，发现较大的 $\\omega_r \u003e 1$ 可以提高样本质量。也可以使用相同的方法对低分辨率视频进行条件调节，将样本扩展到高分辨率。 模型架构：3D U-Net和DIT 与文本到图像的扩散模型类似，U-Net和Transformer仍然是两种常见的架构选择。Google有一系列采用U-Net架构的扩散视频论文，OpenAI最近的Sora模型采用了transformer架构。\nVDM（Ho \u0026 Salimans, et al. 2022）采用了标准的扩散模型设置，但是改变了视频建模的架构。它扩展了2D U-Net以用于3D数据 (Clcek et al. 2016) ，其中每一个特征图代表帧x高度x宽度x通道的4D张量。这个3D U-Net在空间和时间上被分解，这意味着每一层只在时间或者空间维度上起作用，而不能同时在两者上起作用。\n处理空间： 与2D U-Net相同，每个旧的2D卷积层都扩展为仅空间3D的卷积层，例如，3*3卷积变成了1*3*3卷积。 每个空间注意力块（spatial attention block）都保持为空间上的注意力，其中第一个轴（frame）被视为批量维度。 处理时间： 在每个空间注意力块之后添加一个时间注意力块（temporal attention block）。它在第一个轴（frame）上执行注意力，并将空间轴作为批处理维度。相对位置嵌入（relative position embedding）用于跟踪帧的顺序。时间注意力块对于模型捕获良好的时间连贯性非常重要。 图2:3D U-Net架构。 Imagen Video（Ho, et al. 2022）基于一系列扩散模型构建，以提高视频生成的质量，并升级以24fps输出1280*768的视频。Imagen Video架构由以下组件构成，总共有7个扩散模型。\n一个冻结的T5文本编码器，用于提供文本嵌入作为条件输入 一个基本的视频扩散模型 交错的时间和空间超分辨率扩散模型的级联，包括3个TSR（时间超分辨率）和3个SSR（空间超分辨率）组件。 图3:Imagen Video中的级联采样架构。在实践中，文本嵌入被注入到所有的组件中，而不仅仅是基本模型。 基本去噪模型同时对具有共享参数的所有帧执行空间操作，然后时间层跨帧混合激活以更好地捕获时间一致性，这被证明比帧自回归的方法效果更好。\n图4：Imagen Video扩散模型中块时空分离的架构。 SSR和TSR模型都以与通道上含有噪声的数据 $\\bf{z}_t$ 相连的上采样输入为条件。SSR通过双线性调整大小进行上采样，而TSR通过重复帧或者填充空白帧来上采样。\nImagen Video还应用渐进式蒸馏来加快采样速度，每次蒸馏迭代都可以将所需的采样步骤减少一半。在实验中，能够将7个组件提炼为每个组件仅8个采样步骤，而不会在感知质量上造成任何明显的损失。\n为了实现更好的扩展工作，Sora（Brooks et al. 2024）利用了DiT（Diffusion Transformer）架构，该架构在视频和图像潜在编码的时空patch上运行。视觉输入表示为一系列时空patch，这些patch充当Transformer的输入token。\n图5：Sora是Diffusion Transformer架构。 调整图像模型以生成视频 扩散视频模型建模的另一种突出方法是通过插入时间层来“膨胀”预先训练的图像到文本扩散模型，然后我们可以选择只对视频数据上的新层进行微调，或者完全避免额外的训练。新模型继承了文本-图像对的先验知识，有助于减轻对文本-视频对的数据需求。\n使用视频数据进行微调 Make-A-Video（Singer et al. 2022）扩展了具有时间维度的预训练扩散图像模型，该模型由3个关键组件构成：\n基于文本-图像对训练的基本图像生成模型。 时空卷积层和注意力层来扩展网络以覆盖时间维度。 用于生成高帧率的帧插值网络。 图6：Make-A-Video架构。 最终的视频推理方案可以表述为：\n$$ \\hat{\\bf{y}}_t = SR_h \\circ SR_l^t \\circ \\uparrow_F \\circ D^t \\circ P \\circ (\\hat{\\bf{x}}, CLIP_{text}(\\bf{x})) $$ 其中： $\\bf{x}$ 是输入文本。 $\\hat{\\bf{x}}$ 是BPE编码的文本。 $CLIP_{text}(\\cdot)$ 是CLIP文本编码器，则 $\\bf{x_e} = CLIP_{text}(\\bf{x})$ 。 $P(\\cdot)$ 是先验的，$\\bf{y}_e$ 在给定文本嵌入 $\\bf{x}_e$ 和BPE编码文本 $\\hat{\\bf{x}}: \\bf{y}_e = P(\\bf{x}_e, \\hat{\\bf{x}})$ 的情况下生成图像嵌入。这部分是在文本-图像对数据上训练的，而不是在视频数据上微调的。 $D^t(\\cdot)$ 是生成一系列16帧的时空解码器，其中每帧都是低分辨率的64*64的RGB图像 $\\hat{\\bf{y}}_l$。 $\\uparrow_F(\\cdot)$ 是帧插值网络，通过在生成的帧之间进行插值来提高有效帧速率。这是一个经过微调的模型，用于预测视频上采样的掩码帧。 $SR_h(\\cdot), SR_l^t(\\cdot)$ 是时间和空间超分辨率模型，将图像分辨率分别提高到256*256和768*768。 $\\hat{\\bf{y}}_t$ 是最终生成的视频。 时空SR层包括伪3D卷积层和伪3D注意力层：\n伪3D卷积层：每个时空2D卷积层（从预训练图像模型初始化）后跟一个时间1D层（初始化为一个恒等函数）。从概念上讲，2D卷积层首先生成多个帧，然后将帧重塑为视频片段。 伪3D注意力层：在每个预先训练的空间注意力层之后，堆叠一个时间注意力层，用于近似一个完整的时空注意力层。 图7：伪3D卷积层（左）和伪3D注意力层（右）的工作原理。 它们可以表示为：\n$$ \\begin{align} Conv_{P3D} = Conv_{1D}(Conv_{2D}(\\bf{h})\\circ T) \\circ T \\\\ Attn_{P3D} = flatten^{-1}((Atten_{2D}flatten(\\bf{h}) \\circ T) \\circ T) \\end{align} $$ 其中输入张量 $\\bf{h} \\in \\mathbb{R}^{B \\times C \\times F \\times H \\times W}$ （对应于批量大小、通道、帧、高度和宽度），$\\circ T$ 代表时间和空间维度之间的交换，即张量形状变为 $\\bf{h'} \\in \\mathbb{R}^{B \\times F \\times C \\times H \\times W}$ ；$flatten(\\cdot)$ 将 $\\bf{h}$ 转换为 $\\bf{h''} \\in \\mathbb{R}^{B \\times F \\times C \\times H W}$ ，$flatten^{-1}(\\cdot)$ 代表反转该过程。 在训练阶段，Make-A-Video管道的不同组件是独立训练的。\n解码器 $D^t$ 、生图先验 $P$ 和两个超分辨率组件 $SR_h, SR_l^t$ 首先单独在图像上进行训练，没有成对的文本。 接下来添加新的时间层，初始化为一个恒等函数，对未标记的视频数据进行微调。 Tune-A-Video（Wu et al. 2023）膨胀了一个预训练的图像扩散模型，以实现一次性的适应视频生成的微调：给定一个包含 $m$ 帧的视频，$\\mathcal{V} = {v_i|i=1,…,m}$ 与描述性提示 $\\tau$ 配对，任务是基于轻微编辑和一个相关的文本描述 $\\tau$ 生成一个新的视频 $\\mathcal{V^*}$ 。例如：$\\tau$ = \"A man is skiing\"可以扩展为 $\\tau$ = \"Spiderman is skiing on the beach\"。Tune-A-Video旨在用于对象编辑、背景更改和风格迁移。\n除了膨胀2D卷积层外，Tune-A-Video的U-Net架构还集成了ST-Attention（时空注意力）块，通过查询前几帧的相关位置来捕获时间一致性。给定frame $v_i$ 、前一帧 $v_{i-1}$ 和第一帧 $v_1$ 的潜在特征，投射到query $\\bf{Q}$ 、key $\\bf{K}$ 、和value $\\bf{V}$ 中，则ST-Attention可以被定义为：\n$$ \\begin{align} \\bf{Q} \u0026= \\bf{W}^Q \\bf{z}_{v_i}, \\\\ \\bf{K} \u0026= W^K [\\bf{z}_{v_i}, \\bf{z}_{v_{i-1}}], \\\\ \\bf{V} \u0026= W^V [\\bf{z}_{v_i}, \\bf{z}_{v_{i-1}}] \\\\ \\bf{O} \u0026= softmax(\\frac{\\bf{Q}\\bf{K}^T}{\\sqrt{d}}) \\cdot \\bf{V} \\end{align} $$ 图8：Tune-A-Video架构概述。首先在采样阶段之前对单个视频运行轻量级微调阶段。由于整个时间自注意力 (T-Attn) 层是新添加的，因此会进行微调，但在微调期间，只有ST-Attn和Cross-Attn中的查询投影会更新，以保留先前的文本到图像的知识。ST-Attn提高了时空一致性，Cross-Attn优化了文本-视频的对齐。 Gen-1模型（Esser et al. 2023）的目标是根据文本输入编辑给定视频。它分解了视频生成条件 $p(\\bf{x}|s,c)$ 中对于结构structure和内容content的要求，但是，要对这两个方面进行清晰的分解并不容易。\n$\\bf{c}$ 指视频的外观和语义信息，即从文本中采样以进行条件编辑。帧的CLIP嵌入可以很好地表示内容，并且很大程度上与结构特征保持正交。 $\\bf{s}$ 描述网格和动力学，包括对象的形状、位置、时间变化，并从输入的视频中采样，可以使用深度信息或者针对于其他特定任务的信息（例如，人体姿态或者面部特征）。 Gen-1的架构变化相当标准，即在剩余块中的每个2D空间卷积层后添加1D时间卷积层，并在注意力块的每一个2D空间注意力块之后添加1D时间注意力块。在训练期间，结构变量 $\\bf{s}$ 与扩散潜空间中的变量 $\\bf{z}$ 连接，其中变量 $\\bf{c}$ 在交叉注意力层中提供。在推理时，在推理时，片段嵌入通过之前的 CLIP 文本嵌入转换为 CLIP 图像嵌入。\n图9：Gen-1模型架构。 Video LDM（Blattmann et al. 2023）首先训练了一个LDM图像生成器。然后，对模型进行微调，添加了时间维度以生成视频。微调仅应用于编码图像序列中新添加的时序层。Video LDM中的时间层 ${l_\\phi^i | i=1,…L }$ 与在微调期间保持的现有空间层 $l_\\theta^i$ 交错，只微调新参数 $\\phi$ ，而不微调预训练主干模型参数 $\\theta$ 。Video LDM的pipeline首先以低fps生成关键帧，然后通过两步潜在帧插值进行处理以提高fps。\n长度 $T$ 的输入序列被看作基本图像生成模型 $\\theta$ 生成的一批图像（即 $\\bf{B} \\cdot \\bf{T}$ ），然后被重塑为时间层的视频 $l_\\phi^i$ 格式。存在一个跳跃连接，使通过学习的合并参数 $\\alpha$ 实现时间层输出 $\\bf{z’}$ 和空间输出 $\\bf{z}$ 的组合。在实验中，实现了两种类型的时间混合层：（1）单独的时间注意力层加在空间注意力层之后和（2）基于3D卷积的残差块按合并参数组合。\n图10：用于图像生成的预训练LDM扩展为视频生成器。B, T, C, H, W分别是批量大小、序列长度、通道数、高度和宽度。c是可选的生成条件。 但是，LDM预训练的自动编码器仍然存在一个问题，即只能看到图像，而看不到视频。单纯将其用于视频生成可能会产生闪烁伪影，而没有良好的时间一致性。因此，Video LDM在解码器中添加了额外的时间层，并且使用由3D卷积构建的基于patch的时间判别器对视频数据进行微调，而编码器保持不变，因而可以继续使用预训练的LDM。在时间解码器微调期间，冻结的编码器独立处理视频中的每个帧，并且使用视频感知判别器在帧之间强制执行时间一致的重建。\n图11：Video LDM时间解码器的训练架构。解码器经过微调，在编码器保持冻结状态时在跨帧判别器下具有时间一致性。 与Video LDM类似，Stable Video Diffusion（SVD, Blattmann et al. 2023）也基于LDM，在每个空间卷积层和注意力层后插入时间层，但SVD对整个模型进行了微调。训练SVD分为三个阶段：\n文本到图像的预训练 ：有助于提高视频质量以及提示的跟随。 视频预训练：分离训练更加有利，理想情况下应该在一个更大规模的精选的数据集上进行。 高质量视频微调：使用具有高视觉保真度的较小的、带有字幕的视频进行。 SVD特别强调了数据集管理在模型性能中的关键作用。他们通过使用剪辑检测架构在为每个模型获得更多的视频切片，然后应用了三种不同的用于生成字幕的模型：（1）CoCa用于挑选帧；（2）V-BLIP用于获取视频字幕；（3）基于前面两个模型，使用LLM生成字幕。然后他们继续优化视频数据集，通过删除运动较少的视频（通过以2fps计算的低光流分数过滤），视频中具有过多的文本（应用OCR识别具有大量文本的视频），具有较低的美学价值的视频（使用CLIP对视频的第一帧、中间一帧以及最后一帧提取特征，计算美学分数和文本-图像相似度）。实验表明，经过过滤的、高质量的数据集会带来更好的模型质量，即使这个数据集要小得多。\n先生成远距离的关键帧，然后添加具有时间超分辨率的帧插值，一个关键的挑战是如何保持高质量的时间一致性。Lumiere（Bar-Tal et al. 2024）采用了时空U-Net（STUNet）架构，通过单次传递一次性生成视频的整个持续时间，消除了对TSR（时间超分辨率）组件的依赖。STUNet在时间和空间维度上对视频进行下采样，因此大量的计算发生在时空潜在空间中。\n图12：Lumiere删除了TSR（时间超分辨率）模型。由于内存限制，膨胀的SSR网络只能在视频的短片段上运行，因此SSR模型在一组短且重叠的视频片段上运行。 STUNet对预训练的文本到图像的U-Net进行膨胀，以便能够在时间和空间维度上对视频进行下采样和上采样。卷积块由预先训练的文本到图像层构成，伴随着一系列的时空卷积。在U-Net的瓶颈特征处，包括预先训练的从文本到图像的注意力块，其中包含了1D的时间注意力。训练仅发生在新添加的层中。\n图13：（a）时空U-Net（STUNet），（b）基于卷积的块，（c）基于注意力的块。 免训练适配 令人惊讶的是，无需任何训练即可调整预先训练的文本到图像的生成模型以输出视频。\n如果我们天真地采样一系列潜在空间中的特征，然后解码出一个对应的视频，那么在时间上的对象和语义的一致性是无法保证的。Text2Video-Zero（Khachatryan et al. 2023）通过增强预训练的图像扩散模型，使用了两个关键的时间一致性机制实现了零样本、免训练的视频生成：\n使用运动动力学对潜在空间的序列进行采样，以保持全局场景一致。 在第一帧上通过每帧的新跨层注意力重新设计了帧级的自注意力，以保留前景对象的上下文、外观和身份。 图14：Text2Video-Zero架构概述。 使用运动信息对一系列潜空间变量 $\\bf{x}_T^1,…,\\bf{x}_T^m$ 进行采样的过程如下：\n定义控制全局场景和照相机运动方向 $\\bf{\\delta} = (\\delta_x, \\delta_y) \\in \\mathbb{R}^2$ ；默认情况下，我们设置 $\\bf{\\delta} = (1, 1)$ 。此外，定义一个控制全局运动量的超参数 $\\lambda \u003e 0$ 。 首先随机采样第一帧的潜空间变量，$\\bf{x}_T^1 \\sim \\mathcal{N}(0,I)$ ； 使用预训练的图像扩散模型执行后向更新步骤，例如论文中的稳定扩散（SD）模型，并获取相应的潜在空间变量 $\\bf{x}_{T’}^1$，其中 $T’ = T - \\Delta t$ 。 对于潜在空间变量序列中的每一帧，我们应用相应的运动平移，并使用定义的 $\\delta ^k = \\lambda(k-1) \\delta$ 进行变形操作来获得 $\\bf{\\tilde{x}}_{T’}^k$ 。 5. 最后，将DDIM前向步骤应用于所有 $\\bf{\\tilde{x}}_{T'}^{2:m}$ 以获取 $\\bf{x}_{T}^{2:m}$ 。 $$ \\begin{align} \u0026 \\bf{x}_{T'}^1 = DDIM-backward(\\bf{x}_{T}^1, \\Delta t) where\\ T' = T - \\Delta t \\\\ \u0026 W_k \\leftarrow \\text{a warp operation of }\\delta^k = \\lambda(k-1)\\delta \\\\ \u0026 \\bf{\\tilde{x}}_{T'}^k = W_k(\\bf{x}_{T'}^1) \\\\ \u0026 \\bf{x}_{T}^k = DDIM-forward(\\bf{\\tilde{x}}_{T'}^k, \\Delta t)\\ for \\ k = 2,...,m \\end{align} $$ 此外，Text2Video-Zero将预训练SD模型中的自注意力层替换为参考第一帧的新跨帧注意力机制。其动机是在生成的整个视频中保留有关前景对象的外观、形状和身份信息。\n$$ \\bf{Cross-Frame-Attn}(\\bf(Q)^k, \\bf{K}^{1:m}, \\bf{V}^{1:m}) = Softmax(\\frac{\\bf{Q}^k(\\bf{K})^\\top}{\\sqrt{c}})\\bf{V}^1 $$ 下面的操作可供选择，可以使用背景蒙版进一步平滑和提高背景一致性。假设我们使用现有方法获得了第 $k$ 帧的前景掩码 $\\bf{M}_k$ ，使用背景平滑需要在扩散步骤 $t$ 中合并实际潜变量和扭曲的潜变量，即背景矩阵为： $$ \\mathbf{\\bar{x}}_t^k = \\mathbf{M}^k \\odot \\mathbf{x}_t^k + (1-\\mathbf{M}^k) \\odot (\\alpha \\mathbf{\\tilde{x}}_t^k + (1-\\alpha)\\mathbf{x}_t^k) \\text{ for k =1,...,m} $$ 其中 $\\bf{x}_t^k$ 是实际的潜空间变量，$\\bf{\\tilde{x}}_t^k$ 是在背景上被变形的潜空间变量；$\\alpha$ 是一个超参数，实验中设置了 $\\alpha = 0.6$ 。 Text2video-zero可以在每个扩散的时间步 $t = T,…,1$ 中对每一帧 $\\bf{x}_t^k\\ k=1,…,m$ 应用预训练的 ControlNet 分支，并将 ControlNet 分支输出添加到主U-Net到跳跃连接中。\nControlVideo（Zhang et al. 2023） 旨在生成以文本提示 $\\tau$ 和运动序列（例如深度或边缘图）为条件的视频，$\\bf{c} = {c^i}_{i=0}^{N-1}$ 。它基于 ControlNet 改进出三个新机制：\n跨帧注意力：在自注意力模块中添加了全跨帧的交互。它通过将潜空间中的帧映射到 $\\bf{Q, K, V}$ 矩阵来引入所有帧之间的交互，这与 Text2Video-zero 不同，Text2Video-zero 仅配置所有帧关注第一帧。 交错帧更加平滑：在每个时间步 $t$ ，平滑器会对偶数帧或奇数帧进行插值，以平滑其对应的3帧。在平滑步骤后，帧数会随着时间的推移而减少。 分层采样器：利用分层采样器在内存限制下能够生成具有时间一致性的长视频。长视频被拆分成多个短片段，每个短片段都选中了一个关键帧。该模型预先生成这些具有完全跨帧注意到关键帧，以实现长期的一致性，并且每个相应的片段都是根据关键帧顺序合成的。 图15：ControlVideo 模型架构（左），全跨帧注意力示意图（右）。 Citation Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log. https://lilianweng.github.io/posts/2024-04-12-diffusion-video/.\nReferences [1] Cicek et al. 2016. “3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation.”\n[2] Ho \u0026 Salimans, et al. “Video Diffusion Models.” 2022 | webpage\n[3] Bar-Tal et al. 2024 “Lumiere: A Space-Time Diffusion Model for Video Generation.”\n[4] Brooks et al. “Video generation models as world simulators.” OpenAI Blog, 2024.\n[5] Zhang et al. 2023 “ControlVideo: Training-free Controllable Text-to-Video Generation.”\n[6] Khachatryan et al. 2023 “Text2Video-Zero: Text-to-image diffusion models are zero-shot video generators.”\n[7] Ho, et al. 2022 “Imagen Video: High Definition Video Generation with Diffusion Models.”\n[8] Singer et al. “Make-A-Video: Text-to-Video Generation without Text-Video Data.” 2022.\n[9] Wu et al. “Tune-A-Video: One-Shot Tuning of Image Diffusion Models for Text-to-Video Generation.” ICCV 2023.\n[10] Blattmann et al. 2023 “Align your Latents: High-Resolution Video Synthesis with Latent Diffusion Models.”\n[11] Blattmann et al. 2023 “Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets.”\n[12] Esser et al. 2023 “Structure and Content-Guided Video Synthesis with Diffusion Models.”\n[13] Bar-Tal et al. 2024 “Lumiere: A Space-Time Diffusion Model for Video Generation.”\n",
+  "wordCount" : "7788",
+  "inLanguage": "zh",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2025-02-17T00:00:00Z",
+  "dateModified": "2025-02-17T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://m1yan.github.io/posts/video_generation/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://m1yan.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/adityatelange/hugo-PaperMod/wiki/" title="WiKi">
+                    <span>WiKi</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Diffusion Model for Video Generation
+    </h1>
+    <div class="post-meta"><span title='2025-02-17 00:00:00 +0000 UTC'>二月 17, 2025</span>&nbsp;·&nbsp;16 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/posts/Video_Generation.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e4%bb%8e%e5%a4%b4%e5%bc%80%e5%a7%8b%e5%bb%ba%e6%a8%a1%e4%b8%80%e4%b8%aa%e8%a7%86%e9%a2%91%e7%94%9f%e6%88%90%e6%a8%a1%e5%9e%8b" aria-label="从头开始建模一个视频生成模型">从头开始建模一个视频生成模型</a><ul>
+                        
+                <li>
+                    <a href="#%e5%8f%82%e6%95%b0%e4%bb%a5%e5%8f%8a%e5%85%b3%e4%ba%8e%e9%87%87%e6%a0%b7%e7%9a%84%e7%9b%b8%e5%85%b3%e7%9f%a5%e8%af%86" aria-label="参数以及关于采样的相关知识">参数以及关于采样的相关知识</a></li>
+                <li>
+                    <a href="#%e6%a8%a1%e5%9e%8b%e6%9e%b6%e6%9e%843d-u-net%e5%92%8cdit" aria-label="模型架构：3D U-Net和DIT">模型架构：3D U-Net和DIT</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e8%b0%83%e6%95%b4%e5%9b%be%e5%83%8f%e6%a8%a1%e5%9e%8b%e4%bb%a5%e7%94%9f%e6%88%90%e8%a7%86%e9%a2%91" aria-label="调整图像模型以生成视频">调整图像模型以生成视频</a><ul>
+                        
+                <li>
+                    <a href="#%e4%bd%bf%e7%94%a8%e8%a7%86%e9%a2%91%e6%95%b0%e6%8d%ae%e8%bf%9b%e8%a1%8c%e5%be%ae%e8%b0%83" aria-label="使用视频数据进行微调">使用视频数据进行微调</a></li>
+                <li>
+                    <a href="#%e5%85%8d%e8%ae%ad%e7%bb%83%e9%80%82%e9%85%8d" aria-label="免训练适配">免训练适配</a></li></ul>
+                </li>
+                <li>
+                    <a href="#citation" aria-label="Citation">Citation</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>全文为<a href="https://lilianweng.github.io/posts/2024-04-12-diffusion-video/">Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.</a>的中文翻译版本。</p>
+</blockquote>
+<p>在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：</p>
+<ol>
+<li>它对跨帧的时间一致性有额外的要求，这自然需要将更多的世界知识编码到模型中。（例如物体运动的物理规则）</li>
+<li>与文本或者图像相比，收集大量高质量、高维度的视频数据更加困难，文本视频对的获取也更加困难和复杂。</li>
+</ol>
+<h1 id="从头开始建模一个视频生成模型">从头开始建模一个视频生成模型<a hidden class="anchor" aria-hidden="true" href="#从头开始建模一个视频生成模型">#</a></h1>
+<p>首先，让我们回顾一下设计和训练扩散视频模型的方法，这意味着我们不依赖预先训练的图像生成器。</p>
+<h2 id="参数以及关于采样的相关知识">参数以及关于采样的相关知识<a hidden class="anchor" aria-hidden="true" href="#参数以及关于采样的相关知识">#</a></h2>
+<p>设 $x \sim q_{real}$ 是从实际数据分布中采样的数据点。现在我们在时间上添加少量的高斯噪声，产生一系列噪声变化 $x$ ，表示为 ${\textbf{z}_t | t = 1, …,T}$，噪声随着 $t$ 的增加而增加，最后一个 $q(\textbf{z}_T) \sim \mathcal{N}(\textbf{0}, \textbf{I})$。噪声添加的前向过程是一个高斯过程。使用 $\alpha_t, \sigma_t$ 定义高斯过程的可微分噪声公式：</p>
+<div>
+$$
+q(\textbf{z}_t|\textbf{x}) = \mathcal{N}(\textbf{z}_t; \alpha_t\textbf{x}, \sigma_t^2\textbf{I})
+$$
+</div>
+为了表示 $q(\textbf{z}_t|\textbf{z}_s), 0 \leq s < t \leq T$，我们有：
+<div>
+$$
+\begin{aligned}
+\textbf{z}_t &= \alpha_t \textbf{x} + \sigma_t \bf{\epsilon}_t \\
+\textbf{z}_s &= \alpha_s \textbf{x} + \sigma_s \bf{\epsilon}_s \\
+\textbf{z}_t &= \frac{\alpha_t}{\alpha_s}\bf{z}_t + \sigma_t\bf{\epsilon}_t - \frac{\alpha_t\sigma_s}{\alpha_s}\bf{\epsilon}_s \\
+Thus\ q(\bf{z}_t|\bf{z}_s) &= \mathcal{N}(\bf{z}_t; \frac{\alpha_t}{\alpha_s}\bf{z}_s, (1- \frac{\alpha_t^2\sigma_s^2}{\sigma_t^2\alpha_s^2})\sigma_t^2\bf{I})
+\end{aligned}
+$$
+</div>
+<p>设对数信噪比为 $\lambda_t = log[\alpha_t^2 / \sigma_t^2]$ ，我们可以将DDIM更新表示为：</p>
+<div>
+$$
+q(\bf{z}_t|\bf{z}_s) = \mathcal{N}(\bf{z}_t, \frac{\alpha_t}{\alpha_s}\bf{z}_t, \sigma_{t|s}^2\bf{I}) \ where \ \sigma_{t|s}^2 = (1-e^{\lambda_t-\lambda_s})\sigma_t^2
+$$
+</div>
+有一个特殊的 $\bf{v}$ 预测（$\bf{v} = \alpha_t\bf{\epsilon} - \sigma_t\bf{x}$ ）参数化，由Salimans和Ho（2022）提出。与参数化 $\epsilon$ 相比，它被证明能够有助于避免视频生成中的偏色现象。
+<p>$\bf{v}$ 参数化是通过角度坐标中的技巧得出的。首先，我们定义 $\phi_t = arctan(\sigma_t/\alpha_t)$ ，因此我们有 $\alpha_\phi = cos\phi, \sigma_\phi = sin\phi, \bf{z}_\phi = cos\phi \bf{x} + sin\phi \bf{\epsilon}$ 。$\bf{z}_t$ 的速率可以表示为：</p>
+<div>
+$$
+\bf{v_t} = \nabla_t \bf{z}_t = \frac{dcos\phi}{d\phi}\bf{x}+\frac{dsin\phi}{d\phi}\bf{\epsilon} = cos\phi \bf{\epsilon} - sin\phi \bf{x}
+$$
+</div>
+ 然后我们可以推断，
+<div>
+$$
+\begin{aligned}
+\sin \phi \mathbf{x} & =\cos \phi \boldsymbol{\epsilon}-\mathbf{v}_{\phi} \\
+& =\frac{\cos \phi}{\sin \phi}\left(\mathbf{z}_{\phi}-\cos \phi \mathbf{x}\right)-\mathbf{v}_{\phi} \\
+\sin ^{2} \phi \mathbf{x} & =\cos \phi \mathbf{z}_{\phi}-\cos ^{2} \phi \mathbf{x}-\sin \phi \mathbf{v}_{\phi} \\
+\mathbf{x} & =\cos \phi \mathbf{z}_{\phi}-\sin \phi \mathbf{v}_{\phi} \\
+\text { Similarly } \boldsymbol{\epsilon} & =\sin \phi \mathbf{z}_{\phi}+\cos \phi \mathbf{v}_{\phi}
+\end{aligned}
+$$
+</div>
+相应地，DDIM的更新规则也会更新：
+<div>
+$$
+\begin{aligned}
+\mathbf{z}_{\phi_{s}} & =\cos \phi_{s} \hat{\mathbf{x}}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right)+\sin \phi_{s} \hat{\epsilon}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right) \quad \\
+&; \hat{\mathbf{x}}_{\theta}(.), \hat{\epsilon}_{\theta}(.) \text { are two models to predict } \mathbf{x}, \boldsymbol{\epsilon} \text { based on } \mathbf{z}_{\phi_{t}} \\
+& =\cos \phi_{s}\left(\cos \phi_{t} \mathbf{z}_{\phi_{t}}-\sin \phi_{t} \hat{\mathbf{v}}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right)\right)+\sin \phi_{s}\left(\sin \phi_{t} \mathbf{z}_{\phi_{t}}+\cos \phi_{t} \hat{\mathbf{v}}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right)\right) \\
+& =\left(\cos \phi_{s} \cos \phi_{t}+\sin \phi_{s} \sin \phi_{t}\right) \mathbf{z}_{\phi_{t}}+\left(\sin \phi_{s} \cos \phi_{t}-\cos \phi_{s} \sin \phi_{t}\right) \hat{\mathbf{v}}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right) \\
+& =\cos \left(\phi_{s}-\phi_{t}\right) \mathbf{z}_{\phi_{t}}+\sin \left(\phi_{s}-\phi_{t}\right) \hat{\mathbf{v}}_{\theta}\left(\mathbf{z}_{\phi_{t}}\right) \quad \\
+&; \text { trigonometric identity functions. }
+\end{aligned}
+$$
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img 	src="https://s2.loli.net/2025/01/14/H34K7XAVYEcJp8D.png" style="zoom: 25%"/>
+        <figcaption style="color: gray;">
+            图1:可视化扩散更新步骤在角度坐标中的工作原理（图片来源：Salimans Ho, 2022)
+        </figcaption>
+    </center>
+</div>
+<p>模型的 $\bf{v}$ 预测是预测 $\bf{v}_\phi=cos\phi\boldsymbol{\epsilon} - sin\phi\bf{x} = \alpha_t \boldsymbol{\epsilon} - \sigma_t \bf{x}$ 。</p>
+<p>在视频生成的情形中，我们需要扩散模型运行多个步骤的上采样，以延长视频长度或提高帧数。这需要对以第一个 $\bf{x}^a$ 为条件的第二个图像 $\bf{x}^b \sim p_\theta(\bf{x}^b|\bf{x}^a)$ 进行采样，其中 $\bf{x}^b$ 可能是自回归扩展的帧或者低帧数视频中间缺失的帧。</p>
+<p>$\bf{x}^b$ 的采样不仅需要自身对应的噪声变量外，还需要考虑 $\bf{x}^a$ 条件。视频扩散模型（VDM; Ho &amp; Salimans, 2022）提出了使用调整后的降噪模型的重建指导方法，使得采样 $\bf{x}^b$ 可以适当地以以下基于 $\bf{x}^a$ 的条件进行：</p>
+<div>
+$$
+\begin{align}
+\mathbb{E}_q[\mathbf{x}^b | \mathbf{z}_t, \mathbf{x}^a] &= \mathbb{E}_q[\mathbf{x}^b | \mathbf{z}_t] + \frac{\sigma_t^2}{\alpha_t} \nabla_{\mathbf{z}_t^b} \log q(\mathbf{x}^a | \mathbf{z}_t) \\
+q(\mathbf{x}^a | \mathbf{z}_t) &\approx \mathcal{N}\left[\hat{\mathbf{x}}_\theta^a(\mathbf{z}_t), \frac{\sigma_t^2}{\alpha_t^2} \mathbf{I}\right] \\
+\tilde{\mathbf{x}}_\theta^b(\mathbf{z}_t) &= \hat{\mathbf{x}}_\theta^b(\mathbf{z}_t) - \frac{w_r \alpha_t}{2} \nabla_{\mathbf{z}_t^b} \left\| \mathbf{x}^a - \hat{\mathbf{x}}_\theta^a(\mathbf{z}_t) \right\|_2^2
+\end{align}
+$$
+</div>
+其中，$\hat{\mathbf{x}}_\theta^a(\mathbf{z}_t)$ 和 $\hat{\mathbf{x}}_\theta^b(\mathbf{z}_t)$ 是由去噪模型 $\bf{x}^a$ 和 $\bf{x}^b$ 提供的重建图像。并且 $\omega_r$ 是一个加权因子，发现较大的 $\omega_r > 1$ 可以提高样本质量。也可以使用相同的方法对低分辨率视频进行条件调节，将样本扩展到高分辨率。
+<h2 id="模型架构3d-u-net和dit">模型架构：3D U-Net和DIT<a hidden class="anchor" aria-hidden="true" href="#模型架构3d-u-net和dit">#</a></h2>
+<p>与文本到图像的扩散模型类似，U-Net和Transformer仍然是两种常见的架构选择。Google有一系列采用U-Net架构的扩散视频论文，OpenAI最近的Sora模型采用了transformer架构。</p>
+<p>VDM（<a href="https://arxiv.org/abs/2204.03458">Ho &amp; Salimans, et al. 2022</a>）采用了标准的扩散模型设置，但是改变了视频建模的架构。它扩展了2D U-Net以用于3D数据 (<a href="https://arxiv.org/abs/1606.06650">Clcek et al. 2016</a>) ，其中每一个特征图代表帧x高度x宽度x通道的4D张量。这个3D U-Net在空间和时间上被分解，这意味着每一层只在时间或者空间维度上起作用，而不能同时在两者上起作用。</p>
+<ul>
+<li>处理空间：
+<ul>
+<li>与2D U-Net相同，每个旧的2D卷积层都扩展为仅空间3D的卷积层，例如，3*3卷积变成了1*3*3卷积。
+<ul>
+<li>每个空间注意力块（<code>spatial attention block</code>）都保持为空间上的注意力，其中第一个轴（<code>frame</code>）被视为批量维度。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>处理时间：
+<ul>
+<li>在每个空间注意力块之后添加一个时间注意力块（<code>temporal attention block</code>）。它在第一个轴（<code>frame</code>）上执行注意力，并将空间轴作为批处理维度。相对位置嵌入（<code>relative position embedding</code>）用于跟踪帧的顺序。时间注意力块对于模型捕获良好的时间连贯性非常重要。</li>
+</ul>
+</li>
+</ul>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/14/ycNdXWpAPiaYfDh.png"/>
+        <figcaption style="color: gray;">
+            图2:3D U-Net架构。
+        </figcaption>
+    </center>
+</div>
+<p>Imagen Video（<a href="https://arxiv.org/abs/2210.02303">Ho, et al. 2022</a>）基于一系列扩散模型构建，以提高视频生成的质量，并升级以24fps输出1280*768的视频。Imagen Video架构由以下组件构成，总共有7个扩散模型。</p>
+<ul>
+<li>一个冻结的T5文本编码器，用于提供文本嵌入作为条件输入</li>
+<li>一个基本的视频扩散模型</li>
+<li>交错的时间和空间超分辨率扩散模型的级联，包括3个TSR（时间超分辨率）和3个SSR（空间超分辨率）组件。</li>
+</ul>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/14/3FjGvQYfaWJTBrI.png"/>
+        <figcaption style="color: gray;">
+            图3:Imagen Video中的级联采样架构。在实践中，文本嵌入被注入到所有的组件中，而不仅仅是基本模型。
+        </figcaption>
+    </center>
+</div>
+<p>基本去噪模型同时对具有共享参数的所有帧执行空间操作，然后时间层跨帧混合激活以更好地捕获时间一致性，这被证明比帧自回归的方法效果更好。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+       <img src="https://s2.loli.net/2025/01/14/2ygYqlNU8hrwjob.png"/>
+        <figcaption style="color: gray;">
+            图4：Imagen Video扩散模型中块时空分离的架构。
+        </figcaption>
+    </center>
+</div>
+<p>SSR和TSR模型都以与通道上含有噪声的数据 $\bf{z}_t$ 相连的上采样输入为条件。SSR通过双线性调整大小进行上采样，而TSR通过重复帧或者填充空白帧来上采样。</p>
+<p>Imagen Video还应用渐进式蒸馏来加快采样速度，每次蒸馏迭代都可以将所需的采样步骤减少一半。在实验中，能够将7个组件提炼为每个组件仅8个采样步骤，而不会在感知质量上造成任何明显的损失。</p>
+<p>为了实现更好的扩展工作，Sora（<a href="https://openai.com/research/video-generation-models-as-world-simulators">Brooks et al. 2024</a>）利用了DiT（Diffusion Transformer）架构，该架构在视频和图像潜在编码的时空patch上运行。视觉输入表示为一系列时空patch，这些patch充当Transformer的输入token。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+       <img src="https://s2.loli.net/2025/01/14/XK5yhE8zWLMaARF.png"/>
+        <figcaption style="color: gray;">
+            图5：Sora是Diffusion Transformer架构。
+        </figcaption>
+    </center>
+</div>
+<h1 id="调整图像模型以生成视频">调整图像模型以生成视频<a hidden class="anchor" aria-hidden="true" href="#调整图像模型以生成视频">#</a></h1>
+<p>扩散视频模型建模的另一种突出方法是通过插入时间层来“膨胀”预先训练的图像到文本扩散模型，然后我们可以选择只对视频数据上的新层进行微调，或者完全避免额外的训练。新模型继承了文本-图像对的先验知识，有助于减轻对文本-视频对的数据需求。</p>
+<h2 id="使用视频数据进行微调">使用视频数据进行微调<a hidden class="anchor" aria-hidden="true" href="#使用视频数据进行微调">#</a></h2>
+<p><strong>Make-A-Video</strong>（<a href="https://arxiv.org/abs/2209.14792">Singer et al. 2022</a>）扩展了具有时间维度的预训练扩散图像模型，该模型由3个关键组件构成：</p>
+<ol>
+<li>基于文本-图像对训练的基本图像生成模型。</li>
+<li>时空卷积层和注意力层来扩展网络以覆盖时间维度。</li>
+<li>用于生成高帧率的帧插值网络。</li>
+</ol>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+       <img src="https://s2.loli.net/2025/01/14/Nopfh7FnrIVOczs.png"/>
+        <figcaption style="color: gray;">
+            图6：Make-A-Video架构。
+        </figcaption>
+    </center>
+</div>
+<p>最终的视频推理方案可以表述为：</p>
+<div>
+$$
+\hat{\bf{y}}_t = SR_h \circ SR_l^t \circ \uparrow_F \circ D^t \circ P \circ (\hat{\bf{x}}, CLIP_{text}(\bf{x}))
+$$
+</div>
+其中：
+<ul>
+<li>$\bf{x}$ 是输入文本。</li>
+<li>$\hat{\bf{x}}$ 是BPE编码的文本。</li>
+<li>$CLIP_{text}(\cdot)$ 是CLIP文本编码器，则 $\bf{x_e} = CLIP_{text}(\bf{x})$ 。</li>
+<li>$P(\cdot)$ 是先验的，$\bf{y}_e$ 在给定文本嵌入 $\bf{x}_e$ 和BPE编码文本 $\hat{\bf{x}}: \bf{y}_e = P(\bf{x}_e, \hat{\bf{x}})$ 的情况下生成图像嵌入。这部分是在文本-图像对数据上训练的，而不是在视频数据上微调的。</li>
+<li>$D^t(\cdot)$ 是生成一系列16帧的时空解码器，其中每帧都是低分辨率的64*64的RGB图像 $\hat{\bf{y}}_l$。</li>
+<li>$\uparrow_F(\cdot)$ 是帧插值网络，通过在生成的帧之间进行插值来提高有效帧速率。这是一个经过微调的模型，用于预测视频上采样的掩码帧。</li>
+<li>$SR_h(\cdot), SR_l^t(\cdot)$ 是时间和空间超分辨率模型，将图像分辨率分别提高到256*256和768*768。</li>
+<li>$\hat{\bf{y}}_t$ 是最终生成的视频。</li>
+</ul>
+<p>时空SR层包括伪3D卷积层和伪3D注意力层：</p>
+<ul>
+<li>伪3D卷积层：每个时空2D卷积层（从预训练图像模型初始化）后跟一个时间1D层（初始化为一个恒等函数）。从概念上讲，2D卷积层首先生成多个帧，然后将帧重塑为视频片段。</li>
+<li>伪3D注意力层：在每个预先训练的空间注意力层之后，堆叠一个时间注意力层，用于近似一个完整的时空注意力层。</li>
+</ul>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+       <img src="https://s2.loli.net/2025/01/14/B63hlotfuPM2c4s.png"/>
+        <figcaption style="color: gray;">
+            图7：伪3D卷积层（左）和伪3D注意力层（右）的工作原理。
+        </figcaption>
+    </center>
+</div>
+<p>它们可以表示为：</p>
+<div>
+$$
+\begin{align}
+Conv_{P3D} = Conv_{1D}(Conv_{2D}(\bf{h})\circ T) \circ T \\
+Attn_{P3D} = flatten^{-1}((Atten_{2D}flatten(\bf{h}) \circ T) \circ T)
+\end{align}
+$$
+</div>
+其中输入张量 $\bf{h} \in \mathbb{R}^{B \times C \times F \times H \times W}$ （对应于批量大小、通道、帧、高度和宽度），$\circ T$ 代表时间和空间维度之间的交换，即张量形状变为 $\bf{h'} \in \mathbb{R}^{B \times F \times C \times H \times W}$ ；$flatten(\cdot)$ 将 $\bf{h}$ 转换为 $\bf{h''} \in \mathbb{R}^{B \times F \times C \times H  W}$ ，$flatten^{-1}(\cdot)$ 代表反转该过程。
+<p>在训练阶段，Make-A-Video管道的不同组件是独立训练的。</p>
+<ol>
+<li>解码器 $D^t$ 、生图先验 $P$ 和两个超分辨率组件 $SR_h, SR_l^t$ 首先单独在图像上进行训练，没有成对的文本。</li>
+<li>接下来添加新的时间层，初始化为一个恒等函数，对未标记的视频数据进行微调。</li>
+</ol>
+<p><strong>Tune-A-Video</strong>（<a href="https://openaccess.thecvf.com/content/ICCV2023/html/Wu_Tune-A-Video_One-Shot_Tuning_of_Image_Diffusion_Models_for_Text-to-Video_Generation_ICCV_2023_paper.html">Wu et al. 2023</a>）膨胀了一个预训练的图像扩散模型，以实现一次性的适应视频生成的微调：给定一个包含 $m$ 帧的视频，$\mathcal{V} = {v_i|i=1,&hellip;,m}$ 与描述性提示 $\tau$ 配对，任务是基于轻微编辑和一个相关的文本描述 $\tau$ 生成一个新的视频 $\mathcal{V^*}$ 。例如：$\tau$ = <code>&quot;A man is skiing&quot;</code>可以扩展为 $\tau$ = <code>&quot;Spiderman is skiing on the beach&quot;</code>。Tune-A-Video旨在用于对象编辑、背景更改和风格迁移。</p>
+<p>除了膨胀2D卷积层外，Tune-A-Video的U-Net架构还集成了<code>ST-Attention</code>（时空注意力）块，通过查询前几帧的相关位置来捕获时间一致性。给定<code>frame</code> $v_i$ 、前一帧 $v_{i-1}$ 和第一帧 $v_1$ 的潜在特征，投射到<code>query</code> $\bf{Q}$ 、<code>key</code> $\bf{K}$ 、和<code>value</code> $\bf{V}$ 中，则<code>ST-Attention</code>可以被定义为：</p>
+<div>
+$$
+\begin{align}
+\bf{Q} &= \bf{W}^Q \bf{z}_{v_i}, \\
+\bf{K} &= W^K [\bf{z}_{v_i}, \bf{z}_{v_{i-1}}], \\
+\bf{V} &= W^V [\bf{z}_{v_i}, \bf{z}_{v_{i-1}}] \\
+\bf{O} &= softmax(\frac{\bf{Q}\bf{K}^T}{\sqrt{d}}) \cdot \bf{V}
+\end{align}
+$$
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/14/nQTtoflNKdr7cHO.png"/>
+        <figcaption style="color: gray;">
+            图8：Tune-A-Video架构概述。首先在采样阶段之前对单个视频运行轻量级微调阶段。由于整个时间自注意力 (T-Attn) 层是新添加的，因此会进行微调，但在微调期间，只有ST-Attn和Cross-Attn中的查询投影会更新，以保留先前的文本到图像的知识。ST-Attn提高了时空一致性，Cross-Attn优化了文本-视频的对齐。
+        </figcaption>
+    </center>
+</div>
+<p><strong>Gen-1</strong>模型（<a href="https://arxiv.org/abs/2302.03011">Esser et al. 2023</a>）的目标是根据文本输入编辑给定视频。它分解了视频生成条件 $p(\bf{x}|s,c)$ 中对于结构<code>structure</code>和内容<code>content</code>的要求，但是，要对这两个方面进行清晰的分解并不容易。</p>
+<ul>
+<li>$\bf{c}$ 指视频的外观和语义信息，即从文本中采样以进行条件编辑。帧的CLIP嵌入可以很好地表示内容，并且很大程度上与结构特征保持正交。</li>
+<li>$\bf{s}$ 描述网格和动力学，包括对象的形状、位置、时间变化，并从输入的视频中采样，可以使用深度信息或者针对于其他特定任务的信息（例如，人体姿态或者面部特征）。</li>
+</ul>
+<p>Gen-1的架构变化相当标准，即在剩余块中的每个2D空间卷积层后添加1D时间卷积层，并在注意力块的每一个2D空间注意力块之后添加1D时间注意力块。在训练期间，结构变量 $\bf{s}$ 与扩散潜空间中的变量 $\bf{z}$ 连接，其中变量 $\bf{c}$ 在交叉注意力层中提供。在推理时，在推理时，片段嵌入通过之前的 CLIP 文本嵌入转换为 CLIP 图像嵌入。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/LZBJE52bI9cG1zm.png"/>
+        <figcaption style="color: gray;">
+            图9：Gen-1模型架构。
+        </figcaption>
+    </center>
+</div>
+<p><strong>Video LDM</strong>（<a href="https://arxiv.org/abs/2304.08818">Blattmann et al. 2023</a>）首先训练了一个LDM图像生成器。然后，对模型进行微调，添加了时间维度以生成视频。微调仅应用于编码图像序列中新添加的时序层。Video LDM中的时间层 ${l_\phi^i | i=1,&hellip;L }$ 与在微调期间保持的现有空间层 $l_\theta^i$ 交错，只微调新参数 $\phi$ ，而不微调预训练主干模型参数 $\theta$ 。Video LDM的pipeline首先以低fps生成关键帧，然后通过两步潜在帧插值进行处理以提高fps。</p>
+<p>长度 $T$ 的输入序列被看作基本图像生成模型 $\theta$ 生成的一批图像（即 $\bf{B} \cdot \bf{T}$ ），然后被重塑为时间层的视频 $l_\phi^i$ 格式。存在一个跳跃连接，使通过学习的合并参数 $\alpha$ 实现时间层输出 $\bf{z&rsquo;}$ 和空间输出 $\bf{z}$ 的组合。在实验中，实现了两种类型的时间混合层：（1）单独的时间注意力层加在空间注意力层之后和（2）基于3D卷积的残差块按合并参数组合。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/fIK5Hq6rJYAhjlR.png"
+             style="zoom: 25%"/>
+        <figcaption style="color: gray;">
+            图10：用于图像生成的预训练LDM扩展为视频生成器。B, T, C, H, W分别是批量大小、序列长度、通道数、高度和宽度。c是可选的生成条件。
+        </figcaption>
+    </center>
+</div>
+<p>但是，LDM预训练的自动编码器仍然存在一个问题，即只能看到图像，而看不到视频。单纯将其用于视频生成可能会产生闪烁伪影，而没有良好的时间一致性。因此，Video LDM在解码器中添加了额外的时间层，并且使用由3D卷积构建的基于patch的时间判别器对视频数据进行微调，而编码器保持不变，因而可以继续使用预训练的LDM。在时间解码器微调期间，冻结的编码器独立处理视频中的每个帧，并且使用视频感知判别器在帧之间强制执行时间一致的重建。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/wHty3klMei2qmCv.png" 						style="zoom: 20%"/>
+        <figcaption style="color: gray;">
+            图11：Video LDM时间解码器的训练架构。解码器经过微调，在编码器保持冻结状态时在跨帧判别器下具有时间一致性。
+        </figcaption>
+    </center>
+</div>
+<p>与Video LDM类似，<strong>Stable Video Diffusion</strong>（<strong>SVD</strong>, <a href="https://arxiv.org/abs/2311.15127">Blattmann et al. 2023</a>）也基于LDM，在每个空间卷积层和注意力层后插入时间层，但SVD对整个模型进行了微调。训练SVD分为三个阶段：</p>
+<ol>
+<li><em>文本到图像的预训练</em> ：有助于提高视频质量以及提示的跟随。</li>
+<li><em>视频预训练</em>：分离训练更加有利，理想情况下应该在一个更大规模的精选的数据集上进行。</li>
+<li><em>高质量视频微调</em>：使用具有高视觉保真度的较小的、带有字幕的视频进行。</li>
+</ol>
+<p>SVD特别强调了<strong>数据集管理</strong>在模型性能中的关键作用。他们通过使用剪辑检测架构在为每个模型获得更多的视频切片，然后应用了三种不同的用于生成字幕的模型：（1）CoCa用于挑选帧；（2）V-BLIP用于获取视频字幕；（3）基于前面两个模型，使用LLM生成字幕。然后他们继续优化视频数据集，通过删除运动较少的视频（通过以2fps计算的低光流分数过滤），视频中具有过多的文本（应用OCR识别具有大量文本的视频），具有较低的美学价值的视频（使用CLIP对视频的第一帧、中间一帧以及最后一帧提取特征，计算美学分数和文本-图像相似度）。实验表明，经过过滤的、高质量的数据集会带来更好的模型质量，即使这个数据集要小得多。</p>
+<p>先生成远距离的关键帧，然后添加具有时间超分辨率的帧插值，一个关键的挑战是如何保持高质量的时间一致性。<strong>Lumiere</strong>（<a href="https://arxiv.org/abs/2401.12945">Bar-Tal et al. 2024</a>）采用了时空U-Net（STUNet）架构，通过单次传递一次性生成视频的整个持续时间，消除了对TSR（时间超分辨率）组件的依赖。STUNet在时间和空间维度上对视频进行下采样，因此大量的计算发生在时空潜在空间中。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/AGDohsQbSJyH4OE.png" 						style="zoom: 30%"/>
+        <figcaption style="color: gray;">
+            图12：Lumiere删除了TSR（时间超分辨率）模型。由于内存限制，膨胀的SSR网络只能在视频的短片段上运行，因此SSR模型在一组短且重叠的视频片段上运行。
+        </figcaption>
+    </center>
+</div>
+<p>STUNet对预训练的文本到图像的U-Net进行膨胀，以便能够在时间和空间维度上对视频进行下采样和上采样。卷积块由预先训练的文本到图像层构成，伴随着一系列的时空卷积。在U-Net的瓶颈特征处，包括预先训练的从文本到图像的注意力块，其中包含了1D的时间注意力。训练仅发生在新添加的层中。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/ARnizJljtxPSgKE.png"/>
+        <figcaption style="color: gray;">
+            图13：（a）时空U-Net（STUNet），（b）基于卷积的块，（c）基于注意力的块。
+        </figcaption>
+    </center>
+</div>
+<h2 id="免训练适配">免训练适配<a hidden class="anchor" aria-hidden="true" href="#免训练适配">#</a></h2>
+<p>令人惊讶的是，无需任何训练即可调整预先训练的文本到图像的生成模型以输出视频。</p>
+<p>如果我们天真地采样一系列潜在空间中的特征，然后解码出一个对应的视频，那么在时间上的对象和语义的一致性是无法保证的。<strong>Text2Video-Zero</strong>（<a href="https://arxiv.org/abs/2303.13439">Khachatryan et al. 2023</a>）通过增强预训练的图像扩散模型，使用了两个关键的时间一致性机制实现了零样本、免训练的视频生成：</p>
+<ol>
+<li>使用<strong>运动动力学</strong>对潜在空间的序列进行采样，以保持全局场景一致。</li>
+<li>在第一帧上通过每帧的<strong>新跨层注意力</strong>重新设计了帧级的自注意力，以保留前景对象的上下文、外观和身份。</li>
+</ol>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="https://s2.loli.net/2025/01/15/Z2We9lthzY6sRwd.png"/>
+        <figcaption style="color: gray;">
+            图14：Text2Video-Zero架构概述。
+        </figcaption>
+    </center>
+</div>
+<p>使用运动信息对一系列潜空间变量 $\bf{x}_T^1,&hellip;,\bf{x}_T^m$ 进行采样的过程如下：</p>
+<ol>
+<li>定义控制全局场景和照相机运动方向 $\bf{\delta} = (\delta_x, \delta_y) \in \mathbb{R}^2$ ；默认情况下，我们设置 $\bf{\delta} = (1, 1)$ 。此外，定义一个控制全局运动量的超参数 $\lambda &gt; 0$ 。</li>
+<li>首先随机采样第一帧的潜空间变量，$\bf{x}_T^1 \sim \mathcal{N}(0,I)$ ；</li>
+<li>使用预训练的图像扩散模型执行后向更新步骤，例如论文中的稳定扩散（SD）模型，并获取相应的潜在空间变量 $\bf{x}_{T&rsquo;}^1$，其中 $T&rsquo; = T - \Delta t$ 。</li>
+<li>对于潜在空间变量序列中的每一帧，我们应用相应的运动平移，并使用定义的 $\delta ^k = \lambda(k-1) \delta$ 进行变形操作来获得 $\bf{\tilde{x}}_{T&rsquo;}^k$ 。</li>
+</ol>
+<div>
+5. 最后，将DDIM前向步骤应用于所有 $\bf{\tilde{x}}_{T'}^{2:m}$ 以获取 $\bf{x}_{T}^{2:m}$ 。
+</div>
+<div>
+$$
+\begin{align}
+& \bf{x}_{T'}^1 = DDIM-backward(\bf{x}_{T}^1, \Delta t) where\ T' = T - \Delta t \\
+& W_k \leftarrow \text{a warp operation of }\delta^k = \lambda(k-1)\delta \\
+& \bf{\tilde{x}}_{T'}^k = W_k(\bf{x}_{T'}^1) \\
+& \bf{x}_{T}^k = DDIM-forward(\bf{\tilde{x}}_{T'}^k, \Delta t)\ for \ k = 2,...,m
+\end{align}
+$$
+</div>
+<p>此外，Text2Video-Zero将预训练SD模型中的自注意力层替换为参考第一帧的新跨帧注意力机制。其动机是在生成的整个视频中保留有关前景对象的外观、形状和身份信息。</p>
+<div>
+$$
+\bf{Cross-Frame-Attn}(\bf(Q)^k, \bf{K}^{1:m}, \bf{V}^{1:m}) = Softmax(\frac{\bf{Q}^k(\bf{K})^\top}{\sqrt{c}})\bf{V}^1
+$$
+</div>
+下面的操作可供选择，可以使用背景蒙版进一步平滑和提高背景一致性。假设我们使用现有方法获得了第 $k$ 帧的前景掩码 $\bf{M}_k$ ，使用背景平滑需要在扩散步骤 $t$ 中合并实际潜变量和扭曲的潜变量，即背景矩阵为：
+<div>
+$$
+\mathbf{\bar{x}}_t^k = \mathbf{M}^k \odot \mathbf{x}_t^k + (1-\mathbf{M}^k) \odot (\alpha \mathbf{\tilde{x}}_t^k + (1-\alpha)\mathbf{x}_t^k) \text{   for k =1,...,m}
+$$
+</div>
+其中 $\bf{x}_t^k$ 是实际的潜空间变量，$\bf{\tilde{x}}_t^k$ 是在背景上被变形的潜空间变量；$\alpha$ 是一个超参数，实验中设置了 $\alpha = 0.6$ 。
+<p>Text2video-zero可以在每个扩散的时间步 $t = T,&hellip;,1$ 中对每一帧 $\bf{x}_t^k\ k=1,&hellip;,m$ 应用预训练的 ControlNet 分支，并将 ControlNet 分支输出添加到主U-Net到跳跃连接中。</p>
+<p><strong>ControlVideo</strong>（<a href="https://arxiv.org/abs/2305.13077">Zhang et al. 2023</a>） 旨在生成以文本提示 $\tau$ 和运动序列（例如深度或边缘图）为条件的视频，$\bf{c} = {c^i}_{i=0}^{N-1}$ 。它基于 <a href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/#controlnet">ControlNet</a> 改进出三个新机制：</p>
+<ol>
+<li><strong>跨帧注意力</strong>：在自注意力模块中添加了全跨帧的交互。它通过将潜空间中的帧映射到 $\bf{Q, K, V}$ 矩阵来引入所有帧之间的交互，这与 Text2Video-zero 不同，Text2Video-zero 仅配置所有帧关注第一帧。</li>
+<li><strong>交错帧更加平滑</strong>：在每个时间步 $t$ ，平滑器会对偶数帧或奇数帧进行插值，以平滑其对应的3帧。在平滑步骤后，帧数会随着时间的推移而减少。</li>
+<li><strong>分层采样器</strong>：利用分层采样器在内存限制下能够生成具有时间一致性的长视频。长视频被拆分成多个短片段，每个短片段都选中了一个关键帧。该模型预先生成这些具有完全跨帧注意到关键帧，以实现长期的一致性，并且每个相应的片段都是根据关键帧顺序合成的。</li>
+</ol>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+       <img src="https://s2.loli.net/2025/01/15/ZzcfWYJUv7H1nI8.png"/>
+        <figcaption style="color: gray;">
+            图15：ControlVideo 模型架构（左），全跨帧注意力示意图（右）。
+        </figcaption>
+    </center>
+</div>
+<h1 id="citation">Citation<a hidden class="anchor" aria-hidden="true" href="#citation">#</a></h1>
+<blockquote>
+<p>Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log. <a href="https://lilianweng.github.io/posts/2024-04-12-diffusion-video/">https://lilianweng.github.io/posts/2024-04-12-diffusion-video/</a>.</p>
+</blockquote>
+<h1 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h1>
+<p>[1] Cicek et al. 2016. <a href="https://arxiv.org/abs/1606.06650">“3D U-Net: Learning Dense Volumetric Segmentation from Sparse Annotation.”</a></p>
+<p>[2] Ho &amp; Salimans, et al. <a href="https://arxiv.org/abs/2204.03458">“Video Diffusion Models.”</a> 2022 | <a href="https://video-diffusion.github.io/">webpage</a></p>
+<p>[3] Bar-Tal et al. 2024 <a href="https://arxiv.org/abs/2401.12945">“Lumiere: A Space-Time Diffusion Model for Video Generation.”</a></p>
+<p>[4] Brooks et al. <a href="https://openai.com/research/video-generation-models-as-world-simulators">“Video generation models as world simulators.”</a> OpenAI Blog, 2024.</p>
+<p>[5] Zhang et al. 2023 <a href="https://arxiv.org/abs/2305.13077">“ControlVideo: Training-free Controllable Text-to-Video Generation.”</a></p>
+<p>[6] Khachatryan et al. 2023 <a href="https://arxiv.org/abs/2303.13439">“Text2Video-Zero: Text-to-image diffusion models are zero-shot video generators.”</a></p>
+<p>[7] Ho, et al. 2022 <a href="https://arxiv.org/abs/2210.02303">“Imagen Video: High Definition Video Generation with Diffusion Models.”</a></p>
+<p>[8] Singer et al. <a href="https://arxiv.org/abs/2209.14792">“Make-A-Video: Text-to-Video Generation without Text-Video Data.”</a> 2022.</p>
+<p>[9] Wu et al. <a href="https://openaccess.thecvf.com/content/ICCV2023/html/Wu_Tune-A-Video_One-Shot_Tuning_of_Image_Diffusion_Models_for_Text-to-Video_Generation_ICCV_2023_paper.html">“Tune-A-Video: One-Shot Tuning of Image Diffusion Models for Text-to-Video Generation.”</a> ICCV 2023.</p>
+<p>[10] Blattmann et al. 2023 <a href="https://arxiv.org/abs/2304.08818">“Align your Latents: High-Resolution Video Synthesis with Latent Diffusion Models.”</a></p>
+<p>[11] Blattmann et al. 2023 <a href="https://arxiv.org/abs/2311.15127">“Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets.”</a></p>
+<p>[12] Esser et al. 2023 <a href="https://arxiv.org/abs/2302.03011">“Structure and Content-Guided Video Synthesis with Diffusion Models.”</a></p>
+<p>[13] Bar-Tal et al. 2024 <a href="https://arxiv.org/abs/2401.12945">“Lumiere: A Space-Time Diffusion Model for Video Generation.”</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://m1yan.github.io/posts/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>2024年终总结</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
