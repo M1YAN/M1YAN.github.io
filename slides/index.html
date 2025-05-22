@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Slides | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Slides - M1YAN&#39;s Blog">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/slides/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d77bdc992da4cb34344677f4385e53cf34c99acf4c535ef64a740cb221eac3d0.css" integrity="sha256-13vcmS2kyzQ0Rnf0OF5TzzTJms9MU172SnQMsiHqw9A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://m1yan.github.io/slides/index.xml">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/slides/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/slides/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="Slides">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="website">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="Slides">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Slides",
+      "item": "https://m1yan.github.io/slides/"
+    }
+  ]
+}
+</script>
+</head>
+
+<body class="list" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/pdf/CV-miyan-CN.pdf" title="CV">
+                    <span>CV</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/slides/" title="Slides">
+                    <span class="active">Slides</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header"><div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a></div>
+  <h1>
+    Slides
+    <a href="/slides/index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Reasoning Model 05.14
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Overview of Efficient inference for Reasoning Model.</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-05-14 00:00:00 +0000 UTC'>五月 14, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to Reasoning Model 05.14" href="https://m1yan.github.io/slides/reasoning_model-05.14/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Reasoning Model 4.16
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Correctness of intermediate answers during reasoning.</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-04-16 00:00:00 +0000 UTC'>四月 16, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to Reasoning Model 4.16" href="https://m1yan.github.io/slides/reasoning_model-04.16/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Model Editing 4.9
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Repetition of output in Model Post-Editing and ThinkEdit Reading.</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-04-09 00:00:00 +0000 UTC'>四月 9, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to Model Editing 4.9" href="https://m1yan.github.io/slides/model_editing_4.9/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Model Editing 3.12
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Thoughts on MoE Model Editing.</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-03-12 00:00:00 +0000 UTC'>三月 12, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to Model Editing 3.12" href="https://m1yan.github.io/slides/model_editing-03.12/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Model Editing 2.26
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Overview of Model Editing, ROME and MEND.</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-02-26 00:00:00 +0000 UTC'>二月 26, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan</footer>
+  <a class="entry-link" aria-label="post link to Model Editing 2.26" href="https://m1yan.github.io/slides/model_editing-02.26/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
