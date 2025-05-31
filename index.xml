@@ -12,8 +12,15 @@
     <generator>Hugo -- 0.139.3</generator>
     <language>zh</language>
     <copyright>M1Yan&amp;rsquo;s Blog</copyright>
-    <lastBuildDate>Wed, 14 May 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 31 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Recommendation System (Basic Knowledge and Classic Algorithms)</title>
+      <link>https://m1yan.github.io/slides/recsys-05.31/</link>
+      <pubDate>Sat, 31 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/slides/recsys-05.31/</guid>
+      <description>Basic knowledge and classic algorithms related to recommendation systems.</description>
+    </item>
     <item>
       <title>Reasoning Model 05.14</title>
       <link>https://m1yan.github.io/slides/reasoning_model-05.14/</link>

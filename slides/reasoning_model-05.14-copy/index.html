@@ -1,28 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
+<html lang="zh" dir="auto">
 
-<head>
-	<meta name="generator" content="Hugo 0.139.3"><meta charset="utf-8">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>M1YAN&#39;s Blog</title>
-
-<meta name="description" content="">
+<title>Reasoning Model 05.14 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Overview of Efficient inference for Reasoning Model.">
 <meta name="author" content="Mi Yan">
-<link rel="canonical" href="https://m1yan.github.io/en/">
+<link rel="canonical" href="http://localhost:1313/slides/reasoning_model-05.14-copy/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.d77bdc992da4cb34344677f4385e53cf34c99acf4c535ef64a740cb221eac3d0.css" integrity="sha256-13vcmS2kyzQ0Rnf0OF5TzzTJms9MU172SnQMsiHqw9A=" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://m1yan.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://m1yan.github.io/en/index.xml">
-<link rel="alternate" type="application/json" href="https://m1yan.github.io/en/index.json">
-<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/">
-<link rel="alternate" hreflang="en" href="https://m1yan.github.io/en/">
+<link rel="alternate" hreflang="zh" href="http://localhost:1313/slides/reasoning_model-05.14-copy/">
 <noscript>
     <style>
         #theme-toggle,
@@ -80,33 +76,78 @@
 <link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/en/">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="http://localhost:1313/slides/reasoning_model-05.14-copy/">
   <meta property="og:site_name" content="M1YAN&#39;s Blog">
-  <meta property="og:title" content="M1YAN&#39;s Blog">
-  <meta property="og:locale" content="en">
-  <meta property="og:type" content="website">
-      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+  <meta property="og:title" content="Reasoning Model 05.14">
+  <meta property="og:description" content="Overview of Efficient inference for Reasoning Model.">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="slides">
+    <meta property="article:published_time" content="2025-05-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-05-14T00:00:00+00:00">
+      <meta property="og:image" content="http://localhost:1313/images/papermod-cover.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
-<meta name="twitter:title" content="M1YAN&#39;s Blog">
-<meta name="twitter:description" content="">
+<meta name="twitter:image" content="http://localhost:1313/images/papermod-cover.png">
+<meta name="twitter:title" content="Reasoning Model 05.14">
+<meta name="twitter:description" content="Overview of Efficient inference for Reasoning Model.">
+
 
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "M1YAN's Blog",
-  "url": "https://m1yan.github.io/en/",
-  "description": "",
-  "logo": "https://m1yan.github.io/favicon.ico",
-  "sameAs": [
-      "https://github.com/M1YAN", "https://discordapp.com/users/m1yan.", "https://www.instagram.com/m1yan1024/", "https://www.xiaohongshu.com/user/profile/64295bea000000001102214b", "pdf/CV-miyan-CN.pdf"
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Slides",
+      "item": "http://localhost:1313/slides/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Reasoning Model 05.14",
+      "item": "http://localhost:1313/slides/reasoning_model-05.14-copy/"
+    }
   ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Reasoning Model 05.14",
+  "name": "Reasoning Model 05.14",
+  "description": "Overview of Efficient inference for Reasoning Model.",
+  "keywords": [
+    
+  ],
+  "articleBody": "",
+  "wordCount" : "0",
+  "inLanguage": "zh",
+  "image": "http://localhost:1313/images/papermod-cover.png","datePublished": "2025-05-14T00:00:00Z",
+  "dateModified": "2025-05-14T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/slides/reasoning_model-05.14-copy/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
 }
 </script>
 </head>
 
-<body class="list" id="top">
+<body class="" id="top">
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.body.classList.add('dark');
@@ -121,7 +162,7 @@
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="https://m1yan.github.io/en/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <a href="http://localhost:1313/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -145,103 +186,84 @@
                 </button>
                 <ul class="lang-switch"><li>|</li>
                     <li>
-                        <a href="https://m1yan.github.io/" title="简体中文"
-                            aria-label="简体中文">简体中文</a>
+                        <a href="http://localhost:1313/en/" title="English"
+                            aria-label="English">English</a>
                     </li>
                 </ul>
             </div>
         </div>
         <ul id="menu">
             <li>
-                <a href="https://m1yan.github.io/en/archives" title="Archive">
-                    <span>Archive</span>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
                 </a>
             </li>
             <li>
-                <a href="https://m1yan.github.io/en/search/" title="Search">
-                    <span>Search</span>
+                <a href="http://localhost:1313/search/" title="搜索">
+                    <span>搜索</span>
                 </a>
             </li>
             <li>
-                <a href="https://m1yan.github.io/en/tags/" title="Tags">
-                    <span>Tags</span>
+                <a href="http://localhost:1313/tags/" title="标签">
+                    <span>标签</span>
                 </a>
             </li>
             <li>
-                <a href="https://m1yan.github.io/en/pdf/CV-miyan-CN.pdf" title="CV">
+                <a href="http://localhost:1313/pdf/CV-miyan-CN.pdf" title="CV">
                     <span>CV</span>
                 </a>
             </li>
             <li>
-                <a href="https://m1yan.github.io/en/slides/" title="Slides">
+                <a href="http://localhost:1313/slides/" title="Slides">
                     <span>Slides</span>
                 </a>
             </li>
         </ul>
     </nav>
 </header>
-<main class="main"> 
-<article class="first-entry home-info">
-    <header class="entry-header">
-        <h1>👋 Welcome to M1YAN&rsquo;s Blog</h1>
-    </header>
-    <div class="entry-content">
-        <ul>
-<li>🏫 Undergraduate student of the School of Future, Beijing University of Posts and Telecommunications</li>
-<li>🎓 Major in Computer Science</li>
-<li>📝 Record Knowledge and Life</li>
-<li>🔎 Research Interests: <code>LLM Safety</code>, <code>Recommendation System</code>, <code>Model Editing</code>, <code>Interpretability</code>, <code>Trustworthy AI</code>, <code>Multimodal</code>, etc.</li>
-</ul>
+<main class="main">
 
-    </div>
-    <footer class="entry-footer">
-        <div class="social-icons" >
-    <a href="https://github.com/M1YAN" target="_blank" rel="noopener noreferrer me"
-        title="View Profile on Github">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path
-        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-    </path>
-</svg>
-    </a>
-    <a href="https://discordapp.com/users/m1yan." target="_blank" rel="noopener noreferrer me"
-        title="Join Discord">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" fill="currentColor" stroke="none" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path
-        d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
-</svg>
-    </a>
-    <a href="https://www.instagram.com/m1yan1024/" target="_blank" rel="noopener noreferrer me"
-        title="Follow Me on Instagram">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-    <line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line>
-</svg>
-    </a>
-    <a href="https://www.xiaohongshu.com/user/profile/64295bea000000001102214b" target="_blank" rel="noopener noreferrer me"
-        title="Follow Me on RedNote">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" version="1.1" p-id="4584" width="200" height="200"><path d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z" fill="#333333" p-id="4585"></path>
-    <path d="M199.936 439.04H147.456c4.608 68.352-12.288 120.064-12.288 120.064l28.16 51.456c37.376-15.872 36.608-171.52 36.608-171.52m169.984 0H317.44s-0.768 155.648 36.352 171.52l28.16-51.456c0.256 0.256-16.64-51.712-12.032-120.064M232.96 595.712H199.936c0 38.656 32.512 41.984 32.512 41.984h16.64c33.536 0 34.816-38.4 34.816-38.4v-228.352H232.96v224.768z m176.128-109.568h34.048L417.28 539.392s-15.104 29.952 9.216 30.976h56.576l22.528-41.216h-28.416c-2.56 0-4.864-2.048-4.864-4.864 0-0.768 0.256-1.536 0.512-2.048l42.24-82.944H465.92l-2.816 5.888h-3.328c-2.56 0-4.864-2.048-4.864-4.864 0-0.768 0.256-1.536 0.512-2.048l35.328-67.328h-49.152l-41.984 84.48c0.512 0-14.592 29.696 9.472 30.72m7.68 100.608s-6.4 0.512-10.496-3.584l-25.344 48.896s4.096 5.632 12.8 5.632h62.976l26.88-50.944h-66.816z" fill="#FFFFFF" p-id="4586"></path><path d="M606.976 439.04h32.512v-52.224h-115.968v52.224h32.768v149.248h-48.64l-24.32 49.152h172.8v-49.152h-49.152v-149.248z m232.192 38.656h-5.888v-33.792c0-31.488-25.6-57.088-57.088-57.088h-19.712v-15.872h-50.176v15.872h-31.488v51.2h31.488v39.68h-50.176v51.2h50.176v109.056h50.176v-108.8h68.864c6.656 0 12.288 5.376 12.288 12.288v53.76h-47.872c0 23.808 19.2 43.008 43.008 43.008h13.056c23.808 0 43.008-19.2 43.008-43.008v-67.584c-0.256-27.904-22.272-49.92-49.664-49.92M756.48 437.76h17.92c4.352 0 7.68 3.584 7.68 7.68v32h-25.856V437.76z" fill="#FFFFFF" p-id="4587"></path><path d="M888.064 411.904c0-13.824-11.008-24.832-24.832-24.832-13.824 0-24.832 11.008-24.832 24.832v24.832h24.832c13.568 0 24.832-11.264 24.832-24.832" fill="#FFFFFF" p-id="4588"></path>
-</svg>
-    </a>
-    <a href="pdf/CV-miyan-CN.pdf" target="_blank" rel="noopener noreferrer me"
-        title="MiYan&#39;s CV">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-    stroke-linecap="round" stroke-linejoin="round">
-    <path
-        d="M4 4v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.342a2 2 0 0 0-.602-1.43l-4.44-4.342A2 2 0 0 0 13.56 2H6a2 2 0 0 0-2 2z" />
-    <path d="M9 13h6" />
-    <path d="M9 17h3" />
-    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-</svg>
-    </a>
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">主页</a>&nbsp;»&nbsp;<a href="http://localhost:1313/slides/">Slides</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Reasoning Model 05.14
+    </h1>
+    <div class="post-meta"><span title='2025-05-14 00:00:00 +0000 UTC'>五月 14, 2025</span>&nbsp;·&nbsp;0 分钟&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts/slides/Reasoning_model-05.14%20copy.md" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
 </div>
+  </header> 
 
-    </footer>
+
+  <div class="post-content">
+    <div style="position: relative; padding-bottom: 141.42%; /* A4纸张比例 */ height: 0; overflow: hidden; max-width: 100%; background: #f1f1f1; margin-bottom: 20px;">
+        <embed src="http://localhost:1313/slides/Reasoning_model-05.14.pdf" type="application/pdf" width="100%" height="100%" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;">
+        <p style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #333;"></p>
+        </embed>
+    </div>
+    <hr/>
+      
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
 </article>
     </main>
     
@@ -357,6 +379,53 @@
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 
