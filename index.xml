@@ -12,8 +12,18 @@
     <generator>Hugo -- 0.163.3</generator>
     <language>zh</language>
     <copyright>M1Yan&amp;rsquo;s Blog</copyright>
-    <lastBuildDate>Tue, 30 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 03 Jul 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>On-Policy Distillation: 重塑大模型后训练的新范式</title>
+      <link>https://m1yan.github.io/posts/on_policy_distillation/</link>
+      <pubDate>Fri, 03 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/on_policy_distillation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文综合了 &lt;a href=&#34;https://thinkingmachines.ai/blog/on-policy-distillation/&#34;&gt;Thinking Machines Lab 的 On-Policy Distillation 博客&lt;/a&gt; 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：&lt;strong&gt;预训练（Pre-training）&lt;/strong&gt; 教会模型语言理解与世界知识；&lt;strong&gt;中间训练（Mid-training）&lt;/strong&gt; 注入领域知识；&lt;strong&gt;后训练（Post-training）&lt;/strong&gt; 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>2025年终总结：在预设之外，跳入旷野</title>
       <link>https://m1yan.github.io/posts/2025-year-end-summary/</link>

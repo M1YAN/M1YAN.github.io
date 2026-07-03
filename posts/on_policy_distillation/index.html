@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>On-Policy Distillation: 重塑大模型后训练的新范式 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+本文综合了 Thinking Machines Lab 的 On-Policy Distillation 博客 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。
+
+大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：预训练（Pre-training） 教会模型语言理解与世界知识；中间训练（Mid-training） 注入领域知识；后训练（Post-training） 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/posts/on_policy_distillation/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.534b1ee5e52fdf0372ffba6ef83f4e3cfeac32a20ce50dc682fe5dc1eeff5dd8.css" integrity="sha256-U0se5eUv3wNy/7pu&#43;D9OPP6sMqIM5Q3Ggv5dwe7/Xdg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/on_policy_distillation/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/on_policy_distillation/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="On-Policy Distillation: 重塑大模型后训练的新范式">
+  <meta property="og:description" content=" 本文综合了 Thinking Machines Lab 的 On-Policy Distillation 博客 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。
+大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：预训练（Pre-training） 教会模型语言理解与世界知识；中间训练（Mid-training） 注入领域知识；后训练（Post-training） 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-03T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-07-03T00:00:00+00:00">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="On-Policy Distillation: 重塑大模型后训练的新范式">
+<meta name="twitter:description" content="
+本文综合了 Thinking Machines Lab 的 On-Policy Distillation 博客 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。
+
+大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：预训练（Pre-training） 教会模型语言理解与世界知识；中间训练（Mid-training） 注入领域知识；后训练（Post-training） 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://m1yan.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "On-Policy Distillation: 重塑大模型后训练的新范式",
+      "item": "https://m1yan.github.io/posts/on_policy_distillation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "On-Policy Distillation: 重塑大模型后训练的新范式",
+  "name": "On-Policy Distillation: 重塑大模型后训练的新范式",
+  "description": " 本文综合了 Thinking Machines Lab 的 On-Policy Distillation 博客 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。\n大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：预训练（Pre-training） 教会模型语言理解与世界知识；中间训练（Mid-training） 注入领域知识；后训练（Post-training） 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": " 本文综合了 Thinking Machines Lab 的 On-Policy Distillation 博客 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。\n大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：预训练（Pre-training） 教会模型语言理解与世界知识；中间训练（Mid-training） 注入领域知识；后训练（Post-training） 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。\n从离线模仿到同策略交互 离线训练的局限：暴露偏差 传统的后训练方法依赖监督微调（Supervised Fine-Tuning, SFT）与离线知识蒸馏（Off-Policy Distillation）。在这些方法中，学生模型在教师模型生成的固定轨迹上进行训练——教师的完整 token 序列作为目标，学生在每一步都更新自身分布以逼近教师的输出。\n图1：离线蒸馏示意。学生在教师的轨迹上训练，更新幅度与 token 的意外程度成正比（颜色越深代表更新越大）。（来源：Thinking Machines Lab） 这种依赖外部固定轨迹的方式不可避免地引入了暴露偏差（Exposure Bias）。学生训练时看到的都是教师的轨迹，但推理时必须基于自身的生成进行后续预测。一旦偏离教师的分布范围，误差便会以 $\\mathcal{O}(\\epsilon T^2)$ 的速率在序列长度上二次放大。就像学棋时只观摩大师的对局——你看到的都是高水平的局面，但新手很少会进入这些局面。\n此外，研究还发现离线蒸馏存在另一个隐患：学生可能学会了模仿教师的风格和置信度，但不一定学会了它的事实准确性 [6]。\n强化学习的困境：稀疏奖励 基于可验证奖励的强化学习（RLVR，如 PPO 或 GRPO）通过让模型在自身策略空间中进行探索，从构造上消除了分布错位的问题。然而，RL 的奖励信号往往是稀疏的——模型可能生成了数千个 token 的推理链，最终仅获得一个二元的\"对/错\"信号。\n图2：强化学习示意。学生自行生成轨迹并获得稀疏的最终结果奖励。（来源：Thinking Machines Lab） 正如 Thinking Machines 所比喻的：RL 就像在没有教练指导的情况下下棋——你在每局结束后知道输赢，但不知道哪一步走错了。模型学会了\"21\"是错误答案并远离这条轨迹，但不清楚是运算顺序错了，还是算术本身出了问题。这种稀疏反馈导致了极高的方差与探索成本。\nOPD 核心机制：两个世界的最佳结合 核心思想 OPD 的核心思想简洁而优雅：\n学生模型基于自身策略 $\\pi_\\theta$ 生成轨迹——保证训练分布与推理分布一致。 教师模型对学生生成的每一个 token 进行评分——提供密集的概率分布监督。 回到国际象棋的类比：OPD 就像一位教练坐在你旁边看你下棋，对你的每一步棋都给出从\"失误\"到\"精彩\"的评价。\n图3：同策略蒸馏示意。学生自行生成轨迹，教师对每个 token 进行评分——惩罚导致错误的步骤，强化正确的步骤。（来源：Thinking Machines Lab） 图4：chess.com 的走法评级界面。分析引擎对每一步棋进行颜色标注——失误（红色）、错误（橙色）、不精确（黄色）、精彩（蓝色）。这正是 OPD 的直觉来源。（来源：chess.com，引自 Thinking Machines Lab） 三种后训练方法的对比一目了然：\n方法 采样策略 奖励信号 监督微调（SFT） 离线（Off-policy） 密集（Dense） 强化学习（RL） 在线（On-policy） 稀疏（Sparse） 同策略蒸馏（OPD） 在线（On-policy） 密集（Dense） 目标函数：逆 KL 散度 OPD 最常使用的损失函数是逐 token 的逆 KL 散度（Reverse KL）：\n$$ \\text{KL}\\Bigl(\\pi_\\theta \\lvert\\rvert \\pi_\\text{teacher}\\Bigr) = \\mathbb{E}_{x \\sim {\\pi_\\theta}} \\Bigl[ \\log \\pi_\\theta(x_{t+1} | x_{1..t}) - \\log \\pi_\\text{teacher}(x_{t+1} | x_{1..t}) \\Bigr] $$ 逆 KL 具有天然的**模式寻求（Mode-seeking）**特性——学生会集中学习教师最自信的行为模式，而不是试图覆盖教师的所有模式。这与 RL 的优化目标在数学上高度一致，但有一个关键优势：逆 KL 是\"不可作弊的\"（unhackable）——低 KL 值始终对应于教师视角下的理想行为。\n这种方法还带来了显著的计算节省：由于不需要等待 rollout 完成才能计算奖励，我们可以使用更短的部分轨迹进行训练；查询教师的对数概率也只需要对大模型做一次前向传播。\n教师评分的直觉 下图展示了一个真实案例。学生模型（Qwen3-4B）在一道需要物理直觉的题目上犯了错误——它忽略了\"冰块在煎锅中会融化\"这一关键事实，纯粹当作数学题来解答。教师模型（Qwen3-235B）对每个 token 给出的 KL 惩罚揭示了一个深刻的模式：\n图5：教师模型对学生错误轨迹的逐 token 评分。颜色越深表示逆 KL 惩罚越高。注意教师主要惩罚的是引导学生走向歧途的关键分叉 token，而非最终的错误答案——因为给定前文，错误答案已完全可预测。（来源：Thinking Machines Lab） 教师惩罚最重的不是最终的错误答案，而是那些导致推理偏离正轨的关键分叉 token（Forking Tokens）。最终答案虽然是错的，但给定前面整个错误的推理链，它已经完全可预测了，因此不需要额外惩罚。这与 RL 中\"高熵少数 token 驱动有效学习\"的发现高度吻合 [7]。\nOPD 的惊人效率 数学推理：以 1/10 的成本超越 RL Qwen3 技术报告中的实验验证了 OPD 的效率优势。以 AIME'24 数学基准测试为例：\n方法 AIME'24 GPQA-Diamond GPU 小时 离线蒸馏（SFT） 55.0% 55.6% 未报告 + 强化学习 67.6% 61.3% 17,920 + 同策略蒸馏 74.4% 63.3% 1,800 来源：Qwen3 技术报告 [3]，Table 21。\nOPD 以仅 1/10 的计算成本，不仅达到了 RL 的水平，还超越了它。Thinking Machines 在 Qwen3-8B-Base 上的复现实验进一步验证了这一结论——从 400K SFT 检查点出发，OPD 仅用约 150 步（约 77K 提示词）便将 AIME'24 从 60% 提升至 70%。综合考虑 FLOPs，成本缩减达到 9-30 倍。\n图6：同策略蒸馏过程中 AIME'24 得分的变化。OPD 在计算效率上显著优于 SFT，尤其对 LoRA 模型效果突出——LoRA 在 SFT 后落后全参微调 13%，但 OPD 后仅落后 6%。（来源：Thinking Machines Lab） 密集监督 vs 稀疏奖励：50-100 倍的效率差距 在一个更严格的对照实验中，Thinking Machines 从同一起点分别使用 RL 和 OPD 进行训练：OPD 在约 7-10 倍更少的梯度步数内达到了 RL 的性能水平。考虑到 OPD 可以使用更短的上下文长度和更小的批次，整体计算效率提升达 50-100 倍。\n图7：从相同初始化出发，OPD 以约 7-10 倍更少的梯度步数学习到 RL 训练出的策略，对应约 50-100 倍的计算效率提升。逆 KL 在不到 10 个梯度步内降至接近零。（来源：Thinking Machines Lab） 这意味着 RL 的大部分计算实际花在了搜索上——在语义策略空间中探索和分配信用——而非参数更新本身。正如 Rich Sutton 所言：“突破性进步最终总是来自基于搜索和学习的计算扩展。” 一旦找到好的策略，蒸馏可以跳过所有中间策略，直接学习最终结果。\n数据效率：单个样本也能蒸馏 一个令人惊讶的发现是 OPD 的极高数据效率。实验表明，即使只使用一个训练提示词，通过 20 轮连续的 on-policy 采样和教师评分（共 5120 条轨迹），模型也能近似达到教师的 AIME'24 水平。这是因为 OPD 优化的是完整分布的逆 KL 散度，而非简单记忆单一答案——RL 在多轮训练同一提示词时往往导致答案记忆化，OPD 则不然。\n图8：在仅一个训练提示词上进行多轮训练，OPD 仍能有效蒸馏教师的性能。（来源：Thinking Machines Lab） 工业级进化：多教师同策略蒸馏（MOPD） 在通用前沿模型的开发中，如何整合多个垂直领域的能力是核心挑战。传统方法面临跷跷板效应（See-saw Effect）——如果采用混合强化学习，不同领域的梯度会相互干涉；如果采用级联强化学习，模型在学习新技能时会迅速遗忘旧能力。\nMOPD 的三阶段流水线 多教师同策略蒸馏（Multi-Teacher On-Policy Distillation, MOPD）提供了一种将能力整合从\"权重空间\"转移至\"策略空间\"的系统性解决方案，通常遵循三阶段流水线：\n通用 SFT：建立多领域基座。 并行领域专家训练：从同一 SFT 起点分别训练数学、代码、逻辑等领域专家——称为\"同源教师（Same-origin Teachers）\"，保证师生分布的初始一致性。 MOPD 融合：学生模型自行生成轨迹，系统通过路由键（Routing Key）动态匹配对应专家教师，提供逐 token 反馈。 头部模型的 MOPD 部署 模型 核心架构创新 MOPD 机制 DeepSeek-V4 (1.6T) 流形约束超连接 (mHC)，支持 1M 长上下文 以 MOPD 完全替代混合 RLHF，结合生成式奖励模型 (GRM) MiMo-V2-Flash (309B) 混合注意力架构 (SWA+GA 6:1)，15B 活跃参数 将大规模 Agentic RL 专家通过 MOPD 合并至学生模型 NVIDIA Nemotron 3 Ultra (550B) LatentMoE（Mamba-2 + MoE），55B 活跃参数 异步 MOPD 流水线，Rollout/评分/优化完全解耦 在 DeepSeek-V4 的案例中，MOPD 不仅是后训练技巧，更是支撑其在代码生成（Codeforces 匹配 3206 分）与长文档智能体推理中超越同侪的基石——模型能够学习到各个专家的真实推理分布，而非仅仅迎合传统的标量奖励。\nCaMOPD：应对覆盖率缺陷 当 MOPD 应用于开源基座模型的能力恢复时，往往面临\"教师对齐提示词覆盖率\"不足的问题。标准 MOPD 会遭遇两种失效模式：\n恢复-保持对抗：试图恢复通用能力的梯度与试图保持领域行为的梯度相互抵消。 弱信号扁平化：大量低需求样本稀释了高修正需求的梯度信号。 对抗感知 MOPD（CaMOPD）通过两项改进解决了这一困境：\n解耦交替训练：设定非对称调度计划（如 3 个周期通用恢复 + 1 个周期领域保持），为通用能力的复苏分配专属的参数更新子空间。 差距分数驱动的动态样本选择：计算教师与学生在每个 token 上的对数概率差距，选择覆盖特定累积质量的最小前缀集合进行集中优化，极大提高了更新信号的信噪比。 自蒸馏机制（OPSD） 在追求极致算力效率的背景下，同策略自蒸馏（On-Policy Self-Distillation, OPSD）验证了一个惊人假设：前沿大模型可以通过\"特权信息\"扮演自身的教师。\n双角色实例化 同一个模型同时扮演两个角色：\n学生策略 $\\pi_S(\\cdot|x)$：仅观测问题 $x$，正常自回归探索。 教师策略 $\\pi_T(\\cdot|x, y^\\star)$：额外获得包含正确答案 $y^\\star$ 的特权上下文。 以答案为锚点，模型能进行高置信度的内部推演，在学生轨迹上提供精确的概率分布。实验表明，OPSD 的 token 消耗量仅为 GRPO 等 RL 算法的 1/8。但自蒸馏对基础模型的能力门槛要求较高，通常在 4B 到 8B 及以上参数模型中才能观察到显著效果。\nThinking Machines 的工作也从另一个角度验证了自蒸馏的价值：在\"个性化助手\"实验中，他们使用模型的早期版本作为教师，通过 OPD 恢复微调过程中丢失的指令遵循能力。这种\"使用自己去恢复自己\"的范式对持续学习极具前景。\nAR-OPD：化解后见之明泄漏 直接引入特权信息会引发后见之明泄漏（Hindsight Leakage）——教师获得完整解答路径后，可能忽视局部逻辑连贯性，提前释放预测最终答案的概率信号。锚定残差 OPD（Anchored Residual OPD, AR-OPD）通过将特权监督解耦为两个可控量来解决这一问题：\n局部锚点：使用确定性截断的部分特权上下文 $z_{part} = z_{1:\\lfloor\\rho L\\rfloor}$（通常 $\\rho = 0.5$），确保因果一致性，避免答案泄漏。 受控残差：将全视角教师的边际远见作为 $\\lambda$-scaled 增量注入。 这种\"可达锚点 + 受控残差\"的双视图机制，使后见之明泄漏概率降低 21.7%，在超过 768 token 的长序列推理中提升达 7.2 分。\nOPD 作为持续学习工具 Thinking Machines 的个性化助手实验揭示了 OPD 在持续学习中的独特价值。\n中间训练不可避免地损害后训练行为 在 Qwen3-8B 上微调企业内部文档时，无论如何调整文档数据与对话数据的混合比例，指令遵循能力（IF-eval）都会出现退化。即使使用 LoRA 约束参数更新也无法完全避免——LoRA 学得更少，同时仍然遗忘。\n图9：不同文档:对话数据比例下的微调效果。虽然混入少量对话数据可避免灾难性退化，但没有任何配比能保持原始的 IF-eval 性能。（来源：Thinking Machines Lab） 图10：IF-eval 在中间训练过程中持续下降。使用线性学习率时退化最终会趋平并缓慢恢复，但性能永远无法完全恢复。（来源：Thinking Machines Lab） 图11：LoRA 用于个性化中间训练时，学得更少（知识），同时仍然遗忘后训练行为。（来源：Thinking Machines Lab） OPD 几乎完全恢复丢失的能力 使用模型早期版本（Qwen3-8B）作为教师进行 OPD，可以在不丢失领域知识的情况下几乎完全恢复指令遵循能力：\n模型 内部知识 QA IF-eval（对话） Qwen3-8B（原始） 18% 85% + 中间训练（100% 文档） 43% 45% + 中间训练（70% 文档） 36% 79% + 中间训练（70%）+ OPD 41% 83% 本质上，语言模型本身被当作了奖励模型——高概率行为被奖励，低概率行为被抑制。这与逆强化学习（Inverse RL）有深层联系：高概率行为对应于假设的底层偏好模型中的优势奖励 [13]。\n为什么即使在自身数据上 SFT 也会退化？ 一个深层发现是：即使在模型自身的采样数据上进行 SFT（KL 散度在期望上为零），性能也会退化。这是因为每个有限 batch 的分布都与真实分布存在微小偏差，这些偏差会随时间累积，使得训练逐渐从 on-policy 变为 off-policy。OPD 始终保持 on-policy 且教师固定，因此能稳定收敛而非漂移。\n图12：即使在 Qwen3-32B 自身的样本上进行 SFT 也会导致性能退化——有限 batch 的分布偏差随时间累积，将 on-policy 训练变为了 off-policy。OPD 不存在这个问题。（来源：Thinking Machines Lab） 目标函数的创新：当逆 KL 不够用时 在标准 OPD 范式中，选择何种散度度量直接决定了模型演化的拓扑形态。\n散度函数的权衡 散度函数 函数形态 $f(u)$ 核心特性 局限性 正向 KL $u \\log u$ 模式覆盖（Zero-avoiding），教师权重 易在模式间隙产生幻觉 逆 KL $-\\log u$ 模式寻求（Zero-forcing），学生权重 高熵区域多样性崩溃 Jensen-Shannon $u \\log u - (u+1)\\log\\frac{u+1}{2}$ 对称有界，平滑插值 缺乏动态感知能力 EOPD：熵感知的动态散度切换 在复杂推理的关键分叉点，教师分布自然呈现高熵状态——存在多条合法推理路径。强行施加逆 KL 会导致多样性严重退化。EOPD（Entropy-Aware OPD）在实时迭代中监控教师分布的熵值：\n低熵节点：使用逆 KL 保持精确性。 高熵节点（超过阈值 $\\tau$）：动态注入正向 KL 惩罚项以保持探索多样性。 $$ \\mathcal{L}_t^{\\text{EOPD}} = \\mathcal{D}_{\\text{KL}}(\\pi_\\theta || \\pi_{\\text{te}}) + \\alpha_t \\mathcal{D}_{\\text{KL}}(\\pi_{\\text{te}} || \\pi_\\theta) $$ 在 Qwen3 系列模型验证中，EOPD 为 0.6B、1.7B 和 4B 模型的 Pass@8 准确率分别带来了 +1.37、+2.39 和 +5.05 的显著增益。\nSEAD：胜任力感知的三区域退火 SEAD（Competence-Aware OPD）通过计算教师与学生的联合熵，将所有 token 划分为三个区域：\nZone A（零梯度区，约占 50%）：师生双方都极度自信，直接跳过梯度计算——这一机制本身就能节省约一半的计算量。 Zone B（逆 KL 区）：教师自信但学生迷茫，使用逆 KL 快速锐化。 Zone C（混合退火区）：教师处于不确定状态，通过余弦退火策略使 $\\alpha$ 从 0.8 平滑过渡至 0——从早期的\"全域探索\"无缝转变为后期的\"局部打磨\"。 前沿理论与多模态突破 REOPOLD：OPD 与策略优化的等价性 REOPOLD 通过引入 Stop-Gradient 操作，在理论上证明了 OPD 等价于一种以教师-学生对数似然比为 token 级奖励信号的 RL 过程：\n$$ r_t = \\log \\frac{\\pi^*(a_t|s_t)}{\\pi_{\\text{ref}}(a_t|s_t)} $$ 这一视角深刻揭示了 OPD 在高容量蒸馏中容易崩溃的原因——极端的长尾负向对数似然比会摧毁原本可行的替代逻辑链。REOPOLD 通过混合分布奖励裁剪和基于熵的动态 token 层级采样，实现了 6.7-12 倍的样本效率提升，甚至使 7B 学生模型在 Test-time Scaling 能力上逼近 32B 教师。\nEffOPD：参数几何的远见 EffOPD 发现 OPD 表现出独特的\"非主导几何更新\"——在前 10% 的训练进程中就能识别出对推理起决定性作用的网络层，且低秩主导子空间在极早期便与最终优化方向锁定。基于这种\"几何远见\"，EffOPD 沿累积更新方向 $\\Delta_n = W_{2^n} - W_{2^{n-1}}$ 进行线性外推，生成候选参数并通过 50 样本验证集快速筛选。这种纯参数空间几何操作在 1.5B 至 32B 模型中实现了平均 3 倍的训练加速，无需引入任何额外训练模块。\nVision-OPD：内化视觉缩放机制 多模态模型常面临\"局部到全局的感知鸿沟\"——将关键证据区域裁剪后模型能正确作答，但面对完整图像时注意力失焦。Vision-OPD 在同一模型内构建了两个策略实体：\n局部条件教师：仅接收关键证据的裁剪图像作为特权输入。 全局条件学生：读取全景图像，模拟真实推理环境。 通过 OPD 迫使学生在全局像素中演化出\"显微聚焦\"的隐式注意力机制。仅凭 6.2K 条合成数据，4B 和 9B 模型便在 V* Bench、ZoomBench 等高分辨率测试中全面超越了参数远大于己的开源及闭源视觉大模型。\nUni-OPD：大一统框架 Uni-OPD 揭示了决定 OPD 成功与否的两个底层瓶颈，并提出了系统的双视角优化方案：\n学生视角——数据探索均衡：离线难度感知重采样 + 在线正确性感知均衡，强制每个 batch 内成功/失败轨迹对半，确保梯度中始终存在强烈的正负对比信号。 教师视角——结果引导边距校准：将环境反馈（Outcome Reward）作为绝对锚点，反向校准教师在每个 token 上的概率边距，恢复正确与错误轨迹的正确排序。 该框架在涵盖单/多教师、强到弱、跨模态等 16 个基准上均展现出卓越泛化能力。\n总结与展望 同策略蒸馏代表了后训练范式的一次深刻重构。它将 RL 的分布对齐优势与蒸馏的密集监督优势完美融合，在实践中展现出 10-100 倍的计算效率提升。\n从 Thinking Machines 的基础验证到 DeepSeek-V4、MiMo-V2-Flash 的工业级部署，OPD 已从学术概念演进为构建下一代前沿模型的核心技术。展望未来，几个方向值得关注：\n自蒸馏的极限：多大的模型才能有效地\"自教自学\"？ 持续学习：OPD 的交替训练范式能否成为模型持续进化的标准方案？ 多模态融合：Vision-OPD 的成功能否推广到音频、视频等更多模态？ 几何加速：EffOPD 的参数外推能否与更复杂的多智能体环境结合？ 正如 Thinking Machines 所总结的：后训练是达到前沿模型能力的关键环节。通过将学生的 on-policy 采样与教师的密集监督相结合，OPD 以远低于传统 RL 的成本达到了前沿性能。\nCitation Mi Yan (密言), “On-Policy Distillation: 重塑大模型后训练的新范式”, M1YAN’s Blog, Jul 2026. https://m1yan.github.io/posts/on_policy_distillation/\nReferences [1] Agarwal et al. “On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes.” 2023.\n[2] Gu et al. “MiniLLM: Knowledge Distillation of Large Language Models.” 2023.\n[3] Qwen Team. “Qwen3 Technical Report.” 2025.\n[4] Ross et al. “A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning” (DAGGER). 2010.\n[5] Lightman et al. “Let’s Verify Step by Step.” 2023.\n[6] Gudibande et al. “The False Promise of Imitating Proprietary LLMs.” 2023.\n[7] Wang et al. “Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning.” 2025.\n[8] Rafailov et al. “Direct Preference Optimization: Your Language Model is Secretly a Reward Model.” 2023.\n[9] Chen et al. “Retaining by Doing: The Role of On-Policy Data in Mitigating Forgetting.” 2025.\n[10] Shenfeld et al. “RL’s Razor: Why Online Reinforcement Learning Forgets Less.” 2025.\n[11] Biderman et al. “LoRA Learns Less and Forgets Less.” 2024.\n[12] Hu et al. “LoRA: Low-Rank Adaptation of Large Language Models.” 2021.\n[13] Ng and Russell. “Algorithms for Inverse Reinforcement Learning.” ICML 2000.\n[14] Kevin Lu and Thinking Machines Lab. “On-Policy Distillation.” Thinking Machines Lab: Connectionism, Oct 2025.\n",
+  "wordCount" : "7479",
+  "inLanguage": "zh",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2026-07-03T00:00:00Z",
+  "dateModified": "2026-07-03T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://m1yan.github.io/posts/on_policy_distillation/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://m1yan.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/personal-homepage" title="Academic Page">
+                    <span>Academic Page</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/pdf/CV-miyan-CN.pdf" title="CV">
+                    <span>CV</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/slides/" title="Slides">
+                    <span>Slides</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      On-Policy Distillation: 重塑大模型后训练的新范式
+    </h1>
+    <div class="post-meta"><span title='2026-07-03 00:00:00 +0000 UTC'>七月 3, 2026</span>&nbsp;·&nbsp;15 分钟&nbsp;·&nbsp;7479 字&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e4%bb%8e%e7%a6%bb%e7%ba%bf%e6%a8%a1%e4%bb%bf%e5%88%b0%e5%90%8c%e7%ad%96%e7%95%a5%e4%ba%a4%e4%ba%92" aria-label="从离线模仿到同策略交互">从离线模仿到同策略交互</a><ul>
+                        
+                <li>
+                    <a href="#%e7%a6%bb%e7%ba%bf%e8%ae%ad%e7%bb%83%e7%9a%84%e5%b1%80%e9%99%90%e6%9a%b4%e9%9c%b2%e5%81%8f%e5%b7%ae" aria-label="离线训练的局限：暴露偏差">离线训练的局限：暴露偏差</a></li>
+                <li>
+                    <a href="#%e5%bc%ba%e5%8c%96%e5%ad%a6%e4%b9%a0%e7%9a%84%e5%9b%b0%e5%a2%83%e7%a8%80%e7%96%8f%e5%a5%96%e5%8a%b1" aria-label="强化学习的困境：稀疏奖励">强化学习的困境：稀疏奖励</a></li></ul>
+                </li>
+                <li>
+                    <a href="#opd-%e6%a0%b8%e5%bf%83%e6%9c%ba%e5%88%b6%e4%b8%a4%e4%b8%aa%e4%b8%96%e7%95%8c%e7%9a%84%e6%9c%80%e4%bd%b3%e7%bb%93%e5%90%88" aria-label="OPD 核心机制：两个世界的最佳结合">OPD 核心机制：两个世界的最佳结合</a><ul>
+                        
+                <li>
+                    <a href="#%e6%a0%b8%e5%bf%83%e6%80%9d%e6%83%b3" aria-label="核心思想">核心思想</a></li>
+                <li>
+                    <a href="#%e7%9b%ae%e6%a0%87%e5%87%bd%e6%95%b0%e9%80%86-kl-%e6%95%a3%e5%ba%a6" aria-label="目标函数：逆 KL 散度">目标函数：逆 KL 散度</a></li>
+                <li>
+                    <a href="#%e6%95%99%e5%b8%88%e8%af%84%e5%88%86%e7%9a%84%e7%9b%b4%e8%a7%89" aria-label="教师评分的直觉">教师评分的直觉</a></li></ul>
+                </li>
+                <li>
+                    <a href="#opd-%e7%9a%84%e6%83%8a%e4%ba%ba%e6%95%88%e7%8e%87" aria-label="OPD 的惊人效率">OPD 的惊人效率</a><ul>
+                        
+                <li>
+                    <a href="#%e6%95%b0%e5%ad%a6%e6%8e%a8%e7%90%86%e4%bb%a5-110-%e7%9a%84%e6%88%90%e6%9c%ac%e8%b6%85%e8%b6%8a-rl" aria-label="数学推理：以 1/10 的成本超越 RL">数学推理：以 1/10 的成本超越 RL</a></li>
+                <li>
+                    <a href="#%e5%af%86%e9%9b%86%e7%9b%91%e7%9d%a3-vs-%e7%a8%80%e7%96%8f%e5%a5%96%e5%8a%b150-100-%e5%80%8d%e7%9a%84%e6%95%88%e7%8e%87%e5%b7%ae%e8%b7%9d" aria-label="密集监督 vs 稀疏奖励：50-100 倍的效率差距">密集监督 vs 稀疏奖励：50-100 倍的效率差距</a></li>
+                <li>
+                    <a href="#%e6%95%b0%e6%8d%ae%e6%95%88%e7%8e%87%e5%8d%95%e4%b8%aa%e6%a0%b7%e6%9c%ac%e4%b9%9f%e8%83%bd%e8%92%b8%e9%a6%8f" aria-label="数据效率：单个样本也能蒸馏">数据效率：单个样本也能蒸馏</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%b7%a5%e4%b8%9a%e7%ba%a7%e8%bf%9b%e5%8c%96%e5%a4%9a%e6%95%99%e5%b8%88%e5%90%8c%e7%ad%96%e7%95%a5%e8%92%b8%e9%a6%8fmopd" aria-label="工业级进化：多教师同策略蒸馏（MOPD）">工业级进化：多教师同策略蒸馏（MOPD）</a><ul>
+                        
+                <li>
+                    <a href="#mopd-%e7%9a%84%e4%b8%89%e9%98%b6%e6%ae%b5%e6%b5%81%e6%b0%b4%e7%ba%bf" aria-label="MOPD 的三阶段流水线">MOPD 的三阶段流水线</a></li>
+                <li>
+                    <a href="#%e5%a4%b4%e9%83%a8%e6%a8%a1%e5%9e%8b%e7%9a%84-mopd-%e9%83%a8%e7%bd%b2" aria-label="头部模型的 MOPD 部署">头部模型的 MOPD 部署</a></li>
+                <li>
+                    <a href="#camopd%e5%ba%94%e5%af%b9%e8%a6%86%e7%9b%96%e7%8e%87%e7%bc%ba%e9%99%b7" aria-label="CaMOPD：应对覆盖率缺陷">CaMOPD：应对覆盖率缺陷</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e8%87%aa%e8%92%b8%e9%a6%8f%e6%9c%ba%e5%88%b6opsd" aria-label="自蒸馏机制（OPSD）">自蒸馏机制（OPSD）</a><ul>
+                        
+                <li>
+                    <a href="#%e5%8f%8c%e8%a7%92%e8%89%b2%e5%ae%9e%e4%be%8b%e5%8c%96" aria-label="双角色实例化">双角色实例化</a></li>
+                <li>
+                    <a href="#ar-opd%e5%8c%96%e8%a7%a3%e5%90%8e%e8%a7%81%e4%b9%8b%e6%98%8e%e6%b3%84%e6%bc%8f" aria-label="AR-OPD：化解后见之明泄漏">AR-OPD：化解后见之明泄漏</a></li></ul>
+                </li>
+                <li>
+                    <a href="#opd-%e4%bd%9c%e4%b8%ba%e6%8c%81%e7%bb%ad%e5%ad%a6%e4%b9%a0%e5%b7%a5%e5%85%b7" aria-label="OPD 作为持续学习工具">OPD 作为持续学习工具</a><ul>
+                        
+                <li>
+                    <a href="#%e4%b8%ad%e9%97%b4%e8%ae%ad%e7%bb%83%e4%b8%8d%e5%8f%af%e9%81%bf%e5%85%8d%e5%9c%b0%e6%8d%9f%e5%ae%b3%e5%90%8e%e8%ae%ad%e7%bb%83%e8%a1%8c%e4%b8%ba" aria-label="中间训练不可避免地损害后训练行为">中间训练不可避免地损害后训练行为</a></li>
+                <li>
+                    <a href="#opd-%e5%87%a0%e4%b9%8e%e5%ae%8c%e5%85%a8%e6%81%a2%e5%a4%8d%e4%b8%a2%e5%a4%b1%e7%9a%84%e8%83%bd%e5%8a%9b" aria-label="OPD 几乎完全恢复丢失的能力">OPD 几乎完全恢复丢失的能力</a></li>
+                <li>
+                    <a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e5%8d%b3%e4%bd%bf%e5%9c%a8%e8%87%aa%e8%ba%ab%e6%95%b0%e6%8d%ae%e4%b8%8a-sft-%e4%b9%9f%e4%bc%9a%e9%80%80%e5%8c%96" aria-label="为什么即使在自身数据上 SFT 也会退化？">为什么即使在自身数据上 SFT 也会退化？</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e7%9b%ae%e6%a0%87%e5%87%bd%e6%95%b0%e7%9a%84%e5%88%9b%e6%96%b0%e5%bd%93%e9%80%86-kl-%e4%b8%8d%e5%a4%9f%e7%94%a8%e6%97%b6" aria-label="目标函数的创新：当逆 KL 不够用时">目标函数的创新：当逆 KL 不够用时</a><ul>
+                        
+                <li>
+                    <a href="#%e6%95%a3%e5%ba%a6%e5%87%bd%e6%95%b0%e7%9a%84%e6%9d%83%e8%a1%a1" aria-label="散度函数的权衡">散度函数的权衡</a></li>
+                <li>
+                    <a href="#eopd%e7%86%b5%e6%84%9f%e7%9f%a5%e7%9a%84%e5%8a%a8%e6%80%81%e6%95%a3%e5%ba%a6%e5%88%87%e6%8d%a2" aria-label="EOPD：熵感知的动态散度切换">EOPD：熵感知的动态散度切换</a></li>
+                <li>
+                    <a href="#sead%e8%83%9c%e4%bb%bb%e5%8a%9b%e6%84%9f%e7%9f%a5%e7%9a%84%e4%b8%89%e5%8c%ba%e5%9f%9f%e9%80%80%e7%81%ab" aria-label="SEAD：胜任力感知的三区域退火">SEAD：胜任力感知的三区域退火</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%89%8d%e6%b2%bf%e7%90%86%e8%ae%ba%e4%b8%8e%e5%a4%9a%e6%a8%a1%e6%80%81%e7%aa%81%e7%a0%b4" aria-label="前沿理论与多模态突破">前沿理论与多模态突破</a><ul>
+                        
+                <li>
+                    <a href="#reopoldopd-%e4%b8%8e%e7%ad%96%e7%95%a5%e4%bc%98%e5%8c%96%e7%9a%84%e7%ad%89%e4%bb%b7%e6%80%a7" aria-label="REOPOLD：OPD 与策略优化的等价性">REOPOLD：OPD 与策略优化的等价性</a></li>
+                <li>
+                    <a href="#effopd%e5%8f%82%e6%95%b0%e5%87%a0%e4%bd%95%e7%9a%84%e8%bf%9c%e8%a7%81" aria-label="EffOPD：参数几何的远见">EffOPD：参数几何的远见</a></li>
+                <li>
+                    <a href="#vision-opd%e5%86%85%e5%8c%96%e8%a7%86%e8%a7%89%e7%bc%a9%e6%94%be%e6%9c%ba%e5%88%b6" aria-label="Vision-OPD：内化视觉缩放机制">Vision-OPD：内化视觉缩放机制</a></li>
+                <li>
+                    <a href="#uni-opd%e5%a4%a7%e4%b8%80%e7%bb%9f%e6%a1%86%e6%9e%b6" aria-label="Uni-OPD：大一统框架">Uni-OPD：大一统框架</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e6%80%bb%e7%bb%93%e4%b8%8e%e5%b1%95%e6%9c%9b" aria-label="总结与展望">总结与展望</a></li>
+                <li>
+                    <a href="#citation" aria-label="Citation">Citation</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>本文综合了 <a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab 的 On-Policy Distillation 博客</a> 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。</p>
+</blockquote>
+<p>大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：<strong>预训练（Pre-training）</strong> 教会模型语言理解与世界知识；<strong>中间训练（Mid-training）</strong> 注入领域知识；<strong>后训练（Post-training）</strong> 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。</p>
+<h1 id="从离线模仿到同策略交互">从离线模仿到同策略交互<a hidden class="anchor" aria-hidden="true" href="#从离线模仿到同策略交互">#</a></h1>
+<h2 id="离线训练的局限暴露偏差">离线训练的局限：暴露偏差<a hidden class="anchor" aria-hidden="true" href="#离线训练的局限暴露偏差">#</a></h2>
+<p>传统的后训练方法依赖监督微调（Supervised Fine-Tuning, SFT）与离线知识蒸馏（Off-Policy Distillation）。在这些方法中，学生模型在教师模型生成的固定轨迹上进行训练——教师的完整 token 序列作为目标，学生在每一步都更新自身分布以逼近教师的输出。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/off-policy-distillation.svg"/>
+        <figcaption style="color: gray;">
+            图1：离线蒸馏示意。学生在教师的轨迹上训练，更新幅度与 token 的意外程度成正比（颜色越深代表更新越大）。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<p>这种依赖外部固定轨迹的方式不可避免地引入了<strong>暴露偏差（Exposure Bias）</strong>。学生训练时看到的都是教师的轨迹，但推理时必须基于自身的生成进行后续预测。一旦偏离教师的分布范围，误差便会以 $\mathcal{O}(\epsilon T^2)$ 的速率在序列长度上二次放大。就像学棋时只观摩大师的对局——你看到的都是高水平的局面，但新手很少会进入这些局面。</p>
+<p>此外，研究还发现离线蒸馏存在另一个隐患：学生可能学会了模仿教师的风格和置信度，但<strong>不一定学会了它的事实准确性</strong> [6]。</p>
+<h2 id="强化学习的困境稀疏奖励">强化学习的困境：稀疏奖励<a hidden class="anchor" aria-hidden="true" href="#强化学习的困境稀疏奖励">#</a></h2>
+<p>基于可验证奖励的强化学习（RLVR，如 PPO 或 GRPO）通过让模型在自身策略空间中进行探索，从构造上消除了分布错位的问题。然而，RL 的奖励信号往往是稀疏的——模型可能生成了数千个 token 的推理链，最终仅获得一个二元的&quot;对/错&quot;信号。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/reinforcement-learning.svg"/>
+        <figcaption style="color: gray;">
+            图2：强化学习示意。学生自行生成轨迹并获得稀疏的最终结果奖励。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<p>正如 <a href="https://thinkingmachines.ai/">Thinking Machines</a> 所比喻的：RL 就像在没有教练指导的情况下下棋——你在每局结束后知道输赢，但不知道哪一步走错了。模型学会了&quot;21&quot;是错误答案并远离这条轨迹，但不清楚是运算顺序错了，还是算术本身出了问题。这种稀疏反馈导致了极高的方差与探索成本。</p>
+<h1 id="opd-核心机制两个世界的最佳结合">OPD 核心机制：两个世界的最佳结合<a hidden class="anchor" aria-hidden="true" href="#opd-核心机制两个世界的最佳结合">#</a></h1>
+<h2 id="核心思想">核心思想<a hidden class="anchor" aria-hidden="true" href="#核心思想">#</a></h2>
+<p>OPD 的核心思想简洁而优雅：</p>
+<ol>
+<li><strong>学生模型基于自身策略 $\pi_\theta$ 生成轨迹</strong>——保证训练分布与推理分布一致。</li>
+<li><strong>教师模型对学生生成的每一个 token 进行评分</strong>——提供密集的概率分布监督。</li>
+</ol>
+<p>回到国际象棋的类比：OPD 就像一位教练坐在你旁边看你下棋，对你的<strong>每一步棋</strong>都给出从&quot;失误&quot;到&quot;精彩&quot;的评价。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/on-policy-distillation.svg"/>
+        <figcaption style="color: gray;">
+            图3：同策略蒸馏示意。学生自行生成轨迹，教师对每个 token 进行评分——惩罚导致错误的步骤，强化正确的步骤。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<div>
+    <center>
+        <img src="/blog_img/opd/chess.png"/>
+        <figcaption style="color: gray;">
+            图4：chess.com 的走法评级界面。分析引擎对每一步棋进行颜色标注——失误（红色）、错误（橙色）、不精确（黄色）、精彩（蓝色）。这正是 OPD 的直觉来源。（来源：chess.com，引自 <a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<p>三种后训练方法的对比一目了然：</p>
+<table>
+	<thead>
+			<tr>
+					<th>方法</th>
+					<th>采样策略</th>
+					<th>奖励信号</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>监督微调（SFT）</td>
+					<td>离线（Off-policy）</td>
+					<td>密集（Dense）</td>
+			</tr>
+			<tr>
+					<td>强化学习（RL）</td>
+					<td>在线（On-policy）</td>
+					<td>稀疏（Sparse）</td>
+			</tr>
+			<tr>
+					<td><strong>同策略蒸馏（OPD）</strong></td>
+					<td><strong>在线（On-policy）</strong></td>
+					<td><strong>密集（Dense）</strong></td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="目标函数逆-kl-散度">目标函数：逆 KL 散度<a hidden class="anchor" aria-hidden="true" href="#目标函数逆-kl-散度">#</a></h2>
+<p>OPD 最常使用的损失函数是逐 token 的<strong>逆 KL 散度（Reverse KL）</strong>：</p>
+<div>
+$$
+\text{KL}\Bigl(\pi_\theta \lvert\rvert \pi_\text{teacher}\Bigr) = \mathbb{E}_{x \sim {\pi_\theta}} \Bigl[ \log \pi_\theta(x_{t+1} | x_{1..t}) - \log \pi_\text{teacher}(x_{t+1} | x_{1..t}) \Bigr]
+$$
+</div>
+<p>逆 KL 具有天然的**模式寻求（Mode-seeking）**特性——学生会集中学习教师最自信的行为模式，而不是试图覆盖教师的所有模式。这与 RL 的优化目标在数学上高度一致，但有一个关键优势：逆 KL 是&quot;不可作弊的&quot;（unhackable）——低 KL 值始终对应于教师视角下的理想行为。</p>
+<p>这种方法还带来了显著的计算节省：由于不需要等待 rollout 完成才能计算奖励，我们可以使用更短的部分轨迹进行训练；查询教师的对数概率也只需要对大模型做一次前向传播。</p>
+<h2 id="教师评分的直觉">教师评分的直觉<a hidden class="anchor" aria-hidden="true" href="#教师评分的直觉">#</a></h2>
+<p>下图展示了一个真实案例。学生模型（Qwen3-4B）在一道需要物理直觉的题目上犯了错误——它忽略了&quot;冰块在煎锅中会融化&quot;这一关键事实，纯粹当作数学题来解答。教师模型（Qwen3-235B）对每个 token 给出的 KL 惩罚揭示了一个深刻的模式：</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/example-kl-illustration.svg"/>
+        <figcaption style="color: gray;">
+            图5：教师模型对学生错误轨迹的逐 token 评分。颜色越深表示逆 KL 惩罚越高。注意教师主要惩罚的是引导学生走向歧途的关键分叉 token，而非最终的错误答案——因为给定前文，错误答案已完全可预测。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<p>教师惩罚最重的不是最终的错误答案，而是那些导致推理偏离正轨的<strong>关键分叉 token（Forking Tokens）</strong>。最终答案虽然是错的，但给定前面整个错误的推理链，它已经完全可预测了，因此不需要额外惩罚。这与 RL 中&quot;高熵少数 token 驱动有效学习&quot;的发现高度吻合 [7]。</p>
+<h1 id="opd-的惊人效率">OPD 的惊人效率<a hidden class="anchor" aria-hidden="true" href="#opd-的惊人效率">#</a></h1>
+<h2 id="数学推理以-110-的成本超越-rl">数学推理：以 1/10 的成本超越 RL<a hidden class="anchor" aria-hidden="true" href="#数学推理以-110-的成本超越-rl">#</a></h2>
+<p>Qwen3 技术报告中的实验验证了 OPD 的效率优势。以 AIME'24 数学基准测试为例：</p>
+<table>
+	<thead>
+			<tr>
+					<th>方法</th>
+					<th>AIME'24</th>
+					<th>GPQA-Diamond</th>
+					<th>GPU 小时</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>离线蒸馏（SFT）</td>
+					<td>55.0%</td>
+					<td>55.6%</td>
+					<td>未报告</td>
+			</tr>
+			<tr>
+					<td>+ 强化学习</td>
+					<td>67.6%</td>
+					<td>61.3%</td>
+					<td>17,920</td>
+			</tr>
+			<tr>
+					<td>+ <strong>同策略蒸馏</strong></td>
+					<td><strong>74.4%</strong></td>
+					<td><strong>63.3%</strong></td>
+					<td><strong>1,800</strong></td>
+			</tr>
+	</tbody>
+</table>
+<p style="color: gray; text-align: center;">来源：Qwen3 技术报告 [3]，Table 21。</p>
+<p>OPD 以仅 <strong>1/10</strong> 的计算成本，不仅达到了 RL 的水平，还超越了它。<a href="https://thinkingmachines.ai/">Thinking Machines</a> 在 Qwen3-8B-Base 上的复现实验进一步验证了这一结论——从 400K SFT 检查点出发，OPD 仅用约 150 步（约 77K 提示词）便将 AIME'24 从 60% 提升至 70%。综合考虑 FLOPs，成本缩减达到 <strong>9-30 倍</strong>。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-on-policy-distillation-loras.svg"/>
+        <figcaption style="color: gray;">
+            图6：同策略蒸馏过程中 AIME'24 得分的变化。OPD 在计算效率上显著优于 SFT，尤其对 LoRA 模型效果突出——LoRA 在 SFT 后落后全参微调 13%，但 OPD 后仅落后 6%。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<h2 id="密集监督-vs-稀疏奖励50-100-倍的效率差距">密集监督 vs 稀疏奖励：50-100 倍的效率差距<a hidden class="anchor" aria-hidden="true" href="#密集监督-vs-稀疏奖励50-100-倍的效率差距">#</a></h2>
+<p>在一个更严格的对照实验中，<a href="https://thinkingmachines.ai/">Thinking Machines</a> 从同一起点分别使用 RL 和 OPD 进行训练：OPD 在约 <strong>7-10 倍更少的梯度步数</strong>内达到了 RL 的性能水平。考虑到 OPD 可以使用更短的上下文长度和更小的批次，整体<strong>计算效率提升达 50-100 倍</strong>。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-self-distillation.svg"/>
+        <figcaption style="color: gray;">
+            图7：从相同初始化出发，OPD 以约 7-10 倍更少的梯度步数学习到 RL 训练出的策略，对应约 50-100 倍的计算效率提升。逆 KL 在不到 10 个梯度步内降至接近零。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<p>这意味着 RL 的大部分计算实际花在了<strong>搜索</strong>上——在语义策略空间中探索和分配信用——而非参数更新本身。正如 Rich Sutton 所言：&ldquo;突破性进步最终总是来自基于搜索和学习的计算扩展。&rdquo; 一旦找到好的策略，蒸馏可以跳过所有中间策略，直接学习最终结果。</p>
+<h2 id="数据效率单个样本也能蒸馏">数据效率：单个样本也能蒸馏<a hidden class="anchor" aria-hidden="true" href="#数据效率单个样本也能蒸馏">#</a></h2>
+<p>一个令人惊讶的发现是 OPD 的极高数据效率。实验表明，即使只使用<strong>一个训练提示词</strong>，通过 20 轮连续的 on-policy 采样和教师评分（共 5120 条轨迹），模型也能近似达到教师的 AIME'24 水平。这是因为 OPD 优化的是完整分布的逆 KL 散度，而非简单记忆单一答案——RL 在多轮训练同一提示词时往往导致答案记忆化，OPD 则不然。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-self-distillation-multiepoch.svg"/>
+        <figcaption style="color: gray;">
+            图8：在仅一个训练提示词上进行多轮训练，OPD 仍能有效蒸馏教师的性能。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<h1 id="工业级进化多教师同策略蒸馏mopd">工业级进化：多教师同策略蒸馏（MOPD）<a hidden class="anchor" aria-hidden="true" href="#工业级进化多教师同策略蒸馏mopd">#</a></h1>
+<p>在通用前沿模型的开发中，如何整合多个垂直领域的能力是核心挑战。传统方法面临<strong>跷跷板效应（See-saw Effect）</strong>——如果采用混合强化学习，不同领域的梯度会相互干涉；如果采用级联强化学习，模型在学习新技能时会迅速遗忘旧能力。</p>
+<h2 id="mopd-的三阶段流水线">MOPD 的三阶段流水线<a hidden class="anchor" aria-hidden="true" href="#mopd-的三阶段流水线">#</a></h2>
+<p>多教师同策略蒸馏（Multi-Teacher On-Policy Distillation, MOPD）提供了一种将能力整合从&quot;权重空间&quot;转移至&quot;策略空间&quot;的系统性解决方案，通常遵循三阶段流水线：</p>
+<ol>
+<li><strong>通用 SFT</strong>：建立多领域基座。</li>
+<li><strong>并行领域专家训练</strong>：从同一 SFT 起点分别训练数学、代码、逻辑等领域专家——称为&quot;同源教师（Same-origin Teachers）&quot;，保证师生分布的初始一致性。</li>
+<li><strong>MOPD 融合</strong>：学生模型自行生成轨迹，系统通过路由键（Routing Key）动态匹配对应专家教师，提供逐 token 反馈。</li>
+</ol>
+<h2 id="头部模型的-mopd-部署">头部模型的 MOPD 部署<a hidden class="anchor" aria-hidden="true" href="#头部模型的-mopd-部署">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>模型</th>
+					<th>核心架构创新</th>
+					<th>MOPD 机制</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>DeepSeek-V4</strong> (1.6T)</td>
+					<td>流形约束超连接 (mHC)，支持 1M 长上下文</td>
+					<td>以 MOPD 完全替代混合 RLHF，结合生成式奖励模型 (GRM)</td>
+			</tr>
+			<tr>
+					<td><strong>MiMo-V2-Flash</strong> (309B)</td>
+					<td>混合注意力架构 (SWA+GA 6:1)，15B 活跃参数</td>
+					<td>将大规模 Agentic RL 专家通过 MOPD 合并至学生模型</td>
+			</tr>
+			<tr>
+					<td><strong>NVIDIA Nemotron 3 Ultra</strong> (550B)</td>
+					<td>LatentMoE（Mamba-2 + MoE），55B 活跃参数</td>
+					<td>异步 MOPD 流水线，Rollout/评分/优化完全解耦</td>
+			</tr>
+	</tbody>
+</table>
+<p>在 DeepSeek-V4 的案例中，MOPD 不仅是后训练技巧，更是支撑其在代码生成（Codeforces 匹配 3206 分）与长文档智能体推理中超越同侪的基石——模型能够学习到各个专家的真实推理分布，而非仅仅迎合传统的标量奖励。</p>
+<h2 id="camopd应对覆盖率缺陷">CaMOPD：应对覆盖率缺陷<a hidden class="anchor" aria-hidden="true" href="#camopd应对覆盖率缺陷">#</a></h2>
+<p>当 MOPD 应用于开源基座模型的能力恢复时，往往面临&quot;教师对齐提示词覆盖率&quot;不足的问题。标准 MOPD 会遭遇两种失效模式：</p>
+<ul>
+<li><strong>恢复-保持对抗</strong>：试图恢复通用能力的梯度与试图保持领域行为的梯度相互抵消。</li>
+<li><strong>弱信号扁平化</strong>：大量低需求样本稀释了高修正需求的梯度信号。</li>
+</ul>
+<p>对抗感知 MOPD（CaMOPD）通过两项改进解决了这一困境：</p>
+<ol>
+<li><strong>解耦交替训练</strong>：设定非对称调度计划（如 3 个周期通用恢复 + 1 个周期领域保持），为通用能力的复苏分配专属的参数更新子空间。</li>
+<li><strong>差距分数驱动的动态样本选择</strong>：计算教师与学生在每个 token 上的对数概率差距，选择覆盖特定累积质量的最小前缀集合进行集中优化，极大提高了更新信号的信噪比。</li>
+</ol>
+<h1 id="自蒸馏机制opsd">自蒸馏机制（OPSD）<a hidden class="anchor" aria-hidden="true" href="#自蒸馏机制opsd">#</a></h1>
+<p>在追求极致算力效率的背景下，同策略自蒸馏（On-Policy Self-Distillation, OPSD）验证了一个惊人假设：<strong>前沿大模型可以通过&quot;特权信息&quot;扮演自身的教师</strong>。</p>
+<h2 id="双角色实例化">双角色实例化<a hidden class="anchor" aria-hidden="true" href="#双角色实例化">#</a></h2>
+<p>同一个模型同时扮演两个角色：</p>
+<ul>
+<li><strong>学生策略 $\pi_S(\cdot|x)$</strong>：仅观测问题 $x$，正常自回归探索。</li>
+<li><strong>教师策略 $\pi_T(\cdot|x, y^\star)$</strong>：额外获得包含正确答案 $y^\star$ 的特权上下文。</li>
+</ul>
+<p>以答案为锚点，模型能进行高置信度的内部推演，在学生轨迹上提供精确的概率分布。实验表明，OPSD 的 token 消耗量仅为 GRPO 等 RL 算法的 <strong>1/8</strong>。但自蒸馏对基础模型的能力门槛要求较高，通常在 4B 到 8B 及以上参数模型中才能观察到显著效果。</p>
+<p><a href="https://thinkingmachines.ai/">Thinking Machines</a> 的工作也从另一个角度验证了自蒸馏的价值：在&quot;个性化助手&quot;实验中，他们使用模型的<strong>早期版本</strong>作为教师，通过 OPD 恢复微调过程中丢失的指令遵循能力。这种&quot;使用自己去恢复自己&quot;的范式对持续学习极具前景。</p>
+<h2 id="ar-opd化解后见之明泄漏">AR-OPD：化解后见之明泄漏<a hidden class="anchor" aria-hidden="true" href="#ar-opd化解后见之明泄漏">#</a></h2>
+<p>直接引入特权信息会引发<strong>后见之明泄漏（Hindsight Leakage）</strong>——教师获得完整解答路径后，可能忽视局部逻辑连贯性，提前释放预测最终答案的概率信号。锚定残差 OPD（Anchored Residual OPD, AR-OPD）通过将特权监督解耦为两个可控量来解决这一问题：</p>
+<ul>
+<li><strong>局部锚点</strong>：使用确定性截断的部分特权上下文 $z_{part} = z_{1:\lfloor\rho L\rfloor}$（通常 $\rho = 0.5$），确保因果一致性，避免答案泄漏。</li>
+<li><strong>受控残差</strong>：将全视角教师的边际远见作为 $\lambda$-scaled 增量注入。</li>
+</ul>
+<p>这种&quot;可达锚点 + 受控残差&quot;的双视图机制，使后见之明泄漏概率降低 <strong>21.7%</strong>，在超过 768 token 的长序列推理中提升达 <strong>7.2 分</strong>。</p>
+<h1 id="opd-作为持续学习工具">OPD 作为持续学习工具<a hidden class="anchor" aria-hidden="true" href="#opd-作为持续学习工具">#</a></h1>
+<p><a href="https://thinkingmachines.ai/">Thinking Machines</a> 的个性化助手实验揭示了 OPD 在持续学习中的独特价值。</p>
+<h2 id="中间训练不可避免地损害后训练行为">中间训练不可避免地损害后训练行为<a hidden class="anchor" aria-hidden="true" href="#中间训练不可避免地损害后训练行为">#</a></h2>
+<p>在 Qwen3-8B 上微调企业内部文档时，无论如何调整文档数据与对话数据的混合比例，指令遵循能力（IF-eval）都会出现退化。即使使用 LoRA 约束参数更新也无法完全避免——LoRA 学得更少，同时仍然遗忘。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-personalization-midtrain.svg"/>
+        <figcaption style="color: gray;">
+            图9：不同文档:对话数据比例下的微调效果。虽然混入少量对话数据可避免灾难性退化，但没有任何配比能保持原始的 IF-eval 性能。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-midtrain-if-eval.svg"/>
+        <figcaption style="color: gray;">
+            图10：IF-eval 在中间训练过程中持续下降。使用线性学习率时退化最终会趋平并缓慢恢复，但性能永远无法完全恢复。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-midtrain-lora.svg"/>
+        <figcaption style="color: gray;">
+            图11：LoRA 用于个性化中间训练时，学得更少（知识），同时仍然遗忘后训练行为。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<h2 id="opd-几乎完全恢复丢失的能力">OPD 几乎完全恢复丢失的能力<a hidden class="anchor" aria-hidden="true" href="#opd-几乎完全恢复丢失的能力">#</a></h2>
+<p>使用模型早期版本（Qwen3-8B）作为教师进行 OPD，可以在不丢失领域知识的情况下几乎完全恢复指令遵循能力：</p>
+<table>
+	<thead>
+			<tr>
+					<th>模型</th>
+					<th>内部知识 QA</th>
+					<th>IF-eval（对话）</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Qwen3-8B（原始）</td>
+					<td>18%</td>
+					<td>85%</td>
+			</tr>
+			<tr>
+					<td>+ 中间训练（100% 文档）</td>
+					<td>43%</td>
+					<td>45%</td>
+			</tr>
+			<tr>
+					<td>+ 中间训练（70% 文档）</td>
+					<td>36%</td>
+					<td>79%</td>
+			</tr>
+			<tr>
+					<td>+ 中间训练（70%）<strong>+ OPD</strong></td>
+					<td><strong>41%</strong></td>
+					<td><strong>83%</strong></td>
+			</tr>
+	</tbody>
+</table>
+<p>本质上，语言模型本身被当作了奖励模型——高概率行为被奖励，低概率行为被抑制。这与逆强化学习（Inverse RL）有深层联系：高概率行为对应于假设的底层偏好模型中的优势奖励 [13]。</p>
+<h2 id="为什么即使在自身数据上-sft-也会退化">为什么即使在自身数据上 SFT 也会退化？<a hidden class="anchor" aria-hidden="true" href="#为什么即使在自身数据上-sft-也会退化">#</a></h2>
+<p>一个深层发现是：即使在模型<strong>自身的采样数据</strong>上进行 SFT（KL 散度在期望上为零），性能也会退化。这是因为每个有限 batch 的分布都与真实分布存在微小偏差，这些偏差会随时间累积，使得训练逐渐从 on-policy 变为 off-policy。OPD 始终保持 on-policy 且教师固定，因此能稳定收敛而非漂移。</p>
+<div>
+    <center>
+        <img src="/blog_img/opd/experiment-sft-on-policy.svg"/>
+        <figcaption style="color: gray;">
+            图12：即使在 Qwen3-32B 自身的样本上进行 SFT 也会导致性能退化——有限 batch 的分布偏差随时间累积，将 on-policy 训练变为了 off-policy。OPD 不存在这个问题。（来源：<a href="https://thinkingmachines.ai/blog/on-policy-distillation/">Thinking Machines Lab</a>）
+        </figcaption>
+    </center>
+</div>
+<h1 id="目标函数的创新当逆-kl-不够用时">目标函数的创新：当逆 KL 不够用时<a hidden class="anchor" aria-hidden="true" href="#目标函数的创新当逆-kl-不够用时">#</a></h1>
+<p>在标准 OPD 范式中，选择何种散度度量直接决定了模型演化的拓扑形态。</p>
+<h2 id="散度函数的权衡">散度函数的权衡<a hidden class="anchor" aria-hidden="true" href="#散度函数的权衡">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>散度函数</th>
+					<th>函数形态 $f(u)$</th>
+					<th>核心特性</th>
+					<th>局限性</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>正向 KL</td>
+					<td>$u \log u$</td>
+					<td>模式覆盖（Zero-avoiding），教师权重</td>
+					<td>易在模式间隙产生幻觉</td>
+			</tr>
+			<tr>
+					<td>逆 KL</td>
+					<td>$-\log u$</td>
+					<td>模式寻求（Zero-forcing），学生权重</td>
+					<td>高熵区域多样性崩溃</td>
+			</tr>
+			<tr>
+					<td>Jensen-Shannon</td>
+					<td>$u \log u - (u+1)\log\frac{u+1}{2}$</td>
+					<td>对称有界，平滑插值</td>
+					<td>缺乏动态感知能力</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="eopd熵感知的动态散度切换">EOPD：熵感知的动态散度切换<a hidden class="anchor" aria-hidden="true" href="#eopd熵感知的动态散度切换">#</a></h2>
+<p>在复杂推理的关键分叉点，教师分布自然呈现高熵状态——存在多条合法推理路径。强行施加逆 KL 会导致多样性严重退化。EOPD（Entropy-Aware OPD）在实时迭代中监控教师分布的熵值：</p>
+<ul>
+<li><strong>低熵节点</strong>：使用逆 KL 保持精确性。</li>
+<li><strong>高熵节点</strong>（超过阈值 $\tau$）：动态注入正向 KL 惩罚项以保持探索多样性。</li>
+</ul>
+<div>
+$$
+\mathcal{L}_t^{\text{EOPD}} = \mathcal{D}_{\text{KL}}(\pi_\theta || \pi_{\text{te}}) + \alpha_t \mathcal{D}_{\text{KL}}(\pi_{\text{te}} || \pi_\theta)
+$$
+</div>
+<p>在 Qwen3 系列模型验证中，EOPD 为 0.6B、1.7B 和 4B 模型的 Pass@8 准确率分别带来了 +1.37、+2.39 和 +5.05 的显著增益。</p>
+<h2 id="sead胜任力感知的三区域退火">SEAD：胜任力感知的三区域退火<a hidden class="anchor" aria-hidden="true" href="#sead胜任力感知的三区域退火">#</a></h2>
+<p>SEAD（Competence-Aware OPD）通过计算教师与学生的联合熵，将所有 token 划分为三个区域：</p>
+<ul>
+<li><strong>Zone A（零梯度区，约占 50%）</strong>：师生双方都极度自信，直接跳过梯度计算——这一机制本身就能节省约一半的计算量。</li>
+<li><strong>Zone B（逆 KL 区）</strong>：教师自信但学生迷茫，使用逆 KL 快速锐化。</li>
+<li><strong>Zone C（混合退火区）</strong>：教师处于不确定状态，通过余弦退火策略使 $\alpha$ 从 0.8 平滑过渡至 0——从早期的&quot;全域探索&quot;无缝转变为后期的&quot;局部打磨&quot;。</li>
+</ul>
+<h1 id="前沿理论与多模态突破">前沿理论与多模态突破<a hidden class="anchor" aria-hidden="true" href="#前沿理论与多模态突破">#</a></h1>
+<h2 id="reopoldopd-与策略优化的等价性">REOPOLD：OPD 与策略优化的等价性<a hidden class="anchor" aria-hidden="true" href="#reopoldopd-与策略优化的等价性">#</a></h2>
+<p>REOPOLD 通过引入 Stop-Gradient 操作，在理论上证明了 OPD 等价于一种以教师-学生对数似然比为 token 级奖励信号的 RL 过程：</p>
+<div>
+$$
+r_t = \log \frac{\pi^*(a_t|s_t)}{\pi_{\text{ref}}(a_t|s_t)}
+$$
+</div>
+<p>这一视角深刻揭示了 OPD 在高容量蒸馏中容易崩溃的原因——极端的长尾负向对数似然比会摧毁原本可行的替代逻辑链。REOPOLD 通过混合分布奖励裁剪和基于熵的动态 token 层级采样，实现了 <strong>6.7-12 倍</strong>的样本效率提升，甚至使 7B 学生模型在 Test-time Scaling 能力上逼近 32B 教师。</p>
+<h2 id="effopd参数几何的远见">EffOPD：参数几何的远见<a hidden class="anchor" aria-hidden="true" href="#effopd参数几何的远见">#</a></h2>
+<p>EffOPD 发现 OPD 表现出独特的&quot;非主导几何更新&quot;——在前 10% 的训练进程中就能识别出对推理起决定性作用的网络层，且低秩主导子空间在极早期便与最终优化方向锁定。基于这种&quot;几何远见&quot;，EffOPD 沿累积更新方向 $\Delta_n = W_{2^n} - W_{2^{n-1}}$ 进行线性外推，生成候选参数并通过 50 样本验证集快速筛选。这种纯参数空间几何操作在 1.5B 至 32B 模型中实现了平均 <strong>3 倍的训练加速</strong>，无需引入任何额外训练模块。</p>
+<h2 id="vision-opd内化视觉缩放机制">Vision-OPD：内化视觉缩放机制<a hidden class="anchor" aria-hidden="true" href="#vision-opd内化视觉缩放机制">#</a></h2>
+<p>多模态模型常面临&quot;局部到全局的感知鸿沟&quot;——将关键证据区域裁剪后模型能正确作答，但面对完整图像时注意力失焦。Vision-OPD 在同一模型内构建了两个策略实体：</p>
+<ol>
+<li><strong>局部条件教师</strong>：仅接收关键证据的裁剪图像作为特权输入。</li>
+<li><strong>全局条件学生</strong>：读取全景图像，模拟真实推理环境。</li>
+</ol>
+<p>通过 OPD 迫使学生在全局像素中演化出&quot;显微聚焦&quot;的隐式注意力机制。仅凭 6.2K 条合成数据，4B 和 9B 模型便在 V* Bench、ZoomBench 等高分辨率测试中全面超越了参数远大于己的开源及闭源视觉大模型。</p>
+<h2 id="uni-opd大一统框架">Uni-OPD：大一统框架<a hidden class="anchor" aria-hidden="true" href="#uni-opd大一统框架">#</a></h2>
+<p>Uni-OPD 揭示了决定 OPD 成功与否的两个底层瓶颈，并提出了系统的双视角优化方案：</p>
+<ol>
+<li><strong>学生视角——数据探索均衡</strong>：离线难度感知重采样 + 在线正确性感知均衡，强制每个 batch 内成功/失败轨迹对半，确保梯度中始终存在强烈的正负对比信号。</li>
+<li><strong>教师视角——结果引导边距校准</strong>：将环境反馈（Outcome Reward）作为绝对锚点，反向校准教师在每个 token 上的概率边距，恢复正确与错误轨迹的正确排序。</li>
+</ol>
+<p>该框架在涵盖单/多教师、强到弱、跨模态等 16 个基准上均展现出卓越泛化能力。</p>
+<h1 id="总结与展望">总结与展望<a hidden class="anchor" aria-hidden="true" href="#总结与展望">#</a></h1>
+<p>同策略蒸馏代表了后训练范式的一次深刻重构。它将 RL 的分布对齐优势与蒸馏的密集监督优势完美融合，在实践中展现出 <strong>10-100 倍</strong>的计算效率提升。</p>
+<p>从 <a href="https://thinkingmachines.ai/">Thinking Machines</a> 的基础验证到 DeepSeek-V4、MiMo-V2-Flash 的工业级部署，OPD 已从学术概念演进为构建下一代前沿模型的核心技术。展望未来，几个方向值得关注：</p>
+<ul>
+<li><strong>自蒸馏的极限</strong>：多大的模型才能有效地&quot;自教自学&quot;？</li>
+<li><strong>持续学习</strong>：OPD 的交替训练范式能否成为模型持续进化的标准方案？</li>
+<li><strong>多模态融合</strong>：Vision-OPD 的成功能否推广到音频、视频等更多模态？</li>
+<li><strong>几何加速</strong>：EffOPD 的参数外推能否与更复杂的多智能体环境结合？</li>
+</ul>
+<p>正如 <a href="https://thinkingmachines.ai/">Thinking Machines</a> 所总结的：<strong>后训练是达到前沿模型能力的关键环节。通过将学生的 on-policy 采样与教师的密集监督相结合，OPD 以远低于传统 RL 的成本达到了前沿性能。</strong></p>
+<h1 id="citation">Citation<a hidden class="anchor" aria-hidden="true" href="#citation">#</a></h1>
+<blockquote>
+<p>Mi Yan (密言), &ldquo;On-Policy Distillation: 重塑大模型后训练的新范式&rdquo;, M1YAN&rsquo;s Blog, Jul 2026. <a href="https://m1yan.github.io/posts/on_policy_distillation/">https://m1yan.github.io/posts/on_policy_distillation/</a></p>
+</blockquote>
+<h1 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h1>
+<p>[1] Agarwal et al. <a href="https://arxiv.org/abs/2306.13649">&ldquo;On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes.&rdquo;</a> 2023.</p>
+<p>[2] Gu et al. <a href="https://arxiv.org/abs/2306.08543">&ldquo;MiniLLM: Knowledge Distillation of Large Language Models.&rdquo;</a> 2023.</p>
+<p>[3] Qwen Team. <a href="https://arxiv.org/abs/2505.09388">&ldquo;Qwen3 Technical Report.&rdquo;</a> 2025.</p>
+<p>[4] Ross et al. <a href="https://arxiv.org/abs/1011.0686">&ldquo;A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning&rdquo;</a> (DAGGER). 2010.</p>
+<p>[5] Lightman et al. <a href="https://arxiv.org/abs/2305.20050">&ldquo;Let&rsquo;s Verify Step by Step.&rdquo;</a> 2023.</p>
+<p>[6] Gudibande et al. <a href="https://arxiv.org/abs/2305.15717">&ldquo;The False Promise of Imitating Proprietary LLMs.&rdquo;</a> 2023.</p>
+<p>[7] Wang et al. <a href="https://arxiv.org/abs/2506.01939">&ldquo;Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning.&rdquo;</a> 2025.</p>
+<p>[8] Rafailov et al. <a href="https://arxiv.org/abs/2305.18290">&ldquo;Direct Preference Optimization: Your Language Model is Secretly a Reward Model.&rdquo;</a> 2023.</p>
+<p>[9] Chen et al. <a href="https://arxiv.org/abs/2510.18874">&ldquo;Retaining by Doing: The Role of On-Policy Data in Mitigating Forgetting.&rdquo;</a> 2025.</p>
+<p>[10] Shenfeld et al. <a href="https://arxiv.org/abs/2509.04259">&ldquo;RL&rsquo;s Razor: Why Online Reinforcement Learning Forgets Less.&rdquo;</a> 2025.</p>
+<p>[11] Biderman et al. <a href="https://arxiv.org/abs/2405.09673">&ldquo;LoRA Learns Less and Forgets Less.&rdquo;</a> 2024.</p>
+<p>[12] Hu et al. <a href="https://arxiv.org/abs/2106.09685">&ldquo;LoRA: Low-Rank Adaptation of Large Language Models.&rdquo;</a> 2021.</p>
+<p>[13] Ng and Russell. <a href="https://ai.stanford.edu/~ang/papers/icml00-irl.pdf">&ldquo;Algorithms for Inverse Reinforcement Learning.&rdquo;</a> ICML 2000.</p>
+<p>[14] Kevin Lu and Thinking Machines Lab. <a href="https://thinkingmachines.ai/blog/on-policy-distillation/">&ldquo;On-Policy Distillation.&rdquo;</a> Thinking Machines Lab: Connectionism, Oct 2025.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://m1yan.github.io/posts/2025-year-end-summary/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>2025年终总结：在预设之外，跳入旷野</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
