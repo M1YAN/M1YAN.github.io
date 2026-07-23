@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Rubric：大语言模型评估范式的结构化转向 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/posts/rubric_evaluation/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.534b1ee5e52fdf0372ffba6ef83f4e3cfeac32a20ce50dc682fe5dc1eeff5dd8.css" integrity="sha256-U0se5eUv3wNy/7pu&#43;D9OPP6sMqIM5Q3Ggv5dwe7/Xdg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/rubric_evaluation/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/rubric_evaluation/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="Rubric：大语言模型评估范式的结构化转向">
+  <meta property="og:description" content=" 本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-23T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-07-23T00:00:00+00:00">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="Rubric：大语言模型评估范式的结构化转向">
+<meta name="twitter:description" content="
+本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://m1yan.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Rubric：大语言模型评估范式的结构化转向",
+      "item": "https://m1yan.github.io/posts/rubric_evaluation/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Rubric：大语言模型评估范式的结构化转向",
+  "name": "Rubric：大语言模型评估范式的结构化转向",
+  "description": " 本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": " 本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。\n大语言模型（LLM）的能力边界正在从\"回答问题\"扩展到推理、工具调用、Agent 交互、深度研究等高度开放式的任务。在这些场景下，一个响应\"好不好\"往往没有唯一客观答案，用一个标量分数（1-5 分、pairwise 胜负）去概括它，正变得越来越力不从心：分数背后到底是哪里好、哪里不好？两个评委给出同样的 3 分，评判依据可能完全不同。这种\"评估黑箱化\"问题，催生了近两年 LLM 研究中一条愈发重要的方法论主线——Rubric（评分细则）。本文尝试系统梳理这条主线：它要解决什么问题、如何被构建、如何被用作训练奖励、又如何被用于评估基准与个性化对齐。\n一、任务定义：LLM 评估到底在算什么 通用评估的形式化 抛开具体实现，“评估\"这件事的本质是学习（或设计）一个打分函数。给定任务上下文 $x$（指令、问题、对话历史等）和模型给出的响应 $\\hat{y}$，以及可选的参考答案 $y^*$，评估函数的目标是输出一个衡量响应质量的分数（常被归一化到 $[0,1]$ 区间）：\n$$ S = \\Phi(\\hat{y};\\ x,\\ y^*) \\in \\mathbb{R} $$ 根据 $y^*$ 是否存在，评估范式可以分为两类：\nReference-based（有参考）：$y^$ 存在，$\\Phi$ 通过比较 $\\hat{y}$ 与 $y^$ 的相似度打分，典型代表是 ROUGE、BLEU、BERTScore 等自动指标； Reference-free（无参考）：$y^*$ 不存在或不唯一（如开放式创作、Agent 决策），$\\Phi$ 必须直接对 $\\hat{y}$ 的质量做出判断，这正是当前主流的 LLM-as-a-Judge 场景，也是 Rubric-based Evaluation 主要发力的领域。 三类传统范式的局限 评估范式 代表方法 局限 自动指标 ROUGE / BLEU / BERTScore 依赖表层词汇匹配或单一参考答案，无法评估开放式、多维度的生成质量 人工评估 众包打分、专家评审 成本高、难以规模化，标注者间一致性（IAA）低，且评判依据难以复用与追溯 整体式 LLM-as-a-Judge 直接打 1-5 分 / 成对比较 黑盒、不可解释，容易受 prompt 措辞影响导致方差大，且在强化学习训练中容易被\"奖励黑客”（reward hacking）钻空子 Rubric 的形式化改造：从整体打分到细则聚合 Rubric-based Evaluation 的核心思路，是把整体式的打分函数 $\\Phi$ 拆解为一组独立、可核查的评分细则 $\\mathcal{R} = \\lbrace r_1, r_2, \\dots, r_K \\rbrace$。每一条细则 $r_k$ 本质是一个可以被明确验证的子问题（例如\"响应是否给出了具体的代码示例？““是否遗漏了用户明确要求的约束条件？\"），输出一个离散判断（通常是 Yes/No 或 0/1）：\n$$ r_k(\\hat{y}, x) \\in \\lbrace 0, 1 \\rbrace,\\quad k = 1, \\dots, K $$ 最终整体分数由所有细则的判断聚合而成，最简单的形式是均值聚合：\n$$ S = \\Phi(\\hat{y}; x, \\mathcal{R}) = \\frac{1}{K}\\sum_{k=1}^{K} \\mathbb{1}\\big[r_k(\\hat{y}, x) = 1\\big] $$ 在实践中，聚合方式往往更复杂——例如按重要性加权、要求\"关键项\"全部满足才能得分（All-or-Nothing 聚合），或者用一个更强的模型对每条细则做 log-probability 打分（取输出 “Yes” token 的归一化概率 $p(\\text{Yes})$ 而非硬性 0/1 判断）以获得更平滑的信号。这种\"先拆解、再聚合\"的设计，正是 Rubric 相比整体式打分能够同时提升可解释性（每一分都能追溯到具体标准）、一致性（标准被显式固定下来，不随 prompt 措辞漂移）与可复用性（同一套 rubric 可被复用在训练和评估的不同环节）的根本原因。\n二、Rubric 研究的三级分类体系 参照 RUC-NLPIR 综述的组织方式，近两年的 Rubric 相关工作可以归纳为三大方向：\nRubrics for LLMs ├── Rubrics Construction（如何构建 Rubric） │ ├── Direct Generation（直接生成） │ ├── Contrastive Generation（对比式生成） │ ├── Iterative Refinement（迭代精炼：验证驱动 / 结构化分解 / 去重压缩） │ └── Online and Co-evolving Generation（在线协同演化） ├── Rubrics for Model Training（Rubric 用于模型训练） │ ├── Rubrics for Policy Model Training（标准 Rubric-RL / 高级奖励设计） │ └── Rubrics for Reward Model Training（可解释性 / 数据构建） └── Rubrics for Evaluation（Rubric 用于评估） ├── 通用任务评估：推理 / 深度研究 / Agent 能力 / 对齐评估 └── 特定任务评估：内容质量、安全审查、专业呈现、个性化偏好 三者并非割裂——同一套 rubric 生成方法，既可能被拿去训练一个策略模型（作为 RL 奖励），也可能被拿去评估另一个模型的输出（作为评测基准），下文按\"构建 → 训练 → 评估 → 个性化\"的脉络展开。\n三、Rubric 如何构建（Construction） Rubric 的构建方式经历了明显的演进：\n直接生成（Direct Generation）：给定任务，直接用一个强模型（或人工）针对该任务生成一组评分标准。早期工作如 FLASK（Ye et al., ICLR 2024 Spotlight）将粗粒度整体打分分解为逻辑思维、背景知识、问题处理、文本表达等多个技能维度的实例级评分标准；Prometheus（Kim et al., ICLR 2024）则进一步训练了一个专用评估模型，在给定自定义 rubric 的条件下打分能力可媲美 GPT-4。\n图1：FLASK 的评估流程——为每个任务标注技能集、领域与难度，再让评估器针对每个技能维度分别打分（图片来源：Ye et al., FLASK, ICLR 2024）。 对比式生成（Contrastive Generation）：直接生成的 rubric 容易\"泛泛而谈”，缺乏判别力。对比式生成的思路是利用负样本反推出真正有区分度的标准——即一条好的 rubric 应当能让\"好响应\"通过、“坏响应\"不通过。形式化地说，给定正样本 $y^+$（如用户真实撰写的响应）和一组负样本 $\\mathcal{Y}^{-}$（其他方法生成的响应），理想的 rubric 集合 $\\mathcal{R}$ 应当满足：\n$$ S(y^+; \\mathcal{R}) \u003e S(y^-; \\mathcal{R}), \\quad \\forall\\, y^- \\in \\mathcal{Y}^{-} $$ 即真实/优质响应的打分要显著高于负样本，这一思路后续被 PARL、CDRRM 等工作系统化为可优化的训练目标（详见第七节）。\n迭代精炼（Iterative Refinement）：通过验证驱动（生成后反过来检验 rubric 本身是否合理）、结构化分解（把复杂标准拆成更细的子项）、去重压缩（合并冗余标准）等手段持续优化 rubric 质量，代表工作如 Auto-Rubric、RubricHub 等。\n在线协同演化（Online and Co-evolving Generation）：rubric 生成器与策略模型交替优化，甚至引入对抗机制——如 RLAC（RL with Adversarial Critic）让一个\"评判者\"持续寻找当前 rubric 的漏洞，反过来推动 rubric 不断进化，是目前最前沿、最动态的构建范式。\n四、Rubric 作为强化学习奖励（Rubric-as-Reward） 从 RLVR 到开放域 强化学习训练大模型的一大突破是 RLVR（Reinforcement Learning with Verifiable Rewards）：在数学、代码等有明确对错答案的任务上，用\"答案是否正确\"这一可验证信号作为奖励，训练效果显著且不易被奖励黑客。但绝大多数真实任务（写作、开放式问答、Agent 决策）并不存在这样的\"标准答案”，RLVR 无法直接套用。\nRubrics as Rewards（RaR，Gunjal et al., ICLR 2026） 是这条思路上影响力最大的工作之一：它把 RLVR 的\"可验证奖励\"替换为结构化的 rubric 反馈，让原本无法验证的开放域任务也能获得细粒度、可解释的训练信号。给定一组 rubric $\\mathcal{R} = \\lbrace r_1, \\dots, r_K \\rbrace$，策略模型的响应 $\\hat{y}$ 得到的奖励可以写成对各条细则满足情况的聚合：\n$$ R_{\\text{RaR}}(\\hat{y}) = \\sum_{k=1}^{K} w_k \\cdot \\mathbb{1}\\big[r_k(\\hat{y}, x) = 1\\big] $$ 图2：Rubrics as Rewards（RaR）流程——左侧由 LLM 与人类专家共同生成带权重的 rubric，右侧策略模型的 rollout 由 LLM Judge 依据 rubric 打分并通过 GRPO 更新（图片来源：Gunjal et al., RaR, ICLR 2026）。 其中 $w_k$ 是每条细则的重要性权重。相比整体式 reward model 给出的单一标量，这种奖励天然具备可解释性：训练日志中可以清楚看到策略是在哪些细则上取得进步、又在哪些细则上停滞。\nChecklist 反馈：RLCF Checklists Are Better Than Reward Models（RLCF，Viswanathan et al., NeurIPS 2025） 提出了一条平行但独立验证的路径：从指令中自动提取 checklist（检查项清单），分别用语言模型和代码执行去验证响应对每一项的满足程度，再将结果汇总为奖励信号：\n$$ R_{\\text{RLCF}}(\\hat{y}) = \\frac{1}{K}\\sum_{k=1}^{K} c_k(\\hat{y}) $$ 图3：RLCF 的 checklist 反馈流程——教师模型针对指令生成带权重的检查项清单，判别打分结果经 DPO 反馈给学生模型（图片来源：Viswanathan et al., RLCF, NeurIPS 2025）。 其中 $c_k(\\hat{y}) \\in [0,1]$ 是第 $k$ 项检查的满足程度（可以是模型判断的概率，也可以是代码执行结果的 0/1）。该工作最重要的实证贡献是证明了：在处理包含多重复杂约束的指令时，这种细粒度 checklist 反馈的对齐效果系统性优于传统的整体式 reward model——这也是\"rubric/checklist 优于单一 RM\"这一论点目前最直接、影响力最大的证据。\n缓解 Reward Hacking：CARMO 无论是 RaR 还是 RLCF，如果 rubric 本身是跨样本固定的，策略模型仍有可能学会\"应付标准\"而非真正提升质量。CARMO（Gupta et al., Findings ACL 2025）提出\"上下文感知奖励建模”：先根据具体上下文动态生成相关的评判标准，再用这些标准约束奖励模型打分。这种\"先生成标准、再打分\"的两阶段设计，理论分析表明能够缓解静态 rubric 容易被针对性利用的问题，在 RewardBench 上取得了当时的 SOTA 提升。\n五、Rubric 用于评估基准与 Judge 元评测 除了作为训练信号，rubric 更早、更广泛的应用场景是评估基准本身。\nLLM-Rubric（Hashemi et al., ACL 2024 Long）：人工构造 9 维度评分 rubric，让 LLM 对每个问题输出概率分布，再训练一个小型前馈网络将多个 LLM 判断校准到不同人类评委的真实打分习惯上，为\"评委异质性\"问题提供了解决方案。 BiGGen Bench（Kim et al., NAACL 2025 最佳论文）：覆盖 9 大能力、77 个任务的通用细粒度评测基准，核心创新是为每个测试实例单独设计评分 rubric，而非全数据集共用一套标准，显著提升评估的针对性，是当前\"实例级 Rubric\"评测基准的标杆工作。 JudgeBench（Tan et al., ICLR 2025）：不评估模型本身，而是评估\"LLM 作为裁判\"这件事本身是否可靠，覆盖知识、推理、数学、代码等具有挑战性的响应对，用于诊断 LLM-as-Judge 范式自身的系统性偏差——这是打破\"用 LLM 评 LLM\"自证循环的重要元评测方向。 RUBRIC-MQM（Kim et al., ACL 2025 Industry）：将机器翻译经典的 MQM 框架与 LLM-as-Judge 结合，做 span 级别（而非整句）的细粒度错误标注。 HealthBench（Arora et al., OpenAI, arXiv 2025）与 Decomposed Criteria-Based Evaluation（Yu et al., EMNLP 2025 Industry）：分别面向医疗、法律等高风险专业领域，用大量专家撰写的 rubric 衡量回答的专业性与安全性，解决整体式指标在专业场景下失真的问题。 图4：BiGGen Bench 中不同任务（指令遵循、事实推理、工具使用等）均配备专属于该实例的评分标准示例（图片来源：Kim et al., BiGGen Bench, NAACL 2025）。 六、Rubric 在推荐系统场景中的落地 Rubric 拆解的思路并不局限于通用文本生成，也正在向推荐系统这一具体应用领域渗透——这一延伸恰好为下一节的\"个性化\"话题做了铺垫，因为推荐本身就是最典型的个性化任务。\n生成式推荐系统（Gen-RecSys）把传统的\"排序型推荐\"扩展为可以直接生成解释、对话式推荐理由乃至完整多轮对话的开放式系统，这使得 NDCG、Recall@K 等传统排序指标不再能够覆盖新的评估维度：生成的推荐理由是否真实可信（factual grounding）、是否放大了偏见、是否符合平台合规要求。Deldjoo 等人在《Toward Holistic Evaluation of Recommender Systems Powered by Generative Models》（arXiv 2504.06667）中提出了面向 Gen-RecSys 的整体评估框架，主张用带有明确评分标准的 LLM-as-Judge 取代人工逐场景标注，覆盖相关性、事实一致性、偏见检测、政策合规等多个独立维度——这正是第一节\"拆解-聚合\"思想在推荐领域的具体化：把\"这条推荐好不好\"拆解为\"是否相关、是否真实、是否安全、是否合规\"等可分别核查的子问题。\n图5：Gen-RecSys 整体评估框架——从“为什么评估”、“评估什么输出”、“如何评估”到“为谁而评估”四个维度组织多指标检查体系（图片来源：Deldjoo et al., arXiv 2504.06667）。 在训练侧，rubric-style 的多维奖励也开始被用于对话式推荐/协商类智能体的强化学习训练。例如美团提出的 UserLM-R1（Zhang et al., arXiv 2601.09215）在训练用户模拟器（user simulator，用于对话式推荐、协商等场景的智能体后训练环境）时，没有采用单一的整体对话质量分数作为奖励，而是让 LLM judge 从角色一致性、风格连贯性、策略合理性等多个独立维度分别打分再组合为多重奖励信号，这与第四节介绍的 RaR、RLCF 思路高度一致，表明 rubric-as-reward 的方法论正从通用对齐任务向对话式推荐、用户模拟等垂直场景延伸。\n七、个性化 Rubric 评估：从\"群体标准\"到\"千人千面\" 前述所有工作有一个共同的隐含假设：评判标准是跨用户共享的——所有人对\"什么是好的回答\"看法一致。但对于写作风格、内容偏好等高度主观的任务，这个假设并不成立：同一篇文案，A 用户偏好简洁直接，B 用户偏好细腻抒情，用同一套 rubric 去评判两者显然不合理。\nPARL（Preference-Aware Rubric Learning，Qiu et al.）把这个问题形式化为：给定用户 $u$ 的历史交互 $\\mathcal{H}_u = \\lbrace (x_i, y_i) \\rbrace_{i=1}^n$（$y_i$ 为该用户真实撰写的响应）与一个新的、没有真实答案的任务 $x$，评估函数需要衡量新响应 $\\hat{y}$ 对该用户偏好的贴合程度：\n$$ S = \\Phi(\\hat{y};\\ x,\\ \\mathcal{H}_u) \\in [0,1] $$ 与第一节的通用形式化相比，PARL 用用户历史 $\\mathcal{H}_u$ 替代了固定的参考答案 $y^*$，把\"无参考评估\"进一步细化为\"以用户历史为隐式参照的个性化无参考评估\"。为了让打分可验证，PARL 从 $\\mathcal{H}_u$ 中归纳出该用户专属的 rubric 集合 $\\mathcal{R}_u$，并用判别式强化学习锐化其判别边界，训练目标正是第三节提到的对比式生成思想的具体实现——让真实响应 $y_T$ 相对于负样本（其他生成方法的输出）获得显著更高的打分：\n$$ \\Gamma(\\mathcal{R}_u) = \\prod_{y' \\in \\mathcal{Y}_T^{\\text{neg}}} \\sigma\\Big(\\kappa \\cdot \\big(S(y_T; \\mathcal{R}_u) - S(y'; \\mathcal{R}_u)\\big)\\Big) $$ 其中 $\\sigma(\\cdot)$ 为 sigmoid 函数，$\\kappa$ 为温度系数。这一目标本质上与第三节的对比式判别不等式一脉相承，只是把\"正/负样本\"具体化为\"用户真实响应 / 各类生成方法的输出\"。\n图6：PARL 整体框架——模块1从用户历史归纳并自验证 rubric，模块2通过判别式强化学习锐化其判别边界，最终输出满足代表性、用户一致性、判别性三大原则的个性化 rubric（图片来源：Qiu et al., PARL, arXiv 2605.31545）。 与 PARL 平行的工作还有 Tailoring LLMs to Individual Preferences（Zollo et al., ICLR 2025，从对齐算法层面探讨个体偏好建模）和 Evaluating LLMs by Individual Preferences（Garbacea et al., Findings of ACL 2026，正式提出\"个性化基准测试\"概念）。相比这两者，PARL 的差异化贡献在于把\"代表性、用户一致性、判别性\"形式化为三条可验证的设计原则，并给出了完整的\"归纳—验证—判别式 RL\"三段式实现，是目前个性化 rubric 评估方向上工程实现最完整的工作之一。不过值得注意的是，这类方法普遍存在一个方法论上的潜在张力：当训练目标（如上式的 $\\Gamma$）与评估指标在结构上高度同构时，“性能提升\"在多大程度上反映了真实的用户偏好对齐质量，而非训练与评估在同一套标准下的自我印证，仍是这一方向需要持续审视的问题。\n八、趋势与开放问题 综合上述工作，当前 Rubric 相关研究呈现出以下几个值得关注的趋势与尚未解决的问题：\nReward Hacking 尚未根治。无论是整体式 reward model 还是 rubric-based reward，只要奖励信号参与训练，就存在被\"钻空子\"的风险。CARMO、RLCF 等工作试图通过动态生成标准或细粒度检查表缓解，但尚无理论上完全杜绝此现象的方案。 训练目标与评估指标的同构性陷阱。当同一套 rubric 既是 RL 训练的奖励信号，又是最终效果的评估指标时，容易陷入\"自我验证\"式的循环论证——这一点在 PARL 等个性化评估工作中体现得尤为明显。JudgeBench、RubricEval 等专门评估\"rubric/Judge 本身是否可靠\"的元评测框架，是打破这一循环的重要方向。 评估偏差（Evaluation Bias）。LLM 评委本身可能带有位置偏差、长度偏好、自我偏好（偏爱自己生成的回答）等系统性偏差，需要专门的量化研究。 个性化仍是新兴方向。绝大多数现有 rubric 工作仍面向\"通用、群体平均化\"的质量标准，仅 PARL 等少数工作真正将\"评判标准本身因人而异\"作为核心命题，是一个快速发展但竞争尚不激烈的子方向。 Rubric 安全性。当 rubric 被用于对齐训练时，其设计缺陷或被恶意诱导生成的偏差 rubric，可能被用来绕过安全对齐，这是一个与\"越狱攻击\"研究交叉的新兴议题。 构建方式的演进：从早期人工/直接生成固定 rubric，逐步演进到对比式生成、再到在线协同演化（甚至引入对抗机制）——整体趋势是让 rubric 生成过程本身变得更动态、更贴合具体任务/用户、更抗博弈。 九、总结 Rubric-based Evaluation 的核心贡献，是把\"这个回答好不好\"这个笼统问题，重新表述为\"这个回答在哪些具体标准上达标、在哪些标准上不达标”——这一结构化改造同时惠及了模型的训练（作为可解释、抗黑客的奖励信号）与评估（作为可复用、可追溯的评测依据）两个环节。从 FLASK、Prometheus 等早期评估器工作，到 RaR、RLCF 将 rubric 引入强化学习训练，再到 PARL 等工作把\"评判标准本身\"也变成一个需要因人而异学习的对象，Rubric 正在从一个评估技巧演变为大语言模型对齐研究的一条主线方法论。它并非没有局限——训练与评估的同构性问题、reward hacking、评估偏差都还是开放挑战——但其\"可分解、可解释、可复用\"的设计哲学，很可能会持续影响下一代 LLM 评估基准与对齐算法的设计方式。\nCitation 本文为个人调研整理笔记，核心内容参考 RUC-NLPIR/Rubrics_Survey（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及下列各论文原文整理而成，如需引用请以原始论文为准。\nReferences [1] Liu et al. “G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment.” EMNLP 2023.\n[2] Zheng et al. “Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.” NeurIPS 2023.\n[3] Ye et al. “FLASK: Fine-grained Language Model Evaluation based on Alignment Skill Sets.” ICLR 2024 (Spotlight).\n[4] Kim et al. “Prometheus: Inducing Fine-grained Evaluation Capability in Language Models.” ICLR 2024.\n[5] Hashemi et al. “LLM-Rubric: A Multidimensional, Calibrated Approach to Automated Evaluation of Natural Language Texts.” ACL 2024.\n[6] Qin et al. “InFoBench: Evaluating Instruction Following Ability in Large Language Models.” Findings of ACL 2024.\n[7] Fan et al. “SedarEval: Automated Evaluation using Self-Adaptive Rubrics.” Findings of EMNLP 2024.\n[8] Mu et al. “Rule Based Rewards for Language Model Safety.” NeurIPS 2024.\n[9] Lin et al. “WildBench: Benchmarking LLMs with Challenging Tasks from Real Users in the Wild.” ICLR 2025.\n[10] Tan et al. “JudgeBench: A Benchmark for Evaluating LLM-based Judges.” ICLR 2025.\n[11] Zollo et al. “Tailoring Language Models to Individual Preferences.” ICLR 2025.\n[12] Kim et al. “The BiGGen Bench: A Principled Benchmark for Fine-grained Evaluation of Language Models with Language Models.” NAACL 2025 (Best Paper).\n[13] Gupta et al. “CARMO: Dynamic Criteria Generation for Context-Aware Reward Modelling.” Findings of ACL 2025.\n[14] Kim et al. “RUBRIC-MQM: Span-Level LLM-as-judge in Machine Translation.” ACL 2025 (Industry).\n[15] Yu et al. “Decomposed Criteria-Based Evaluation of LLM Responses.” EMNLP 2025 (Industry).\n[16] Arora et al. “HealthBench: Evaluating Large Language Models Towards Improved Human Health.” arXiv 2025 (OpenAI).\n[17] Viswanathan et al. “Checklists Are Better Than Reward Models For Aligning Language Models.” NeurIPS 2025.\n[18] Deldjoo et al. “Toward Holistic Evaluation of Recommender Systems Powered by Generative Models.” arXiv 2025.\n[19] Zhang et al. “UserLM-R1: Modeling Human Reasoning in User Language Models with Multi-Reward Reinforcement Learning.” arXiv 2026（美团）。\n[20] Garbacea et al. “Evaluating LLMs by Individual Preferences.” Findings of ACL 2026.\n[21] Gunjal et al. “Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains.” ICLR 2026.\n[22] Qiu et al. “PARL: Preference-Aware Rubric Learning for Personalized Evaluation.” arXiv 2026.\n[23] RUC-NLPIR. “Rubrics_Survey: The Rules of the Game — A Survey of Rubrics for Large Language Models.” 2026.\n",
+  "wordCount" : "8441",
+  "inLanguage": "zh",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2026-07-23T00:00:00Z",
+  "dateModified": "2026-07-23T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://m1yan.github.io/posts/rubric_evaluation/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://m1yan.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="标签">
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/personal-homepage" title="Academic Page">
+                    <span>Academic Page</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/pdf/CV-miyan-CN.pdf" title="CV">
+                    <span>CV</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/slides/" title="Slides">
+                    <span>Slides</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Rubric：大语言模型评估范式的结构化转向
+    </h1>
+    <div class="post-meta"><span title='2026-07-23 00:00:00 +0000 UTC'>七月 23, 2026</span>&nbsp;·&nbsp;17 分钟&nbsp;·&nbsp;8441 字&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e4%b8%80%e4%bb%bb%e5%8a%a1%e5%ae%9a%e4%b9%89llm-%e8%af%84%e4%bc%b0%e5%88%b0%e5%ba%95%e5%9c%a8%e7%ae%97%e4%bb%80%e4%b9%88" aria-label="一、任务定义：LLM 评估到底在算什么">一、任务定义：LLM 评估到底在算什么</a><ul>
+                        
+                <li>
+                    <a href="#%e9%80%9a%e7%94%a8%e8%af%84%e4%bc%b0%e7%9a%84%e5%bd%a2%e5%bc%8f%e5%8c%96" aria-label="通用评估的形式化">通用评估的形式化</a></li>
+                <li>
+                    <a href="#%e4%b8%89%e7%b1%bb%e4%bc%a0%e7%bb%9f%e8%8c%83%e5%bc%8f%e7%9a%84%e5%b1%80%e9%99%90" aria-label="三类传统范式的局限">三类传统范式的局限</a></li>
+                <li>
+                    <a href="#rubric-%e7%9a%84%e5%bd%a2%e5%bc%8f%e5%8c%96%e6%94%b9%e9%80%a0%e4%bb%8e%e6%95%b4%e4%bd%93%e6%89%93%e5%88%86%e5%88%b0%e7%bb%86%e5%88%99%e8%81%9a%e5%90%88" aria-label="Rubric 的形式化改造：从整体打分到细则聚合">Rubric 的形式化改造：从整体打分到细则聚合</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%ba%8crubric-%e7%a0%94%e7%a9%b6%e7%9a%84%e4%b8%89%e7%ba%a7%e5%88%86%e7%b1%bb%e4%bd%93%e7%b3%bb" aria-label="二、Rubric 研究的三级分类体系">二、Rubric 研究的三级分类体系</a></li>
+                <li>
+                    <a href="#%e4%b8%89rubric-%e5%a6%82%e4%bd%95%e6%9e%84%e5%bb%baconstruction" aria-label="三、Rubric 如何构建（Construction）">三、Rubric 如何构建（Construction）</a></li>
+                <li>
+                    <a href="#%e5%9b%9brubric-%e4%bd%9c%e4%b8%ba%e5%bc%ba%e5%8c%96%e5%ad%a6%e4%b9%a0%e5%a5%96%e5%8a%b1rubric-as-reward" aria-label="四、Rubric 作为强化学习奖励（Rubric-as-Reward）">四、Rubric 作为强化学习奖励（Rubric-as-Reward）</a><ul>
+                        
+                <li>
+                    <a href="#%e4%bb%8e-rlvr-%e5%88%b0%e5%bc%80%e6%94%be%e5%9f%9f" aria-label="从 RLVR 到开放域">从 RLVR 到开放域</a></li>
+                <li>
+                    <a href="#checklist-%e5%8f%8d%e9%a6%88rlcf" aria-label="Checklist 反馈：RLCF">Checklist 反馈：RLCF</a></li>
+                <li>
+                    <a href="#%e7%bc%93%e8%a7%a3-reward-hackingcarmo" aria-label="缓解 Reward Hacking：CARMO">缓解 Reward Hacking：CARMO</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%ba%94rubric-%e7%94%a8%e4%ba%8e%e8%af%84%e4%bc%b0%e5%9f%ba%e5%87%86%e4%b8%8e-judge-%e5%85%83%e8%af%84%e6%b5%8b" aria-label="五、Rubric 用于评估基准与 Judge 元评测">五、Rubric 用于评估基准与 Judge 元评测</a></li>
+                <li>
+                    <a href="#%e5%85%adrubric-%e5%9c%a8%e6%8e%a8%e8%8d%90%e7%b3%bb%e7%bb%9f%e5%9c%ba%e6%99%af%e4%b8%ad%e7%9a%84%e8%90%bd%e5%9c%b0" aria-label="六、Rubric 在推荐系统场景中的落地">六、Rubric 在推荐系统场景中的落地</a></li>
+                <li>
+                    <a href="#%e4%b8%83%e4%b8%aa%e6%80%a7%e5%8c%96-rubric-%e8%af%84%e4%bc%b0%e4%bb%8e%e7%be%a4%e4%bd%93%e6%a0%87%e5%87%86%e5%88%b0%e5%8d%83%e4%ba%ba%e5%8d%83%e9%9d%a2" aria-label="七、个性化 Rubric 评估：从&quot;群体标准&quot;到&quot;千人千面&quot;">七、个性化 Rubric 评估：从&quot;群体标准&quot;到&quot;千人千面&quot;</a></li>
+                <li>
+                    <a href="#%e5%85%ab%e8%b6%8b%e5%8a%bf%e4%b8%8e%e5%bc%80%e6%94%be%e9%97%ae%e9%a2%98" aria-label="八、趋势与开放问题">八、趋势与开放问题</a></li>
+                <li>
+                    <a href="#%e4%b9%9d%e6%80%bb%e7%bb%93" aria-label="九、总结">九、总结</a></li>
+                <li>
+                    <a href="#citation" aria-label="Citation">Citation</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 <a href="https://github.com/RUC-NLPIR/Rubrics_Survey">RUC-NLPIR/Rubrics_Survey</a>（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。</p>
+</blockquote>
+<p>大语言模型（LLM）的能力边界正在从&quot;回答问题&quot;扩展到推理、工具调用、Agent 交互、深度研究等高度开放式的任务。在这些场景下，一个响应&quot;好不好&quot;往往没有唯一客观答案，用一个标量分数（1-5 分、pairwise 胜负）去概括它，正变得越来越力不从心：分数背后到底是哪里好、哪里不好？两个评委给出同样的 3 分，评判依据可能完全不同。这种&quot;评估黑箱化&quot;问题，催生了近两年 LLM 研究中一条愈发重要的方法论主线——<strong>Rubric（评分细则）</strong>。本文尝试系统梳理这条主线：它要解决什么问题、如何被构建、如何被用作训练奖励、又如何被用于评估基准与个性化对齐。</p>
+<h1 id="一任务定义llm-评估到底在算什么">一、任务定义：LLM 评估到底在算什么<a hidden class="anchor" aria-hidden="true" href="#一任务定义llm-评估到底在算什么">#</a></h1>
+<h2 id="通用评估的形式化">通用评估的形式化<a hidden class="anchor" aria-hidden="true" href="#通用评估的形式化">#</a></h2>
+<p>抛开具体实现，&ldquo;评估&quot;这件事的本质是学习（或设计）一个打分函数。给定任务上下文 $x$（指令、问题、对话历史等）和模型给出的响应 $\hat{y}$，以及可选的参考答案 $y^*$，评估函数的目标是输出一个衡量响应质量的分数（常被归一化到 $[0,1]$ 区间）：</p>
+<div>
+$$
+S = \Phi(\hat{y};\ x,\ y^*) \in \mathbb{R}
+$$
+</div>
+<p>根据 $y^*$ 是否存在，评估范式可以分为两类：</p>
+<ul>
+<li><strong>Reference-based（有参考）</strong>：$y^<em>$ 存在，$\Phi$ 通过比较 $\hat{y}$ 与 $y^</em>$ 的相似度打分，典型代表是 ROUGE、BLEU、BERTScore 等自动指标；</li>
+<li><strong>Reference-free（无参考）</strong>：$y^*$ 不存在或不唯一（如开放式创作、Agent 决策），$\Phi$ 必须直接对 $\hat{y}$ 的质量做出判断，这正是当前主流的 <strong>LLM-as-a-Judge</strong> 场景，也是 Rubric-based Evaluation 主要发力的领域。</li>
+</ul>
+<h2 id="三类传统范式的局限">三类传统范式的局限<a hidden class="anchor" aria-hidden="true" href="#三类传统范式的局限">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>评估范式</th>
+					<th>代表方法</th>
+					<th>局限</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>自动指标</td>
+					<td>ROUGE / BLEU / BERTScore</td>
+					<td>依赖表层词汇匹配或单一参考答案，无法评估开放式、多维度的生成质量</td>
+			</tr>
+			<tr>
+					<td>人工评估</td>
+					<td>众包打分、专家评审</td>
+					<td>成本高、难以规模化，标注者间一致性（IAA）低，且评判依据难以复用与追溯</td>
+			</tr>
+			<tr>
+					<td>整体式 LLM-as-a-Judge</td>
+					<td>直接打 1-5 分 / 成对比较</td>
+					<td>黑盒、不可解释，容易受 prompt 措辞影响导致方差大，且在强化学习训练中容易被&quot;奖励黑客&rdquo;（reward hacking）钻空子</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="rubric-的形式化改造从整体打分到细则聚合">Rubric 的形式化改造：从整体打分到细则聚合<a hidden class="anchor" aria-hidden="true" href="#rubric-的形式化改造从整体打分到细则聚合">#</a></h2>
+<p>Rubric-based Evaluation 的核心思路，是把整体式的打分函数 $\Phi$ 拆解为一组<strong>独立、可核查</strong>的评分细则 $\mathcal{R} = \lbrace r_1, r_2, \dots, r_K \rbrace$。每一条细则 $r_k$ 本质是一个可以被明确验证的子问题（例如&quot;响应是否给出了具体的代码示例？&ldquo;&ldquo;是否遗漏了用户明确要求的约束条件？&quot;），输出一个离散判断（通常是 Yes/No 或 0/1）：</p>
+<div>
+$$
+r_k(\hat{y}, x) \in \lbrace 0, 1 \rbrace,\quad k = 1, \dots, K
+$$
+</div>
+<p>最终整体分数由所有细则的判断聚合而成，最简单的形式是均值聚合：</p>
+<div>
+$$
+S = \Phi(\hat{y}; x, \mathcal{R}) = \frac{1}{K}\sum_{k=1}^{K} \mathbb{1}\big[r_k(\hat{y}, x) = 1\big]
+$$
+</div>
+<p>在实践中，聚合方式往往更复杂——例如按重要性加权、要求&quot;关键项&quot;全部满足才能得分（All-or-Nothing 聚合），或者用一个更强的模型对每条细则做 log-probability 打分（取输出 &ldquo;Yes&rdquo; token 的归一化概率 $p(\text{Yes})$ 而非硬性 0/1 判断）以获得更平滑的信号。这种&quot;先拆解、再聚合&quot;的设计，正是 Rubric 相比整体式打分能够同时提升<strong>可解释性</strong>（每一分都能追溯到具体标准）、<strong>一致性</strong>（标准被显式固定下来，不随 prompt 措辞漂移）与<strong>可复用性</strong>（同一套 rubric 可被复用在训练和评估的不同环节）的根本原因。</p>
+<h1 id="二rubric-研究的三级分类体系">二、Rubric 研究的三级分类体系<a hidden class="anchor" aria-hidden="true" href="#二rubric-研究的三级分类体系">#</a></h1>
+<p>参照 RUC-NLPIR 综述的组织方式，近两年的 Rubric 相关工作可以归纳为三大方向：</p>
+<pre tabindex="0"><code>Rubrics for LLMs
+├── Rubrics Construction（如何构建 Rubric）
+│   ├── Direct Generation（直接生成）
+│   ├── Contrastive Generation（对比式生成）
+│   ├── Iterative Refinement（迭代精炼：验证驱动 / 结构化分解 / 去重压缩）
+│   └── Online and Co-evolving Generation（在线协同演化）
+├── Rubrics for Model Training（Rubric 用于模型训练）
+│   ├── Rubrics for Policy Model Training（标准 Rubric-RL / 高级奖励设计）
+│   └── Rubrics for Reward Model Training（可解释性 / 数据构建）
+└── Rubrics for Evaluation（Rubric 用于评估）
+    ├── 通用任务评估：推理 / 深度研究 / Agent 能力 / 对齐评估
+    └── 特定任务评估：内容质量、安全审查、专业呈现、个性化偏好
+</code></pre><p>三者并非割裂——同一套 rubric 生成方法，既可能被拿去训练一个策略模型（作为 RL 奖励），也可能被拿去评估另一个模型的输出（作为评测基准），下文按&quot;构建 → 训练 → 评估 → 个性化&quot;的脉络展开。</p>
+<h1 id="三rubric-如何构建construction">三、Rubric 如何构建（Construction）<a hidden class="anchor" aria-hidden="true" href="#三rubric-如何构建construction">#</a></h1>
+<p>Rubric 的构建方式经历了明显的演进：</p>
+<p><strong>直接生成（Direct Generation）</strong>：给定任务，直接用一个强模型（或人工）针对该任务生成一组评分标准。早期工作如 <strong>FLASK</strong>（Ye et al., ICLR 2024 Spotlight）将粗粒度整体打分分解为逻辑思维、背景知识、问题处理、文本表达等多个技能维度的实例级评分标准；<strong>Prometheus</strong>（Kim et al., ICLR 2024）则进一步训练了一个专用评估模型，在给定自定义 rubric 的条件下打分能力可媲美 GPT-4。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/flask_method.png"/>
+        <figcaption style="color: gray;">
+            图1：FLASK 的评估流程——为每个任务标注技能集、领域与难度，再让评估器针对每个技能维度分别打分（图片来源：Ye et al., FLASK, ICLR 2024）。
+        </figcaption>
+    </center>
+</div>
+<p><strong>对比式生成（Contrastive Generation）</strong>：直接生成的 rubric 容易&quot;泛泛而谈&rdquo;，缺乏判别力。对比式生成的思路是利用负样本反推出真正有区分度的标准——即一条好的 rubric 应当能让&quot;好响应&quot;通过、&ldquo;坏响应&quot;不通过。形式化地说，给定正样本 $y^+$（如用户真实撰写的响应）和一组负样本 $\mathcal{Y}^{-}$（其他方法生成的响应），理想的 rubric 集合 $\mathcal{R}$ 应当满足：</p>
+<div>
+$$
+S(y^+; \mathcal{R}) > S(y^-; \mathcal{R}), \quad \forall\, y^- \in \mathcal{Y}^{-}
+$$
+</div>
+<p>即真实/优质响应的打分要显著高于负样本，这一思路后续被 PARL、CDRRM 等工作系统化为可优化的训练目标（详见第七节）。</p>
+<p><strong>迭代精炼（Iterative Refinement）</strong>：通过验证驱动（生成后反过来检验 rubric 本身是否合理）、结构化分解（把复杂标准拆成更细的子项）、去重压缩（合并冗余标准）等手段持续优化 rubric 质量，代表工作如 Auto-Rubric、RubricHub 等。</p>
+<p><strong>在线协同演化（Online and Co-evolving Generation）</strong>：rubric 生成器与策略模型交替优化，甚至引入对抗机制——如 <strong>RLAC</strong>（RL with Adversarial Critic）让一个&quot;评判者&quot;持续寻找当前 rubric 的漏洞，反过来推动 rubric 不断进化，是目前最前沿、最动态的构建范式。</p>
+<h1 id="四rubric-作为强化学习奖励rubric-as-reward">四、Rubric 作为强化学习奖励（Rubric-as-Reward）<a hidden class="anchor" aria-hidden="true" href="#四rubric-作为强化学习奖励rubric-as-reward">#</a></h1>
+<h2 id="从-rlvr-到开放域">从 RLVR 到开放域<a hidden class="anchor" aria-hidden="true" href="#从-rlvr-到开放域">#</a></h2>
+<p>强化学习训练大模型的一大突破是 <strong>RLVR</strong>（Reinforcement Learning with Verifiable Rewards）：在数学、代码等有明确对错答案的任务上，用&quot;答案是否正确&quot;这一可验证信号作为奖励，训练效果显著且不易被奖励黑客。但绝大多数真实任务（写作、开放式问答、Agent 决策）并不存在这样的&quot;标准答案&rdquo;，RLVR 无法直接套用。</p>
+<p><strong>Rubrics as Rewards（RaR，Gunjal et al., ICLR 2026）</strong> 是这条思路上影响力最大的工作之一：它把 RLVR 的&quot;可验证奖励&quot;替换为<strong>结构化的 rubric 反馈</strong>，让原本无法验证的开放域任务也能获得细粒度、可解释的训练信号。给定一组 rubric $\mathcal{R} = \lbrace r_1, \dots, r_K \rbrace$，策略模型的响应 $\hat{y}$ 得到的奖励可以写成对各条细则满足情况的聚合：</p>
+<div>
+$$
+R_{\text{RaR}}(\hat{y}) = \sum_{k=1}^{K} w_k \cdot \mathbb{1}\big[r_k(\hat{y}, x) = 1\big]
+$$
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/rar_pipeline.png"/>
+        <figcaption style="color: gray;">
+            图2：Rubrics as Rewards（RaR）流程——左侧由 LLM 与人类专家共同生成带权重的 rubric，右侧策略模型的 rollout 由 LLM Judge 依据 rubric 打分并通过 GRPO 更新（图片来源：Gunjal et al., RaR, ICLR 2026）。
+        </figcaption>
+    </center>
+</div>
+<p>其中 $w_k$ 是每条细则的重要性权重。相比整体式 reward model 给出的单一标量，这种奖励天然具备可解释性：训练日志中可以清楚看到策略是在哪些细则上取得进步、又在哪些细则上停滞。</p>
+<h2 id="checklist-反馈rlcf">Checklist 反馈：RLCF<a hidden class="anchor" aria-hidden="true" href="#checklist-反馈rlcf">#</a></h2>
+<p><strong>Checklists Are Better Than Reward Models（RLCF，Viswanathan et al., NeurIPS 2025）</strong> 提出了一条平行但独立验证的路径：从指令中自动提取 checklist（检查项清单），分别用语言模型和代码执行去验证响应对每一项的满足程度，再将结果汇总为奖励信号：</p>
+<div>
+$$
+R_{\text{RLCF}}(\hat{y}) = \frac{1}{K}\sum_{k=1}^{K} c_k(\hat{y})
+$$
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/rlcf_pipeline.png"/>
+        <figcaption style="color: gray;">
+            图3：RLCF 的 checklist 反馈流程——教师模型针对指令生成带权重的检查项清单，判别打分结果经 DPO 反馈给学生模型（图片来源：Viswanathan et al., RLCF, NeurIPS 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>其中 $c_k(\hat{y}) \in [0,1]$ 是第 $k$ 项检查的满足程度（可以是模型判断的概率，也可以是代码执行结果的 0/1）。该工作最重要的实证贡献是证明了：在处理包含多重复杂约束的指令时，这种细粒度 checklist 反馈的对齐效果<strong>系统性优于</strong>传统的整体式 reward model——这也是&quot;rubric/checklist 优于单一 RM&quot;这一论点目前最直接、影响力最大的证据。</p>
+<h2 id="缓解-reward-hackingcarmo">缓解 Reward Hacking：CARMO<a hidden class="anchor" aria-hidden="true" href="#缓解-reward-hackingcarmo">#</a></h2>
+<p>无论是 RaR 还是 RLCF，如果 rubric 本身是<strong>跨样本固定</strong>的，策略模型仍有可能学会&quot;应付标准&quot;而非真正提升质量。<strong>CARMO</strong>（Gupta et al., Findings ACL 2025）提出&quot;上下文感知奖励建模&rdquo;：先根据具体上下文动态生成相关的评判标准，再用这些标准约束奖励模型打分。这种&quot;先生成标准、再打分&quot;的两阶段设计，理论分析表明能够缓解静态 rubric 容易被针对性利用的问题，在 RewardBench 上取得了当时的 SOTA 提升。</p>
+<h1 id="五rubric-用于评估基准与-judge-元评测">五、Rubric 用于评估基准与 Judge 元评测<a hidden class="anchor" aria-hidden="true" href="#五rubric-用于评估基准与-judge-元评测">#</a></h1>
+<p>除了作为训练信号，rubric 更早、更广泛的应用场景是评估基准本身。</p>
+<ul>
+<li><strong>LLM-Rubric</strong>（Hashemi et al., ACL 2024 Long）：人工构造 9 维度评分 rubric，让 LLM 对每个问题输出概率分布，再训练一个小型前馈网络将多个 LLM 判断<strong>校准</strong>到不同人类评委的真实打分习惯上，为&quot;评委异质性&quot;问题提供了解决方案。</li>
+<li><strong>BiGGen Bench</strong>（Kim et al., NAACL 2025 <strong>最佳论文</strong>）：覆盖 9 大能力、77 个任务的通用细粒度评测基准，核心创新是为<strong>每个测试实例单独设计评分 rubric</strong>，而非全数据集共用一套标准，显著提升评估的针对性，是当前&quot;实例级 Rubric&quot;评测基准的标杆工作。</li>
+<li><strong>JudgeBench</strong>（Tan et al., ICLR 2025）：不评估模型本身，而是评估&quot;LLM 作为裁判&quot;这件事本身是否可靠，覆盖知识、推理、数学、代码等具有挑战性的响应对，用于诊断 LLM-as-Judge 范式自身的系统性偏差——这是打破&quot;用 LLM 评 LLM&quot;自证循环的重要元评测方向。</li>
+<li><strong>RUBRIC-MQM</strong>（Kim et al., ACL 2025 Industry）：将机器翻译经典的 MQM 框架与 LLM-as-Judge 结合，做 span 级别（而非整句）的细粒度错误标注。</li>
+<li><strong>HealthBench</strong>（Arora et al., OpenAI, arXiv 2025）与 <strong>Decomposed Criteria-Based Evaluation</strong>（Yu et al., EMNLP 2025 Industry）：分别面向医疗、法律等高风险专业领域，用大量专家撰写的 rubric 衡量回答的专业性与安全性，解决整体式指标在专业场景下失真的问题。</li>
+</ul>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/biggen_bench_criteria.png"/>
+        <figcaption style="color: gray;">
+            图4：BiGGen Bench 中不同任务（指令遵循、事实推理、工具使用等）均配备专属于该实例的评分标准示例（图片来源：Kim et al., BiGGen Bench, NAACL 2025）。
+        </figcaption>
+    </center>
+</div>
+<h1 id="六rubric-在推荐系统场景中的落地">六、Rubric 在推荐系统场景中的落地<a hidden class="anchor" aria-hidden="true" href="#六rubric-在推荐系统场景中的落地">#</a></h1>
+<p>Rubric 拆解的思路并不局限于通用文本生成，也正在向推荐系统这一具体应用领域渗透——这一延伸恰好为下一节的&quot;个性化&quot;话题做了铺垫，因为推荐本身就是最典型的个性化任务。</p>
+<p>生成式推荐系统（Gen-RecSys）把传统的&quot;排序型推荐&quot;扩展为可以直接生成解释、对话式推荐理由乃至完整多轮对话的开放式系统，这使得 NDCG、Recall@K 等传统排序指标不再能够覆盖新的评估维度：生成的推荐理由是否真实可信（factual grounding）、是否放大了偏见、是否符合平台合规要求。Deldjoo 等人在《Toward Holistic Evaluation of Recommender Systems Powered by Generative Models》（arXiv 2504.06667）中提出了面向 Gen-RecSys 的整体评估框架，主张用带有明确评分标准的 LLM-as-Judge 取代人工逐场景标注，覆盖相关性、事实一致性、偏见检测、政策合规等多个独立维度——这正是第一节&quot;拆解-聚合&quot;思想在推荐领域的具体化：把&quot;这条推荐好不好&quot;拆解为&quot;是否相关、是否真实、是否安全、是否合规&quot;等可分别核查的子问题。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/genrecsys_framework.png"/>
+        <figcaption style="color: gray;">
+            图5：Gen-RecSys 整体评估框架——从“为什么评估”、“评估什么输出”、“如何评估”到“为谁而评估”四个维度组织多指标检查体系（图片来源：Deldjoo et al., arXiv 2504.06667）。
+        </figcaption>
+    </center>
+</div>
+<p>在训练侧，rubric-style 的多维奖励也开始被用于对话式推荐/协商类智能体的强化学习训练。例如美团提出的 <strong>UserLM-R1</strong>（Zhang et al., arXiv 2601.09215）在训练用户模拟器（user simulator，用于对话式推荐、协商等场景的智能体后训练环境）时，没有采用单一的整体对话质量分数作为奖励，而是让 LLM judge 从角色一致性、风格连贯性、策略合理性等多个独立维度分别打分再组合为多重奖励信号，这与第四节介绍的 RaR、RLCF 思路高度一致，表明 rubric-as-reward 的方法论正从通用对齐任务向对话式推荐、用户模拟等垂直场景延伸。</p>
+<h1 id="七个性化-rubric-评估从群体标准到千人千面">七、个性化 Rubric 评估：从&quot;群体标准&quot;到&quot;千人千面&quot;<a hidden class="anchor" aria-hidden="true" href="#七个性化-rubric-评估从群体标准到千人千面">#</a></h1>
+<p>前述所有工作有一个共同的隐含假设：评判标准是<strong>跨用户共享</strong>的——所有人对&quot;什么是好的回答&quot;看法一致。但对于写作风格、内容偏好等高度主观的任务，这个假设并不成立：同一篇文案，A 用户偏好简洁直接，B 用户偏好细腻抒情，用同一套 rubric 去评判两者显然不合理。</p>
+<p><strong>PARL</strong>（Preference-Aware Rubric Learning，Qiu et al.）把这个问题形式化为：给定用户 $u$ 的历史交互 $\mathcal{H}_u = \lbrace (x_i, y_i) \rbrace_{i=1}^n$（$y_i$ 为该用户真实撰写的响应）与一个新的、没有真实答案的任务 $x$，评估函数需要衡量新响应 $\hat{y}$ 对该用户偏好的贴合程度：</p>
+<div>
+$$
+S = \Phi(\hat{y};\ x,\ \mathcal{H}_u) \in [0,1]
+$$
+</div>
+<p>与第一节的通用形式化相比，PARL 用用户历史 $\mathcal{H}_u$ 替代了固定的参考答案 $y^*$，把&quot;无参考评估&quot;进一步细化为&quot;以用户历史为隐式参照的个性化无参考评估&quot;。为了让打分可验证，PARL 从 $\mathcal{H}_u$ 中归纳出该用户专属的 rubric 集合 $\mathcal{R}_u$，并用判别式强化学习锐化其判别边界，训练目标正是第三节提到的对比式生成思想的具体实现——让真实响应 $y_T$ 相对于负样本（其他生成方法的输出）获得显著更高的打分：</p>
+<div>
+$$
+\Gamma(\mathcal{R}_u) = \prod_{y' \in \mathcal{Y}_T^{\text{neg}}} \sigma\Big(\kappa \cdot \big(S(y_T; \mathcal{R}_u) - S(y'; \mathcal{R}_u)\big)\Big)
+$$
+</div>
+<p>其中 $\sigma(\cdot)$ 为 sigmoid 函数，$\kappa$ 为温度系数。这一目标本质上与第三节的对比式判别不等式一脉相承，只是把&quot;正/负样本&quot;具体化为&quot;用户真实响应 / 各类生成方法的输出&quot;。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/parl_framework.png"/>
+        <figcaption style="color: gray;">
+            图6：PARL 整体框架——模块1从用户历史归纳并自验证 rubric，模块2通过判别式强化学习锐化其判别边界，最终输出满足代表性、用户一致性、判别性三大原则的个性化 rubric（图片来源：Qiu et al., PARL, arXiv 2605.31545）。
+        </figcaption>
+    </center>
+</div>
+<p>与 PARL 平行的工作还有 <strong>Tailoring LLMs to Individual Preferences</strong>（Zollo et al., ICLR 2025，从对齐算法层面探讨个体偏好建模）和 <strong>Evaluating LLMs by Individual Preferences</strong>（Garbacea et al., Findings of ACL 2026，正式提出&quot;个性化基准测试&quot;概念）。相比这两者，PARL 的差异化贡献在于把&quot;代表性、用户一致性、判别性&quot;形式化为三条可验证的设计原则，并给出了完整的&quot;归纳—验证—判别式 RL&quot;三段式实现，是目前个性化 rubric 评估方向上工程实现最完整的工作之一。不过值得注意的是，这类方法普遍存在一个方法论上的潜在张力：当训练目标（如上式的 $\Gamma$）与评估指标在结构上高度同构时，&ldquo;性能提升&quot;在多大程度上反映了真实的用户偏好对齐质量，而非训练与评估在同一套标准下的自我印证，仍是这一方向需要持续审视的问题。</p>
+<h1 id="八趋势与开放问题">八、趋势与开放问题<a hidden class="anchor" aria-hidden="true" href="#八趋势与开放问题">#</a></h1>
+<p>综合上述工作，当前 Rubric 相关研究呈现出以下几个值得关注的趋势与尚未解决的问题：</p>
+<ol>
+<li><strong>Reward Hacking 尚未根治</strong>。无论是整体式 reward model 还是 rubric-based reward，只要奖励信号参与训练，就存在被&quot;钻空子&quot;的风险。CARMO、RLCF 等工作试图通过动态生成标准或细粒度检查表缓解，但尚无理论上完全杜绝此现象的方案。</li>
+<li><strong>训练目标与评估指标的同构性陷阱</strong>。当同一套 rubric 既是 RL 训练的奖励信号，又是最终效果的评估指标时，容易陷入&quot;自我验证&quot;式的循环论证——这一点在 PARL 等个性化评估工作中体现得尤为明显。JudgeBench、RubricEval 等专门评估&quot;rubric/Judge 本身是否可靠&quot;的元评测框架，是打破这一循环的重要方向。</li>
+<li><strong>评估偏差（Evaluation Bias）</strong>。LLM 评委本身可能带有位置偏差、长度偏好、自我偏好（偏爱自己生成的回答）等系统性偏差，需要专门的量化研究。</li>
+<li><strong>个性化仍是新兴方向</strong>。绝大多数现有 rubric 工作仍面向&quot;通用、群体平均化&quot;的质量标准，仅 PARL 等少数工作真正将&quot;评判标准本身因人而异&quot;作为核心命题，是一个快速发展但竞争尚不激烈的子方向。</li>
+<li><strong>Rubric 安全性</strong>。当 rubric 被用于对齐训练时，其设计缺陷或被恶意诱导生成的偏差 rubric，可能被用来绕过安全对齐，这是一个与&quot;越狱攻击&quot;研究交叉的新兴议题。</li>
+<li><strong>构建方式的演进</strong>：从早期人工/直接生成固定 rubric，逐步演进到对比式生成、再到在线协同演化（甚至引入对抗机制）——整体趋势是让 rubric 生成过程本身变得更动态、更贴合具体任务/用户、更抗博弈。</li>
+</ol>
+<h1 id="九总结">九、总结<a hidden class="anchor" aria-hidden="true" href="#九总结">#</a></h1>
+<p>Rubric-based Evaluation 的核心贡献，是把&quot;这个回答好不好&quot;这个笼统问题，重新表述为&quot;这个回答在哪些具体标准上达标、在哪些标准上不达标&rdquo;——这一结构化改造同时惠及了模型的<strong>训练</strong>（作为可解释、抗黑客的奖励信号）与<strong>评估</strong>（作为可复用、可追溯的评测依据）两个环节。从 FLASK、Prometheus 等早期评估器工作，到 RaR、RLCF 将 rubric 引入强化学习训练，再到 PARL 等工作把&quot;评判标准本身&quot;也变成一个需要因人而异学习的对象，Rubric 正在从一个评估技巧演变为大语言模型对齐研究的一条主线方法论。它并非没有局限——训练与评估的同构性问题、reward hacking、评估偏差都还是开放挑战——但其&quot;可分解、可解释、可复用&quot;的设计哲学，很可能会持续影响下一代 LLM 评估基准与对齐算法的设计方式。</p>
+<h1 id="citation">Citation<a hidden class="anchor" aria-hidden="true" href="#citation">#</a></h1>
+<blockquote>
+<p>本文为个人调研整理笔记，核心内容参考 <a href="https://github.com/RUC-NLPIR/Rubrics_Survey">RUC-NLPIR/Rubrics_Survey</a>（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及下列各论文原文整理而成，如需引用请以原始论文为准。</p>
+</blockquote>
+<h1 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h1>
+<p>[1] Liu et al. <a href="https://arxiv.org/abs/2303.16634">“G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment.”</a> EMNLP 2023.</p>
+<p>[2] Zheng et al. <a href="https://arxiv.org/abs/2306.05685">“Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.”</a> NeurIPS 2023.</p>
+<p>[3] Ye et al. <a href="https://arxiv.org/abs/2307.10928">“FLASK: Fine-grained Language Model Evaluation based on Alignment Skill Sets.”</a> ICLR 2024 (Spotlight).</p>
+<p>[4] Kim et al. <a href="https://arxiv.org/abs/2310.08491">“Prometheus: Inducing Fine-grained Evaluation Capability in Language Models.”</a> ICLR 2024.</p>
+<p>[5] Hashemi et al. <a href="https://arxiv.org/abs/2501.00274">“LLM-Rubric: A Multidimensional, Calibrated Approach to Automated Evaluation of Natural Language Texts.”</a> ACL 2024.</p>
+<p>[6] Qin et al. <a href="https://arxiv.org/abs/2401.03601">“InFoBench: Evaluating Instruction Following Ability in Large Language Models.”</a> Findings of ACL 2024.</p>
+<p>[7] Fan et al. “SedarEval: Automated Evaluation using Self-Adaptive Rubrics.” Findings of EMNLP 2024.</p>
+<p>[8] Mu et al. <a href="https://arxiv.org/abs/2411.01111">“Rule Based Rewards for Language Model Safety.”</a> NeurIPS 2024.</p>
+<p>[9] Lin et al. <a href="https://arxiv.org/abs/2406.04770">“WildBench: Benchmarking LLMs with Challenging Tasks from Real Users in the Wild.”</a> ICLR 2025.</p>
+<p>[10] Tan et al. “JudgeBench: A Benchmark for Evaluating LLM-based Judges.” ICLR 2025.</p>
+<p>[11] Zollo et al. “Tailoring Language Models to Individual Preferences.” ICLR 2025.</p>
+<p>[12] Kim et al. <a href="https://arxiv.org/abs/2406.05761">“The BiGGen Bench: A Principled Benchmark for Fine-grained Evaluation of Language Models with Language Models.”</a> NAACL 2025 (Best Paper).</p>
+<p>[13] Gupta et al. “CARMO: Dynamic Criteria Generation for Context-Aware Reward Modelling.” Findings of ACL 2025.</p>
+<p>[14] Kim et al. “RUBRIC-MQM: Span-Level LLM-as-judge in Machine Translation.” ACL 2025 (Industry).</p>
+<p>[15] Yu et al. “Decomposed Criteria-Based Evaluation of LLM Responses.” EMNLP 2025 (Industry).</p>
+<p>[16] Arora et al. “HealthBench: Evaluating Large Language Models Towards Improved Human Health.” arXiv 2025 (OpenAI).</p>
+<p>[17] Viswanathan et al. <a href="https://arxiv.org/abs/2507.18624">“Checklists Are Better Than Reward Models For Aligning Language Models.”</a> NeurIPS 2025.</p>
+<p>[18] Deldjoo et al. <a href="https://arxiv.org/abs/2504.06667">“Toward Holistic Evaluation of Recommender Systems Powered by Generative Models.”</a> arXiv 2025.</p>
+<p>[19] Zhang et al. <a href="https://arxiv.org/abs/2601.09215">“UserLM-R1: Modeling Human Reasoning in User Language Models with Multi-Reward Reinforcement Learning.”</a> arXiv 2026（美团）。</p>
+<p>[20] Garbacea et al. “Evaluating LLMs by Individual Preferences.” Findings of ACL 2026.</p>
+<p>[21] Gunjal et al. <a href="https://arxiv.org/abs/2507.17746">“Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains.”</a> ICLR 2026.</p>
+<p>[22] Qiu et al. “PARL: Preference-Aware Rubric Learning for Personalized Evaluation.” arXiv 2026.</p>
+<p>[23] RUC-NLPIR. <a href="https://github.com/RUC-NLPIR/Rubrics_Survey">“Rubrics_Survey: The Rules of the Game — A Survey of Rubrics for Large Language Models.”</a> 2026.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://m1yan.github.io/posts/on_policy_distillation/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>On-Policy Distillation: 重塑大模型后训练的新范式</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

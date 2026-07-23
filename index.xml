@@ -12,8 +12,16 @@
     <generator>Hugo -- 0.163.3</generator>
     <language>zh</language>
     <copyright>M1Yan&amp;rsquo;s Blog</copyright>
-    <lastBuildDate>Fri, 03 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 23 Jul 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Rubric：大语言模型评估范式的结构化转向</title>
+      <link>https://m1yan.github.io/posts/rubric_evaluation/</link>
+      <pubDate>Thu, 23 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/rubric_evaluation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 &lt;a href=&#34;https://github.com/RUC-NLPIR/Rubrics_Survey&#34;&gt;RUC-NLPIR/Rubrics_Survey&lt;/a&gt;（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>On-Policy Distillation: 重塑大模型后训练的新范式</title>
       <link>https://m1yan.github.io/posts/on_policy_distillation/</link>
