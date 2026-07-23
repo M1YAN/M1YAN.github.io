@@ -210,13 +210,13 @@
     <loc>https://m1yan.github.io/series/</loc>
     <xhtml:link
                 rel="alternate"
-                hreflang="zh"
-                href="https://m1yan.github.io/series/"
+                hreflang="en"
+                href="https://m1yan.github.io/en/series/"
                 />
     <xhtml:link
                 rel="alternate"
-                hreflang="en"
-                href="https://m1yan.github.io/en/series/"
+                hreflang="zh"
+                href="https://m1yan.github.io/series/"
                 />
   </url>
 </urlset>
