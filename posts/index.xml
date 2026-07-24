@@ -12,8 +12,16 @@
     <generator>Hugo -- 0.163.3</generator>
     <language>zh</language>
     <copyright>M1Yan&amp;rsquo;s Blog</copyright>
-    <lastBuildDate>Thu, 23 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 24 Jul 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://m1yan.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Long-Horizon Agents: Harness, Learning, and Trust</title>
+      <link>https://m1yan.github.io/posts/long_horizon_agents_survey/</link>
+      <pubDate>Fri, 24 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/long_horizon_agents_survey/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，主要整理自 &lt;a href=&#34;https://github.com/RUC-NLPIR/Awesome-Long-Horizon-Agents&#34;&gt;RUC-NLPIR/Awesome-Long-Horizon-Agents&lt;/a&gt; 及其对应综述论文 &lt;em&gt;Towards Long-Horizon Agents: A Survey&lt;/em&gt;。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Rubric：大语言模型评估范式的结构化转向</title>
       <link>https://m1yan.github.io/posts/rubric_evaluation/</link>

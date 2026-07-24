@@ -2,8 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://m1yan.github.io/categories/agent/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/tags/agentic-rl/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/tags/ai-safety/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/categories/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh"
+                href="https://m1yan.github.io/categories/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://m1yan.github.io/en/categories/"
+                />
+  </url><url>
+    <loc>https://m1yan.github.io/tags/llm-agents/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/tags/long-horizon-agents/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/posts/long_horizon_agents_survey/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://m1yan.github.io/</loc>
-    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="zh"
@@ -16,7 +47,20 @@
                 />
   </url><url>
     <loc>https://m1yan.github.io/posts/</loc>
-    <lastmod>2026-07-23T00:00:00+00:00</lastmod>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/tags/</loc>
+    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh"
+                href="https://m1yan.github.io/tags/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://m1yan.github.io/en/tags/"
+                />
   </url><url>
     <loc>https://m1yan.github.io/posts/rubric_evaluation/</loc>
     <lastmod>2026-07-23T00:00:00+00:00</lastmod>
@@ -29,32 +73,6 @@
   </url><url>
     <loc>https://m1yan.github.io/posts/2025-year-end-summary/</loc>
     <lastmod>2025-12-30T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://m1yan.github.io/categories/</loc>
-    <lastmod>2025-12-30T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh"
-                href="https://m1yan.github.io/categories/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://m1yan.github.io/en/categories/"
-                />
-  </url><url>
-    <loc>https://m1yan.github.io/tags/</loc>
-    <lastmod>2025-12-30T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh"
-                href="https://m1yan.github.io/tags/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://m1yan.github.io/en/tags/"
-                />
   </url><url>
     <loc>https://m1yan.github.io/categories/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2025-12-30T00:00:00+00:00</lastmod>

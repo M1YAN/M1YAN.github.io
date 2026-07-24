@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Long-Horizon Agents: Harness, Learning, and Trust | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="Long-Horizon Agents, LLM Agents, AI Safety, Agentic RL">
+<meta name="description" content="
+本文为个人技术笔记，主要整理自 RUC-NLPIR/Awesome-Long-Horizon-Agents 及其对应综述论文 Towards Long-Horizon Agents: A Survey。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/posts/long_horizon_agents_survey/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5f2193267c8d47cb45daf381eb9d512018152c56853b1485682b2e2c67123f00.css" integrity="sha256-XyGTJnyNR8tF2vOB651RIBgVLFaFOxSFaCsuLGcSPwA=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/long_horizon_agents_survey/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/long_horizon_agents_survey/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="Long-Horizon Agents: Harness, Learning, and Trust">
+  <meta property="og:description" content=" 本文为个人技术笔记，主要整理自 RUC-NLPIR/Awesome-Long-Horizon-Agents 及其对应综述论文 Towards Long-Horizon Agents: A Survey。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-24T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-07-24T00:00:00+00:00">
+    <meta property="article:tag" content="Long-Horizon Agents">
+    <meta property="article:tag" content="LLM Agents">
+    <meta property="article:tag" content="AI Safety">
+    <meta property="article:tag" content="Agentic RL">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="Long-Horizon Agents: Harness, Learning, and Trust">
+<meta name="twitter:description" content="
+本文为个人技术笔记，主要整理自 RUC-NLPIR/Awesome-Long-Horizon-Agents 及其对应综述论文 Towards Long-Horizon Agents: A Survey。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://m1yan.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Long-Horizon Agents: Harness, Learning, and Trust",
+      "item": "https://m1yan.github.io/posts/long_horizon_agents_survey/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Long-Horizon Agents: Harness, Learning, and Trust",
+  "name": "Long-Horizon Agents: Harness, Learning, and Trust",
+  "description": " 本文为个人技术笔记，主要整理自 RUC-NLPIR/Awesome-Long-Horizon-Agents 及其对应综述论文 Towards Long-Horizon Agents: A Survey。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。\n",
+  "keywords": [
+    "Long-Horizon Agents", "LLM Agents", "AI Safety", "Agentic RL"
+  ],
+  "articleBody": " 本文为个人技术笔记，主要整理自 RUC-NLPIR/Awesome-Long-Horizon-Agents 及其对应综述论文 Towards Long-Horizon Agents: A Survey。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。\n大语言模型 Agent 的能力边界正在从“回答一个问题”转向“持续完成一个任务”。这类任务往往不是一次推理就能结束：它需要规划、检索、工具调用、观察环境反馈、修正中间错误、维护任务状态，并在多轮交互中避免目标漂移。Towards Long-Horizon Agents: A Survey 将这种趋势概括为 long-horizon agency：Agent 需要围绕一个目标，在 reasoning、tool use、observation 与 revision 之间进行持久迭代。\n本文的核心判断是：Long-horizon agent 不是单纯把上下文窗口拉长，也不是简单给模型接更多工具，而是外部 Harness 工程与模型内部能力优化共同演化形成的系统级能力。外部 Harness 负责组织行为、管理状态、约束权限和验证结果；模型内部优化则让策略本身更擅长长程交互、搜索、记忆和 credit assignment。真正可用的长程智能体，最终要同时满足 capability、efficiency 与 trustworthiness。\n本文的写作逻辑可以概括为下面这张“问题—机制—训练—评估—安全”的架构图：\nLong-Horizon Agents ├── 核心问题：单轮回答 → 长程持续决策 │ ├── 任务不再是一次生成，而是多步依赖的轨迹 τ │ └── 关键瓶颈：状态膨胀、错误累积、反馈延迟、目标漂移 ├── 系统形式化：Agent = πθ ⊕ H │ ├── πθ：模型策略，负责推理、生成、工具选择与行动决策 │ └── H：外部 Harness，负责上下文、记忆、工具、编排、权限与验证 ├── 能力演化：Prompt → Context → Runtime │ ├── Prompt：CoT / Self-Consistency / ReAct，让推理过程显式化 │ ├── Context：RAG / Self-RAG / MemGPT，让信息与记忆可动态访问 │ └── Runtime：Reflexion / ToT / Workflow，让 Agent 能在环境中持续迭代 ├── 双支柱路线 │ ├── Externalized Harness：loops、memory、tools、orchestration、hooks、verification │ └── Internalized Optimization：architecture、environment synthesis、fine-tuning、agentic RL、distillation ├── 落地与评估 │ ├── 应用场景：软件工程、深度搜索、Computer Use、多模态与通用助手 │ └── 评价维度：Success × Cost × Safety × Traceability └── 可信自治 ├── Error compounding / Goal drift / Permission boundary / Memory safety └── 目标：在预算、安全边界和可审计轨迹下持续推进任务 这张图也对应本文后续展开顺序：先定义 long-horizon agency，再解释技术演化和双支柱结构，随后讨论代表应用、评估方式与安全问题。\n一、从 Chatbot 到 Long-Horizon Agent：问题为什么变了 传统 Chatbot 的交互单元通常是一问一答：用户给出上下文 $x$，模型生成响应 $y$。即使存在多轮对话，多数评估仍然可以近似看作局部上下文中的生成质量问题。但 Agent 任务不同：模型不只是输出文本，还要在环境中采取行动，并把行动结果作为下一步决策的输入。\n可以将一个长程 Agent 抽象为模型策略与外部运行时 Harness 的耦合：\n$$ \\mathrm{Agent} = \\pi_\\theta \\oplus \\mathcal{H} $$其中 $\\pi_\\theta$ 表示参数化模型策略，$\\theta$ 是模型参数；$\\mathcal{H}$ 表示围绕模型构建的 harness，包括上下文管理、记忆、工具、工作流、权限控制、验证器、日志和人类检查点等；$\\oplus$ 表示二者并非简单相加，而是在运行时相互耦合。这个表达来自 survey 对 long-horizon agency 的系统视角：能力不是只存在于模型内部，而是由模型和周边运行时共同塑造。\n更具体地，一个 Agent 在时间步 $t$ 的行为可以抽象为：\n$$ a_t \\sim \\pi_\\theta(\\cdot \\mid h_t), \\quad s_{t+1} = \\mathrm{Env}(s_t, a_t) $$这里 $t$ 表示当前决策步，$h_t$ 是由任务说明、历史观察、工具返回、记忆和中间计划组成的上下文状态；$a_t$ 是第 $t$ 步动作，可以是自然语言回答、搜索查询、代码修改、API 调用、GUI 操作或对子 Agent 的调度；$s_t$ 是环境状态，$\\mathrm{Env}(\\cdot)$ 表示环境转移函数，$s_{t+1}$ 是执行动作后的新状态。长程任务的难点在于：总步数 $T$ 很长时，局部错误会累积，状态会膨胀，反馈会延迟，最终成功不再等价于某一步输出“看起来合理”。\n图1：Long-Horizon Agent 研究版图：围绕外部 Harness 工程与模型能力内化组织的双支柱结构（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。 二、任务层级：H1 / H2 / H3 与能力边界 Survey 将长程任务组织为三个嵌套层级：H1、H2、H3。这个划分很重要，因为它避免了把所有“比较长”的任务混为一谈。\n层级 时间/上下文范围 关键能力 典型例子 H1 单上下文窗口内，分钟级 Intra-context interactive reasoning 多步数学、短程工具调用、一次性网页问答 H2 跨窗口或跨 session，小时到天 Cross-context state \u0026 memory 深度研究、多轮网页任务、跨文件软件修复 H3 跨任务、开放式任务流 Cross-task experience accumulation 持续软件工程、科研助理、长期个人助手 H1 的核心挑战是推理链和局部工具调用；H2 的核心挑战是状态和记忆，因为任务已经不能被一个上下文窗口完整容纳；H3 则进一步要求 Agent 能从跨任务经验中抽取可复用技能，并在新的任务流中迁移。\n图2：Long-Horizon 任务的 H1 / H2 / H3 层级及其对应能力要求（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。 这个层级也解释了为什么“长上下文模型”只是必要条件之一。长上下文可以缓解 H1 到 H2 的部分信息瓶颈，但 H2/H3 还需要更稳定的状态压缩、记忆更新、任务恢复、权限管理和过程验证。\n三、演化路径：Prompt → Context → Runtime Long-horizon agent 并不是突然出现的概念。Survey 将相关技术演化概括为三个阶段：Prompt Engineering、Context Engineering 和 Runtime Harnesses。它们分别对应“如何让模型想得更好”“如何让模型看到更多、更相关的信息”“如何让模型在环境中持续行动”。\nStage I：Prompt Engineering，让模型显式推理 Chain-of-Thought Prompting 是这一阶段的奠基工作之一。它的核心不是引入新模型，而是在 prompt 中提供中间推理步骤示例，让模型学会在答案前生成一串 reasoning steps。可以抽象为：\n$$ x \\rightarrow z_1, z_2, \\dots, z_k \\rightarrow y $$其中 $x$ 是问题，$z_1,\\dots,z_k$ 是中间推理链，$k$ 表示推理步骤数量，$y$ 是最终答案。CoT 的重要性在于，它把“生成答案”改造成“生成可展开的求解过程”，为后续 Agent 的 plan、reflection 和 verification 提供了语言形式。\nSelf-Consistency 进一步指出，复杂问题通常存在多条不同推理路径通向同一个正确答案。因此它不再贪心解码单条链，而是采样多条 reasoning paths，再通过答案一致性选择结果。其机制可以抽象为：\n$$ \\hat{y} = \\arg\\max_y \\sum_{i=1}^{N} \\mathbf{1}\\{y_i = y\\} $$这里 $y_i$ 是第 $i$ 条采样推理链得到的答案，$N$ 是采样的推理链数量，$\\mathbf{1}\\{y_i=y\\}$ 是指示函数：当第 $i$ 条路径的答案等于候选答案 $y$ 时取 1，否则取 0；$\\hat{y}$ 是获得最多一致投票的最终答案。这个思想后来在树搜索、trajectory sampling、test-time scaling 和 agentic RL 中反复出现：不要只相信一条轨迹，要让模型在多个候选轨迹之间比较、投票或验证。\n方法图（Self-Consistency）：采样多条 reasoning paths 并通过答案一致性选择最终结果（图片来源：Wang et al., Self-Consistency, ICLR 2023）。 ReAct 则是 Prompt Engineering 向 Agent Runtime 的关键过渡。它让模型交替生成 reasoning traces 和 task-specific actions，形成 Thought → Action → Observation 的循环。Reasoning trace 帮助模型跟踪计划和处理异常，Action 则让模型访问 Wikipedia API、环境或交互任务。ReAct 在 HotpotQA、FEVER、ALFWorld 和 WebShop 上展示了“推理 + 行动”交织的优势，也让 Agent 轨迹变得更可解释。\n方法图（ReAct）：语言模型在推理轨迹与环境行动之间交替推进任务（图片来源：Yao et al., ReAct, ICLR 2023）。 Stage II：Context Engineering，让模型看到更相关的信息 Long-horizon 任务的第二个瓶颈是上下文。模型参数中的知识不够新、不够精确，也无法完整保存任务轨迹。因此，检索、压缩、选择和记忆成为核心技术。\nRAG 将参数化记忆与非参数化记忆结合起来：检索器先从外部语料中取回文档 $z$，生成器再基于 $x$ 和 $z$ 生成答案。RAG-Sequence 的生成概率可以概括为：\n$$ p(y \\mid x) = \\sum_{z \\in \\mathcal{Z}} p_\\eta(z \\mid x) p_\\theta(y \\mid x, z) $$这个公式说明了 RAG 的本质：答案不是只由模型参数决定，而是对外部证据的边缘化整合。其中 $x$ 是输入问题，$y$ 是生成答案，$\\mathcal{Z}$ 是可检索文档集合，$z$ 是其中一篇被检索到的文档；$p_\\eta(z\\mid x)$ 是由参数 $\\eta$ 控制的检索器概率，$p_\\theta(y\\mid x,z)$ 是由参数 $\\theta$ 控制的生成器在给定问题和文档后的生成概率。对于长程 Agent，RAG 的意义不只在问答，而在于让 Agent 可以在执行过程中不断补充环境知识。\n方法图（RAG）：参数化生成模型与非参数化检索记忆的组合架构（图片来源：Lewis et al., RAG, NeurIPS 2020）。 Self-RAG 将检索进一步变成自反式流程：模型不仅生成答案，还判断是否需要检索、检索内容是否有用、生成结果是否被证据支持。对于 long-horizon agents，这意味着 context engineering 不再是一次性检索，而是嵌入行动循环的动态决策。\nMemGPT 则从操作系统中借鉴分层内存思想：有限上下文窗口类似 fast memory，外部存储类似 slow memory，系统通过 virtual context management 在不同记忆层之间移动信息。它对 H2/H3 很关键，因为跨 session 对话和长文档分析不能简单依靠一个越来越长的 prompt。\n最新进展基本沿着“上下文不是越多越好，而是要被持续选择、压缩和验证”展开。Anthropic 的 context engineering 实践 把上下文视为有限运行时资源，强调 agent 需要主动管理 tool outputs、文件片段、历史摘要和任务约束；ReSum 则针对长程搜索任务提出周期性总结，把冗长搜索历史压缩为可复用的 reasoning state；MemAgent 和 MEM1 进一步把记忆读写与推理协同作为训练对象，而不是仅把 memory 当成外部数据库。换言之，H2/H3 的瓶颈已经从“能不能塞进上下文”转向“能不能形成可靠的状态管理策略”。\n方法图（MemGPT）：通过类操作系统的虚拟上下文管理在有限上下文窗口与外部记忆之间调度信息（图片来源：Packer et al., MemGPT, 2023）。 Stage III：Runtime Harnesses，让模型持续行动 当任务进入 H2/H3，单靠 prompt 和 context 已不足够。Agent 需要一个运行时系统来维持循环、管理状态、调度工具、检查结果。\nReflexion 提出用 verbal reinforcement 替代参数更新：Agent 在任务反馈后生成反思文本，并将其放入 episodic memory buffer，供后续 trial 使用。它的核心贡献在于把 trial-and-error 转化为语言记忆，而不是每次失败后都重新训练模型。\n方法图（Reflexion）：Agent 将环境反馈转化为反思文本并写入情节记忆，以改进后续尝试（图片来源：Shinn et al., Reflexion, 2023）。 Tree of Thoughts 将 CoT 的单链推理推广为对“thought”节点的搜索。模型可以生成多个候选中间状态，评估其前景，并在必要时回溯。其搜索过程可以抽象为：\n$$ \\tau^* = \\arg\\max_{\\tau \\in \\mathcal{T}} V(\\tau) $$其中 $\\mathcal{T}$ 表示候选 thought / trajectory 的搜索空间，$\\tau$ 是其中一条候选推理轨迹，$V(\\tau)$ 是模型或外部评估器对该轨迹前景的价值估计，$\\tau^*$ 是价值最高、最终被选中的轨迹。ToT 的意义在于把推理从 left-to-right decoding 推向 deliberate search，这与后来的 agentic tree search、workflow search、multi-agent deliberation 一脉相承。\n方法图（Tree of Thoughts）：将中间 thought 作为可搜索节点，在多条推理路径间评估、回溯与选择（图片来源：Yao et al., Tree of Thoughts, NeurIPS 2023）。 四、Pillar I：外部 Harness 如何承载长程能力 Survey 的第一条主线是 Externalized Harness Engineering。Harness 不是简单的“工程外壳”，而是 Agent 的控制层、记忆层、工具层、验证层和安全边界。\n图3：Agent Harness 的关键组件：多个外部机制共同支撑一个目标在长程轨迹中持续推进（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。 Loops and Workflows：从线性循环到搜索式工作流 最简单的 Agent loop 可以写成 observe → reason → act → observe。ReAct 是这个范式的早期代表；Reflexion 在循环外加入 memory；ToT 则把单条循环扩展为树状搜索。对于 long-horizon task，workflow 的关键不是“多执行几步”，而是每一步都必须保留足够状态，并允许 Agent 在失败后恢复。\n可以把一个通用工作流抽象为：\n$$ h_{t+1} = \\mathrm{Update}(h_t, a_t, o_{t+1}, v_{t+1}) $$其中 $h_t$ 是第 $t$ 步之前的可行动历史状态，$a_t$ 是当前动作，$o_{t+1}$ 是动作执行后的新观察，$v_{t+1}$ 是验证器、测试、环境反馈或人类检查给出的反馈信号；$\\mathrm{Update}(\\cdot)$ 表示 harness 将动作、观察和反馈写回工作状态的更新过程。这个抽象强调了长程 Agent 的本质：不是一次性生成，而是持续维护可行动的历史状态。\nContext and Memory：从上下文窗口到长期经验 Memory 是 H2/H3 的核心。工作上下文负责当前任务，长期记忆负责跨 session 和跨任务经验。MemGPT 将这个问题类比为操作系统内存管理，Voyager 和 ExpeL 则强调从环境经验中抽取 skill 或 textual lessons。\n可以将记忆更新抽象为：\n$$ m_{t+1} = \\mathrm{Update}(m_t, o_t, a_t, r_t) $$这里 $m_t$ 是第 $t$ 步前的长期或情节记忆状态，$o_t$ 是当前观察，$a_t$ 是当前动作，$r_t$ 是任务奖励、成功/失败信号或语言反馈；$\\mathrm{Update}(\\cdot)$ 表示将新经验写入、压缩、过滤或遗忘的记忆更新函数。这个公式不是某篇论文的原始公式，而是对长程记忆机制的抽象：Agent 需要决定什么进入长期记忆、什么被压缩、什么被遗忘、什么在未来任务中被检索。\n这种机制的风险也很明显：错误经验、恶意注入内容或过期信息一旦写入长期记忆，就可能跨任务传播。因此 memory 不只是能力模块，也是安全模块。\nTools, MCP, and Skills：工具从调用点变成能力接口 Toolformer 展示了语言模型可以用少量示例自监督学习工具调用：何时调用 API、传什么参数、如何把结果纳入后续 token prediction。它解决的是“模型能否学会工具使用语法与时机”的问题。\n但在 long-horizon agents 中，工具问题更复杂：Agent 需要在不同阶段发现工具、选择工具、组合工具、验证工具结果，并在失败时恢复。MCP、A2A、ACP 等协议的重要性正在上升，因为工具不再是 prompt 中的一段说明，而是 Agent 生态的运行时接口。技能库则进一步把“做过的事情”封装为可复用能力：例如 Voyager 在 Minecraft 环境中把成功行为沉淀为技能，供后续任务调用。\n工业界的优秀实践也在强化同一个判断：真正的 Agent 产品往往不是“一个模型 + 一段提示词”，而是围绕模型构建的可控运行时。Anthropic 的 Building Effective Agents 和 Writing Tools for Agents 强调 workflow、tool design、反馈回路和人类检查点；OpenAI Codex 与后续 harness engineering 实践则把软件工程 Agent 放在云端隔离环境中，通过仓库上下文、测试、日志和 review loop 推进任务。这些实践说明，tool use 的关键不是“能调用 API”，而是让工具接口、权限边界、执行环境和验证机制共同组成可恢复的 harness。\nOrchestration：从单 Agent 到多 Agent 协作 当任务需要不同角色、不同工具或并行探索时，单 Agent loop 会变得笨重。MetaGPT、AutoGen、ChatDev 等工作将多 Agent 协作引入软件开发和复杂任务执行：一个 Agent 负责需求分析，另一个负责编码，另一个负责测试或评审。最新系统如 Magentic-One 进一步把多 Agent 协作抽象为 generalist multi-agent system：外层 orchestrator 负责分解任务、选择专门 agent、汇总观察并决定是否继续执行；OpenHands 则把软件开发 agent 平台化，让浏览器、终端、编辑器和评测器成为统一的 agent-computer interface。\n方法图（Magentic-One）：由 Orchestrator 调度专门 Agent、工具与事件流来完成复杂任务（图片来源：Microsoft Research, Magentic-One, 2024）。 方法图（OpenHands）：软件开发 Agent 平台中的 runtime、sandbox、工具与观察反馈结构（图片来源：Wang et al., OpenHands, ICLR 2025）。 可以将多 Agent 协作抽象为：\n$$ a_t^{(i)} \\sim \\pi_{\\theta_i}(\\cdot \\mid h_t^{(i)}, M_t), \\quad i=1,\\dots,n $$其中 $i$ 是 Agent 编号，$n$ 是参与协作的 Agent 数量；$\\pi_{\\theta_i}$ 表示第 $i$ 个 Agent 的策略，$\\theta_i$ 是其模型或角色参数；$h_t^{(i)}$ 是该 Agent 在第 $t$ 步看到的局部历史，$M_t$ 是共享消息池、黑板状态或团队协作上下文；$a_t^{(i)}$ 是第 $i$ 个 Agent 在当前步产生的动作。多 Agent 的优势是分工和冗余，风险是通信成本、角色幻觉和责任归因困难。长程任务越复杂，orchestration 越像一个系统设计问题，而不是单纯的 prompt 设计问题。\nHooks, Middleware, Verification：长程执行必须可控可审计 Hooks 和 middleware 让 Agent 在行动前后经过检查：是否越权、是否触发风险、是否需要人类批准。Verification 则负责判断轨迹是否朝目标前进。\n在强化学习视角下，一条轨迹的回报可以写为：\n$$ R(\\tau) = \\sum_{t=1}^{T} \\gamma^{t-1} r_t $$其中 $\\tau$ 表示完整执行轨迹，$R(\\tau)$ 是该轨迹的累计回报，$T$ 是轨迹长度，$r_t$ 是第 $t$ 步的即时奖励或过程反馈，$\\gamma\\in[0,1]$ 是折扣因子，用来控制越靠后的反馈在累计回报中的权重。长程任务的困难在于 $r_t$ 往往稀疏且延迟：最终失败可能源于很早的一次错误检索、错误工具调用或错误假设。因此，process reward、step-level verification 和 agent-as-a-judge 变得重要。CRITIC、Web-Shepherd、SWE-TRACE 等方向都在尝试把验证信号从最终结果扩展到中间过程。\n五、Pillar II：模型如何内化长程能力 第二条主线是 Internalized Model Optimization。外部 Harness 可以组织行为，但如果模型本身不具备长期规划、工具理解、轨迹反思和 credit assignment 能力，Harness 也只能不断补丁化。\n图4：Agentic training pipeline：从架构底座到数据/环境合成、训练、强化学习、蒸馏与自演化（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。 Architectural Substrate：长上下文是底座，不是答案 Longformer、BigBird、Mamba、linear attention、MoE 和 speculative decoding 等技术改善了长上下文容量和推理效率。但长上下文本身不等于 long-horizon agency。模型可以“看到”更多 token，并不意味着它能识别哪些信息重要、何时压缩、何时调用工具、如何恢复失败。\n因此，结构改进是底座；真正的长程能力还需要训练目标、环境反馈和运行时协议共同塑造。\nData and Environment Synthesis：训练 Agent 需要可交互环境 长程任务的训练数据不能只是一条输入输出对。Agent 需要在环境中试错，获得中间观察和最终反馈。WebArena、OSWorld、SWE-Gym、AgentGym-RL、AgentBench 等工作的共同意义，是把真实或近真实环境变成可训练、可评估、可复现的 arena。近期 AgentGym-RL 明确把多轮环境交互、轨迹采样和强化学习训练整合为开源框架；Agent-World 和 WebShaper 则强调通过环境/任务合成扩大训练覆盖面。它们都指向一个趋势：长程能力不能只靠静态 instruction tuning，需要可交互世界、可复现奖励和可扩展数据引擎。\n方法图（AgentGym-RL）：面向多环境、多轮交互的 Agent 强化学习训练框架（图片来源：AgentGym-RL Team, AgentGym-RL, 2025）。 WebArena 构建了包含电商、论坛、协作开发、内容管理等网站的真实网页环境，并给出长程、多样的网页任务。论文报告中，最佳 GPT-4-based agent 的端到端成功率仅 14.41%，显著低于人类 78.24%。这说明真实网页任务不是“会调用浏览器”就能解决，Agent 还必须具备状态跟踪、页面理解和错误恢复能力。\n方法图（WebArena）：由多个真实功能网站构成的网页 Agent 评估环境（图片来源：Zhou et al., WebArena, 2023）。 OSWorld 则将评估推进到真实计算机环境：Ubuntu、Windows、macOS 上的文件 I/O、网页、桌面应用和跨应用工作流。它包含 369 个开放式计算机任务，并使用执行式评估脚本保证可复现。论文报告中，人类能完成 72.36% 以上任务，而最佳模型仅 12.24%，主要困难在 GUI grounding 和操作知识。\n方法图（OSWorld）：真实操作系统环境中的任务初始化、交互执行与脚本化评估流程（图片来源：Xie et al., OSWorld, 2024）。 Fine-tuning and Agent Tuning：从会说到会做 AgentTuning、FireAct、tool-use fine-tuning 等工作试图把 Agent 轨迹纳入监督微调，让模型不仅生成语言答案，也学会工具调用、反思、规划和执行格式。它们的重要性在于：长期依赖任务需要模型熟悉交互协议，而不是每次都靠 prompt 现场教会。\n但监督微调也有局限：它容易复现训练轨迹中的行为模式，却不一定能处理新环境中的失败恢复和探索。因此，agentic reinforcement learning 成为下一阶段重点。\nAgentic Reinforcement Learning：从静态数据到轨迹优化 对于长程任务，优化目标自然落在轨迹层面：\n$$ J(\\theta) = \\mathbb{E}_{\\tau \\sim \\pi_\\theta}\\left[\\sum_{t=1}^{T} \\gamma^{t-1} r_t\\right] $$其中 $J(\\theta)$ 是要优化的策略目标，$\\theta$ 是模型策略参数，$\\mathbb{E}_{\\tau\\sim\\pi_\\theta}[\\cdot]$ 表示对策略 $\\pi_\\theta$ 采样得到的轨迹取期望；$T$ 是轨迹长度，$r_t$ 是第 $t$ 步奖励，$\\gamma$ 是折扣因子。换言之，训练目标不是让单步输出看起来更好，而是让整条轨迹在长期累计反馈上更优。困难在于：长程任务的奖励通常稀疏、延迟且不完全可验证。\nSearch-R1 是长程信息检索场景中的代表。它让 LLM 在逐步推理中自主生成多轮搜索查询，并通过真实检索结果优化推理轨迹。论文强调 retrieved token masking 和简单 outcome-based reward 对稳定 RL 训练的作用，并在七个问答数据集上相对 RAG baseline 有明显提升。它的意义在于：搜索不再是外部固定模块，而成为模型策略可学习的一部分。\n围绕 deep research 的最新工作进一步把搜索、阅读、压缩和写作都纳入 agentic RL。WebDancer 关注 autonomous information seeking agency，让模型通过采样和强化学习改进多轮搜索策略；WebSailor 试图把复杂网页推理能力推进到接近或超过人类的水平；Tongyi DeepResearch 和 OpenResearcher 则展示了端到端合成长程研究轨迹、训练开放 deep research agent 的路线。相比早期 RAG，这些工作更像是在训练一个“会研究的策略”，而不是训练一个“会引用检索结果的生成器”。\n方法图（WebDancer）：通过采样、强化学习和检索交互训练面向深度搜索的 Agent 策略（图片来源：Alibaba-NLP et al., WebDancer, NeurIPS 2025）。 方法图（Search-R1）：通过强化学习让模型在推理过程中自主生成搜索查询并利用实时检索结果（图片来源：Jin et al., Search-R1, 2025）。 Rubrics as Rewards 则回应了“现实任务不可验证”的问题。数学和代码可以用最终答案正确性做 RLVR，但医疗、科学问答、deep research、Agent 决策往往需要多维标准。RaR 用 instance-specific rubrics 作为 on-policy RL 的奖励信号，可以抽象为：\n$$ R_{\\mathrm{rubric}}(\\tau) = \\sum_{k=1}^{K} w_k \\cdot s_k(\\tau) $$这里 $K$ 是 rubric 条目数量，$s_k(\\tau)$ 表示轨迹或回答是否满足第 $k$ 个评价标准，$w_k$ 是该条标准的权重；$R_{\\mathrm{rubric}}(\\tau)$ 是把多条 rubric 反馈聚合后的轨迹级奖励。这个公式是对 rubric reward 的抽象化表达。它与 long-horizon agents 的关系非常直接：越长的任务越难只靠一个最终标量判断质量，越需要结构化、可追溯的评价标准。\n方法图（Rubrics as Rewards）：将实例级 rubric feedback 聚合为可用于 on-policy RL 的奖励信号（图片来源：Gunjal et al., Rubrics as Rewards, 2025）。 On-Policy Distillation and Self-Evolution：把经验内化为策略 长期看，Harness 中的显式能力可能逐步被模型内化：反思、工具选择、上下文压缩、验证启发式都可能从外部规则变成模型策略的一部分。STaR、自蒸馏、on-policy distillation 和 self-evolving agents 都属于这个方向。\n但这也引出安全问题：如果 Agent 能改写自身策略、技能库或 Harness 配置，那么原有安全不变量是否仍成立？这正是后文 Trustworthy Long-Horizon Agents 需要讨论的核心。\n六、应用版图：长程能力在哪里真正被检验 图5：Long-Horizon Agent 的代表性应用形态，按 Agent 与环境的接口组织（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。 Software Engineering：仓库级任务是天然长程场景 SWE-bench 将真实 GitHub issues 和 pull requests 转化为评估任务，包含 2,294 个来自 12 个 Python 仓库的软件工程问题。模型需要理解代码库、定位 bug、修改多个文件并通过测试。论文早期评估中，Claude 2 只能解决 1.96% 的问题，说明真实软件工程远超传统代码生成。\nSWE-agent、OpenHands、SWE-Bench Pro、Terminal-Bench 等后续工作进一步强调 agent-computer interface、shell / editor / test feedback 和 long-horizon repository grounding。软件工程之所以重要，是因为它同时包含长上下文、工具执行、错误反馈、可验证测试和安全边界。\n最新一代 coding agent 的进展尤其能体现“model + harness”的系统化竞争。SWE-agent 证明了 agent-computer interface 本身会显著影响软件修复能力；SWE-Bench Pro 进一步提高任务难度和抗污染能力，迫使 agent 处理更长、更真实的仓库级问题；Terminal-Bench 则把评估推进到真实终端任务，覆盖安装、调试、数据处理和系统操作。Claude Code、OpenAI Codex、Trae Agent 与 OpenHands 等实践说明，工业界的关键优化点往往不是单次代码生成，而是 sandbox、测试反馈、仓库索引、任务拆解、权限控制和人类 review 的闭环。\n方法图（SWE-agent）：通过 Agent-Computer Interface 将语言模型动作映射到终端、文件系统与环境反馈（图片来源：Yang et al., SWE-agent, NeurIPS 2024）。 Information Seeking / Deep Research：搜索从辅助模块变成训练目标 Deep research 任务要求 Agent 在多轮搜索中形成问题分解、证据收集、冲突消解和报告生成。Search-R1、WebDancer、WebResearcher、ReSum 等工作都指向同一趋势：模型不只是“拿到检索结果后回答”，而是学习如何提出更好的查询、何时继续搜索、何时压缩历史、如何引用证据。\n这一方向的 benchmark 也在快速升级。BrowseComp 用简单但困难的网页浏览问题测试模型能否在开放网页中找到稀缺证据；DeepResearch Bench 则把评估对象扩展到长报告生成、跨源验证和复杂研究流程；ReSum 从 context summarization 角度解决长程搜索历史过长的问题。这些工作共同表明，deep research 的核心不只是检索召回率，而是多轮计划、证据状态管理和最终论证质量。\n这类任务尤其适合用 long-horizon 视角理解，因为失败往往不是单点错误，而是早期错误假设导致后续搜索方向整体偏移。\nComputer Use：真实 GUI 暴露长程脆弱性 WebArena 和 OSWorld 表明，真实环境中的 Agent 需要视觉理解、状态跟踪、操作知识和执行反馈。AndroidWorld、UI-TARS 等移动端/GUI agent 工作进一步扩大了这一挑战：页面结构变化、视觉 grounding、权限弹窗和跨应用切换都会让轨迹变长且更脆弱。近期 UI-TARS-2 强调通过多轮强化学习提升 GUI agent 的持续操作能力；OSWorld-MCP 则把 MCP 工具调用纳入 computer-use 评估，说明 GUI 与工具协议正在融合。\n方法图（UI-TARS-2）：面向 GUI 操作的多轮交互、观察反馈与强化学习流程（图片来源：UI-TARS Team, UI-TARS-2, 2025）。 Multimodal and General-Purpose Agents 多模态 Agent 把 long-horizon 问题扩展到视频、文档、图像、网页和语音。VideoAgent、VideoSeek、OpenSearch-VL、OmniGAIA 等方向都需要在跨模态证据中持续定位与推理。General-purpose agents 如 GAIA、AI Scientist、AlphaEvolve、MedAgentBench、LegalAgentBench 则把任务推进到科研、医疗、法律等高风险领域。\n通用 Agent 产品和基准正在把“长期自主执行”推向更接近真实工作的形态。TheAgentCompany 在模拟软件公司中评估 agent 完成专业办公任务的能力；Manus 与 OpenManus 等实践把浏览器、文件、代码执行和报告生成组合为面向普通用户的通用代理；GAIA 则用需要网页、工具和多步推理的通用助手任务检验模型能力。这些系统的共同特征是：任务结果往往跨越多个应用和中间产物，评估也必须关注过程可追踪性。\n方法图（TheAgentCompany）：在模拟软件公司中评估 Agent 使用浏览器、终端、代码和社交工具完成真实工作任务的能力（图片来源：Xu et al., TheAgentCompany, NeurIPS 2025）。 这些场景共同说明：Agent 的评估不能只看最终文本质量，还要看轨迹是否可靠、证据是否可追踪、工具调用是否合规。\n七、Benchmarks and Resources：如何评价“长程” 普通 LLM benchmark 往往评估一个答案，而 long-horizon benchmark 需要评估一条轨迹。一个更合理的评价视角可以抽象为：\n$$ \\mathrm{Score} = f(\\mathrm{Success}, \\mathrm{Cost}, \\mathrm{Safety}, \\mathrm{Traceability}) $$这不是某篇论文的原始公式，而是本文对 long-horizon evaluation 的抽象。其中 $\\mathrm{Score}$ 表示综合评价结果，$f(\\cdot)$ 表示把多个评价维度聚合起来的函数；不同 benchmark 可以选择不同的聚合方式，例如加权平均、门槛约束或分维度报告。它强调四点：\nSuccess：任务是否真正完成，而不是回答是否像完成了。 Cost：token、工具调用次数、墙钟时间和人工介入是否可接受。 Safety：是否越权、是否执行危险操作、是否抵抗恶意指令。 Traceability：轨迹、证据和中间决策是否可审计。 SWE-bench、WebArena、OSWorld、AndroidWorld、BrowseComp、DeepResearch Bench、GAIA、τ-bench、METR time-horizon measurements 等资源分别覆盖软件工程、网页、桌面、移动端、信息检索和通用助手能力。TheAgentCompany 与 Terminal-Bench 进一步强调真实工作流和终端环境中的长期执行能力；SWE-Bench Pro 则提醒我们，原始 benchmark 一旦被模型和 agent 反复优化，就需要更强的去污染和长程难度设计。未来更关键的问题是：这些 benchmark 能否反映真实部署中的风险、成本和长期稳定性。\n八、AI Safety / Trustworthy Long-Horizon Agents Long-horizon agents 的安全问题不是普通 chatbot safety 的简单放大，而是由长轨迹、工具权限、记忆复用和自演化共同带来的结构性风险。\nError Compounding：错误会沿轨迹放大 如果每一步都有小概率错误，那么轨迹越长，最终成功率越容易下降。可以用一个简化抽象说明：\n$$ P(\\mathrm{success}) \\approx \\prod_{t=1}^{T} P(e_t = 0 \\mid h_t) $$这里 $T$ 是轨迹长度，$e_t$ 表示第 $t$ 步是否发生关键错误，$h_t$ 是第 $t$ 步前的历史状态，$P(e_t=0\\mid h_t)$ 表示在当前历史条件下第 $t$ 步不出错的概率。这个公式不是论文原公式，而是为了说明长程任务中的错误累积效应：即使单步可靠性较高，长轨迹也会让失败概率迅速累积。\nGoal Drift：目标在多次重规划中漂移 Agent 在长程执行中会不断 summarize、replan、reflect。每一次改写任务状态都有可能丢失用户原始约束。缓解思路包括 task spec anchoring、周期性目标校验、关键节点人工确认和轨迹级差异检查。\nTool / Permission Boundary：工具权限边界成为安全核心 当 Agent 能访问浏览器、文件系统、API、数据库和代码执行环境时，安全边界不能只靠“模型不要做坏事”的 prompt。AgentBound 这类工作将 MCP 服务器纳入访问控制框架，用声明式 policy 和 enforcement engine 限制工具权限。它代表了一个重要趋势：Agent safety 必须从模型对齐扩展到运行时访问控制。\nMemory Safety：危险经验会被复用 长程 Agent 的长期记忆可能保存错误结论、敏感信息、恶意注入内容或过期经验。如果这些内容在未来任务中被检索，它们会跨任务传播风险。因此，memory provenance、trust scoring、expiration、quarantine 和可撤销记忆都应成为 Harness 的一部分。\nAgent Harmfulness：有工具的模型更危险 AgentHarm 针对 LLM agent misuse 提出 110 个显式恶意 agent tasks，增强后为 440 个，覆盖 fraud、cybercrime、harassment 等 11 类危害。其关键发现是：领先 LLM 对恶意 agent 请求的拒绝并不总是可靠，简单通用 jailbreak 也可以迁移到 agent 场景，并使模型保持多步恶意任务执行能力。\n方法图（AgentHarm）：面向恶意多步 Agent 任务的 harmfulness benchmark 构成与评估流程（图片来源：Andriushchenko et al., AgentHarm, ICLR 2025）。 Agent-SafetyBench 则构建了 349 个交互环境和 2,000 个测试用例，覆盖 8 类安全风险和 10 类常见失败模式。论文评估 16 个代表性 LLM agents 后发现，没有一个 agent 的 safety score 超过 60%，并总结出两个根本缺陷：缺乏鲁棒性与缺乏风险意识。\n方法图（Agent-SafetyBench）：覆盖多类风险、交互环境与失败模式的 Agent 安全评估框架（图片来源：Zhang et al., Agent-SafetyBench, 2024）。 这些结果说明：长程 Agent 的安全评估必须包含交互环境、工具使用和多步执行，而不能只测试单轮拒答。\n九、开放问题：下一阶段会在哪里突破 Survey 将前沿问题组织为 Evolution、Effectiveness、Efficiency、Trustworthiness 四条轴线。结合上文，可以总结为以下几个方向。\nHarness transferability：同一个模型在不同 Harness 下表现可能完全不同。未来需要标准化接口、可迁移 workflow 和可比较的系统级评估。 Continual and lifelong learning：外部记忆容易浅层化，内部更新又可能遗忘或破坏安全边界。如何稳定积累跨任务经验仍是开放问题。 Real-world environment interaction：合成环境可控但不真实，真实环境真实但不可控。训练环境的 fidelity 会决定 Agent 能否迁移到部署场景。 Cost-aware agency：长程任务不能无限搜索、无限调用工具。Agent 必须学习预算感，知道何时继续探索、何时停止。 Trustworthy self-evolution：自演化 Agent 很诱人，但它可能绕过原本的安全不变量。未来需要把 formal policy、runtime hooks 和 audit logs 纳入 self-evolution loop。 下一阶段的竞争不会只发生在单模型榜单上，而会发生在 model + harness + environment + verifier 的系统组合上。一个模型是否“聪明”固然重要，但在长程任务中，更重要的是它是否能在可控成本和安全边界内持续推进任务。\n十、总结 Long-horizon agent 的核心是“长期依赖关系下的持续决策”。从 CoT、Self-Consistency 到 ReAct、ToT，再到 WebArena、OSWorld、Search-R1 与 Agent-SafetyBench，研究主线正在从单步推理转向轨迹级能力。\nSurvey 提出的双支柱框架非常关键：外部 Harness 让能力可组织、可扩展、可审计；内部优化让模型逐步学会规划、检索、反思、工具调用和长期 credit assignment。二者不是替代关系，而是共同演化。\n真正可用的长程智能体，不能只追求更长轨迹或更高成功率，还必须回答三个问题：它花了多少成本？它是否遵守权限和安全边界？它的过程能否被验证与追责？这也是 Long-Horizon Agents 从研究原型走向真实生产系统必须跨过的门槛。\nCitation 本文为个人调研整理，核心内容参考 RUC-NLPIR/Awesome-Long-Horizon-Agents 与 Towards Long-Horizon Agents: A Survey。如需引用具体观点与方法，请以原始论文为准。\nReferences [1] Dong et al. “Towards Long-Horizon Agents: A Survey.” Preprints 2026.\n[2] Wei et al. “Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.” arXiv 2022.\n[3] Wang et al. “Self-Consistency Improves Chain of Thought Reasoning in Language Models.” ICLR 2023.\n[4] Yao et al. “ReAct: Synergizing Reasoning and Acting in Language Models.” arXiv 2022.\n[5] Lewis et al. “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.” NeurIPS 2020.\n[6] Asai et al. “Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection.” ICLR 2024.\n[7] Packer et al. “MemGPT: Towards LLMs as Operating Systems.” arXiv 2023.\n[8] Shinn et al. “Reflexion: Language Agents with Verbal Reinforcement Learning.” arXiv 2023.\n[9] Yao et al. “Tree of Thoughts: Deliberate Problem Solving with Large Language Models.” NeurIPS 2023.\n[10] Schick et al. “Toolformer: Language Models Can Teach Themselves to Use Tools.” arXiv 2023.\n[11] Jimenez et al. “SWE-bench: Can Language Models Resolve Real-World GitHub Issues?” ICLR 2024.\n[12] Zhou et al. “WebArena: A Realistic Web Environment for Building Autonomous Agents.” arXiv 2023.\n[13] Xie et al. “OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments.” arXiv 2024.\n[14] Jin et al. “Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning.” arXiv 2025.\n[15] Gunjal et al. “Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains.” arXiv 2025.\n[16] Andriushchenko et al. “AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents.” ICLR 2025.\n[17] Zhang et al. “Agent-SafetyBench: Evaluating the Safety of LLM Agents.” arXiv 2024.\n[18] Bühler et al. “AgentBound: Securing Execution Boundaries of AI Agents.” FSE 2026.\n[19] Anthropic. “Effective Context Engineering for AI Agents.” Engineering Blog 2025.\n[20] Alibaba-NLP et al. “ReSum: Unlocking Long-Horizon Search Intelligence via Context Summarization.” arXiv 2025.\n[21] BytedTsinghua-SIA et al. “MemAgent: Reshaping Long-Context LLM with Multi-Conv RL-based Memory Agent.” arXiv 2025.\n[22] MIT-MI et al. “MEM1: Learning to Synergize Memory and Reasoning for Efficient Long-Horizon Agents.” arXiv 2025.\n[23] Anthropic. “Building Effective AI Agents.” Engineering Blog 2024.\n[24] Anthropic. “Writing Tools for AI Agents.” Engineering Blog 2025.\n[25] OpenAI. “Introducing Codex.” 2025.\n[26] OpenAI. “Harness Engineering: Leveraging Codex in an Agent-First Workflow.” 2025.\n[27] Microsoft Research. “Magentic-One: A Generalist Multi-Agent System for Solving Complex Tasks.” arXiv 2024.\n[28] Wang et al. “OpenHands: An Open Platform for AI Software Developers as Generalist Agents.” ICLR 2025.\n[29] AgentGym-RL Team. “AgentGym-RL: An Open-Source Framework to Train LLM Agents for Long-Horizon Decision Making via Multi-Turn RL.” arXiv 2025.\n[30] Agent-World Team. “Agent-World: Scaling Real-World Environment Synthesis for Evolving General Agent Intelligence.” arXiv 2026.\n[31] Alibaba-NLP et al. “WebShaper: Agentically Data Synthesizing via Information-Seeking Formalization.” arXiv 2025.\n[32] Alibaba-NLP et al. “WebDancer: Towards Autonomous Information Seeking Agency.” NeurIPS 2025.\n[33] WebSailor Team. “WebSailor: Navigating Super-human Reasoning for Web Agent.” arXiv 2025.\n[34] Alibaba-NLP et al. “Tongyi DeepResearch Technical Report.” arXiv 2025.\n[35] OpenResearcher Team. “OpenResearcher: A Fully Open Pipeline for Long-Horizon Deep Research Trajectory Synthesis.” arXiv 2026.\n[36] Yang et al. “SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering.” NeurIPS 2024.\n[37] Deng et al. “SWE-Bench Pro: Can AI Agents Solve Long-Horizon Software Engineering Tasks?” ICML 2026.\n[38] Merrill et al. “Terminal-Bench: Benchmarking Agents on Hard, Realistic Terminal Tasks.” arXiv 2026.\n[39] Anthropic. “Claude Code Overview.” 2025.\n[40] ByteDance. “Trae Agent: An LLM-based Agent for Software Engineering with Test-time Scaling.” arXiv 2025.\n[41] OpenAI. “BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents.” arXiv 2025.\n[42] DeepResearch Bench Team. “DeepResearch Bench: A Comprehensive Benchmark for Deep Research Agents.” arXiv 2025.\n[43] UI-TARS Team. “UI-TARS-2 Technical Report: Advancing GUI Agent with Multi-Turn Reinforcement Learning.” arXiv 2025.\n[44] OSWorld-MCP Team. “OSWorld-MCP: Benchmarking MCP Tool Invocation In Computer-Use Agents.” arXiv 2025.\n[45] Xu et al. “TheAgentCompany: Benchmarking LLM Agents on Consequential Real World Tasks.” NeurIPS 2025.\n[46] Manus. “Manus: A General Autonomous Agent Product.” 2025.\n[47] Mialon et al. “GAIA: A Benchmark for General AI Assistants.” ICLR 2024.\n[48] Yang et al. “HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering.” EMNLP 2018.\n[49] Thorne et al. “FEVER: a Large-scale Dataset for Fact Extraction and VERification.” NAACL 2018.\n[50] Shridhar et al. “ALFWorld: Aligning Text and Embodied Environments for Interactive Learning.” ICLR 2021.\n[51] Yao et al. “WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents.” NeurIPS 2022.\n[52] Wang et al. “Voyager: An Open-Ended Embodied Agent with Large Language Models.” arXiv 2023.\n[53] Zhao et al. “ExpeL: LLM Agents Are Experiential Learners.” AAAI 2024.\n[54] Anthropic. “Model Context Protocol Specification.” 2025.\n[55] Agent2Agent Project. “Agent2Agent Protocol Specification.” 2025.\n[56] Agent Communication Protocol. “Agent Communication Protocol Documentation.” 2025.\n[57] Hong et al. “MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework.” ICLR 2024.\n[58] Wu et al. “AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation.” COLM 2024.\n[59] Qian et al. “ChatDev: Communicative Agents for Software Development.” ACL 2024.\n[60] Gou et al. “CRITIC: Large Language Models Can Self-Correct with Tool-Interactive Critiquing.” arXiv 2023.\n[61] Chae et al. “Web-Shepherd: Advancing PRMs for Reinforcing Web Agents.” arXiv 2025.\n[62] Han et al. “SWE-TRACE: Optimizing Long-Horizon SWE Agents Through Rubric Process Reward Models and Heuristic Test-Time Scaling.” arXiv 2026.\n[63] Beltagy et al. “Longformer: The Long-Document Transformer.” arXiv 2020.\n[64] Zaheer et al. “Big Bird: Transformers for Longer Sequences.” NeurIPS 2020.\n[65] Gu and Dao. “Mamba: Linear-Time Sequence Modeling with Selective State Spaces.” COLM 2024.\n[66] Katharopoulos et al. “Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention.” ICML 2020.\n[67] Fedus et al. “Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity.” JMLR 2022.\n[68] Leviathan et al. “Fast Inference from Transformers via Speculative Decoding.” ICML 2023.\n[69] Pan et al. “Training Software Engineering Agents and Verifiers with SWE-Gym.” ICML 2025.\n[70] Liu et al. “AgentBench: Evaluating LLMs as Agents.” ICLR 2024.\n[71] Zeng et al. “AgentTuning: Enabling Generalized Agent Abilities for LLMs.” Findings of ACL 2024.\n[72] Chen et al. “FireAct: Toward Language Agent Fine-tuning.” arXiv 2023.\n[73] Zelikman et al. “STaR: Bootstrapping Reasoning With Reasoning.” NeurIPS 2022.\n[74] Qiao et al. “WebResearcher: Unleashing Unbounded Reasoning Capability in Long-Horizon Agents.” arXiv 2025.\n[75] Rawles et al. “AndroidWorld: A Dynamic Benchmarking Environment for Autonomous Agents.” ICLR 2025.\n[76] UI-TARS Team. “UI-TARS: Pioneering Automated GUI Interaction with Native Agents.” arXiv 2025.\n[77] Wang et al. “VideoAgent: Long-form Video Understanding with Large Language Model as Agent.” ECCV 2024.\n[78] Lin et al. “VideoSeek: Long-Horizon Video Agent with Tool-Guided Seeking.” CVPR 2026.\n[79] Chen et al. “OpenSearch-VL: An Open Recipe for Frontier Multimodal Search Agents.” arXiv 2026.\n[80] Li et al. “OmniGAIA: Towards Native Omni-Modal AI Agents.” arXiv 2026.\n[81] Lu et al. “The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery.” arXiv 2024.\n[82] Novikov et al. “AlphaEvolve: A Coding Agent for Scientific and Algorithmic Discovery.” arXiv 2025.\n[83] Jiang et al. “MedAgentBench: A Realistic Virtual EHR Environment to Benchmark Medical LLM Agents.” arXiv 2025.\n[84] Li et al. “LegalAgentBench: Evaluating LLM Agents in Legal Domain.” ACL 2025.\n[85] FoundationAgents. “OpenManus: An Open-Source Framework for Building General AI Agents.” 2025.\n[86] Yao et al. “τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains.” arXiv 2024.\n[87] METR. “Measuring AI Ability to Complete Long Tasks.” arXiv 2025.\n",
+  "wordCount" : "16468",
+  "inLanguage": "zh",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2026-07-24T00:00:00Z",
+  "dateModified": "2026-07-24T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://m1yan.github.io/posts/long_horizon_agents_survey/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://m1yan.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/academic-homepage" title="Academic Page">
+                    <span>Academic Page</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/pdf/CV-miyan-CN.pdf" title="CV">
+                    <span>CV</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/slides/" title="Slides">
+                    <span>Slides</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Long-Horizon Agents: Harness, Learning, and Trust
+    </h1>
+    <div class="post-meta"><span title='2026-07-24 00:00:00 +0000 UTC'>七月 24, 2026</span>&nbsp;·&nbsp;33 分钟&nbsp;·&nbsp;16468 字&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e4%b8%80%e4%bb%8e-chatbot-%e5%88%b0-long-horizon-agent%e9%97%ae%e9%a2%98%e4%b8%ba%e4%bb%80%e4%b9%88%e5%8f%98%e4%ba%86" aria-label="一、从 Chatbot 到 Long-Horizon Agent：问题为什么变了">一、从 Chatbot 到 Long-Horizon Agent：问题为什么变了</a></li>
+                <li>
+                    <a href="#%e4%ba%8c%e4%bb%bb%e5%8a%a1%e5%b1%82%e7%ba%a7h1--h2--h3-%e4%b8%8e%e8%83%bd%e5%8a%9b%e8%be%b9%e7%95%8c" aria-label="二、任务层级：H1 / H2 / H3 与能力边界">二、任务层级：H1 / H2 / H3 与能力边界</a></li>
+                <li>
+                    <a href="#%e4%b8%89%e6%bc%94%e5%8c%96%e8%b7%af%e5%be%84prompt--context--runtime" aria-label="三、演化路径：Prompt → Context → Runtime">三、演化路径：Prompt → Context → Runtime</a><ul>
+                        
+                <li>
+                    <a href="#stage-iprompt-engineering%e8%ae%a9%e6%a8%a1%e5%9e%8b%e6%98%be%e5%bc%8f%e6%8e%a8%e7%90%86" aria-label="Stage I：Prompt Engineering，让模型显式推理">Stage I：Prompt Engineering，让模型显式推理</a></li>
+                <li>
+                    <a href="#stage-iicontext-engineering%e8%ae%a9%e6%a8%a1%e5%9e%8b%e7%9c%8b%e5%88%b0%e6%9b%b4%e7%9b%b8%e5%85%b3%e7%9a%84%e4%bf%a1%e6%81%af" aria-label="Stage II：Context Engineering，让模型看到更相关的信息">Stage II：Context Engineering，让模型看到更相关的信息</a></li>
+                <li>
+                    <a href="#stage-iiiruntime-harnesses%e8%ae%a9%e6%a8%a1%e5%9e%8b%e6%8c%81%e7%bb%ad%e8%a1%8c%e5%8a%a8" aria-label="Stage III：Runtime Harnesses，让模型持续行动">Stage III：Runtime Harnesses，让模型持续行动</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%9b%9bpillar-i%e5%a4%96%e9%83%a8-harness-%e5%a6%82%e4%bd%95%e6%89%bf%e8%bd%bd%e9%95%bf%e7%a8%8b%e8%83%bd%e5%8a%9b" aria-label="四、Pillar I：外部 Harness 如何承载长程能力">四、Pillar I：外部 Harness 如何承载长程能力</a><ul>
+                        
+                <li>
+                    <a href="#loops-and-workflows%e4%bb%8e%e7%ba%bf%e6%80%a7%e5%be%aa%e7%8e%af%e5%88%b0%e6%90%9c%e7%b4%a2%e5%bc%8f%e5%b7%a5%e4%bd%9c%e6%b5%81" aria-label="Loops and Workflows：从线性循环到搜索式工作流">Loops and Workflows：从线性循环到搜索式工作流</a></li>
+                <li>
+                    <a href="#context-and-memory%e4%bb%8e%e4%b8%8a%e4%b8%8b%e6%96%87%e7%aa%97%e5%8f%a3%e5%88%b0%e9%95%bf%e6%9c%9f%e7%bb%8f%e9%aa%8c" aria-label="Context and Memory：从上下文窗口到长期经验">Context and Memory：从上下文窗口到长期经验</a></li>
+                <li>
+                    <a href="#tools-mcp-and-skills%e5%b7%a5%e5%85%b7%e4%bb%8e%e8%b0%83%e7%94%a8%e7%82%b9%e5%8f%98%e6%88%90%e8%83%bd%e5%8a%9b%e6%8e%a5%e5%8f%a3" aria-label="Tools, MCP, and Skills：工具从调用点变成能力接口">Tools, MCP, and Skills：工具从调用点变成能力接口</a></li>
+                <li>
+                    <a href="#orchestration%e4%bb%8e%e5%8d%95-agent-%e5%88%b0%e5%a4%9a-agent-%e5%8d%8f%e4%bd%9c" aria-label="Orchestration：从单 Agent 到多 Agent 协作">Orchestration：从单 Agent 到多 Agent 协作</a></li>
+                <li>
+                    <a href="#hooks-middleware-verification%e9%95%bf%e7%a8%8b%e6%89%a7%e8%a1%8c%e5%bf%85%e9%a1%bb%e5%8f%af%e6%8e%a7%e5%8f%af%e5%ae%a1%e8%ae%a1" aria-label="Hooks, Middleware, Verification：长程执行必须可控可审计">Hooks, Middleware, Verification：长程执行必须可控可审计</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%ba%94pillar-ii%e6%a8%a1%e5%9e%8b%e5%a6%82%e4%bd%95%e5%86%85%e5%8c%96%e9%95%bf%e7%a8%8b%e8%83%bd%e5%8a%9b" aria-label="五、Pillar II：模型如何内化长程能力">五、Pillar II：模型如何内化长程能力</a><ul>
+                        
+                <li>
+                    <a href="#architectural-substrate%e9%95%bf%e4%b8%8a%e4%b8%8b%e6%96%87%e6%98%af%e5%ba%95%e5%ba%a7%e4%b8%8d%e6%98%af%e7%ad%94%e6%a1%88" aria-label="Architectural Substrate：长上下文是底座，不是答案">Architectural Substrate：长上下文是底座，不是答案</a></li>
+                <li>
+                    <a href="#data-and-environment-synthesis%e8%ae%ad%e7%bb%83-agent-%e9%9c%80%e8%a6%81%e5%8f%af%e4%ba%a4%e4%ba%92%e7%8e%af%e5%a2%83" aria-label="Data and Environment Synthesis：训练 Agent 需要可交互环境">Data and Environment Synthesis：训练 Agent 需要可交互环境</a></li>
+                <li>
+                    <a href="#fine-tuning-and-agent-tuning%e4%bb%8e%e4%bc%9a%e8%af%b4%e5%88%b0%e4%bc%9a%e5%81%9a" aria-label="Fine-tuning and Agent Tuning：从会说到会做">Fine-tuning and Agent Tuning：从会说到会做</a></li>
+                <li>
+                    <a href="#agentic-reinforcement-learning%e4%bb%8e%e9%9d%99%e6%80%81%e6%95%b0%e6%8d%ae%e5%88%b0%e8%bd%a8%e8%bf%b9%e4%bc%98%e5%8c%96" aria-label="Agentic Reinforcement Learning：从静态数据到轨迹优化">Agentic Reinforcement Learning：从静态数据到轨迹优化</a></li>
+                <li>
+                    <a href="#on-policy-distillation-and-self-evolution%e6%8a%8a%e7%bb%8f%e9%aa%8c%e5%86%85%e5%8c%96%e4%b8%ba%e7%ad%96%e7%95%a5" aria-label="On-Policy Distillation and Self-Evolution：把经验内化为策略">On-Policy Distillation and Self-Evolution：把经验内化为策略</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%85%ad%e5%ba%94%e7%94%a8%e7%89%88%e5%9b%be%e9%95%bf%e7%a8%8b%e8%83%bd%e5%8a%9b%e5%9c%a8%e5%93%aa%e9%87%8c%e7%9c%9f%e6%ad%a3%e8%a2%ab%e6%a3%80%e9%aa%8c" aria-label="六、应用版图：长程能力在哪里真正被检验">六、应用版图：长程能力在哪里真正被检验</a><ul>
+                        
+                <li>
+                    <a href="#software-engineering%e4%bb%93%e5%ba%93%e7%ba%a7%e4%bb%bb%e5%8a%a1%e6%98%af%e5%a4%a9%e7%84%b6%e9%95%bf%e7%a8%8b%e5%9c%ba%e6%99%af" aria-label="Software Engineering：仓库级任务是天然长程场景">Software Engineering：仓库级任务是天然长程场景</a></li>
+                <li>
+                    <a href="#information-seeking--deep-research%e6%90%9c%e7%b4%a2%e4%bb%8e%e8%be%85%e5%8a%a9%e6%a8%a1%e5%9d%97%e5%8f%98%e6%88%90%e8%ae%ad%e7%bb%83%e7%9b%ae%e6%a0%87" aria-label="Information Seeking / Deep Research：搜索从辅助模块变成训练目标">Information Seeking / Deep Research：搜索从辅助模块变成训练目标</a></li>
+                <li>
+                    <a href="#computer-use%e7%9c%9f%e5%ae%9e-gui-%e6%9a%b4%e9%9c%b2%e9%95%bf%e7%a8%8b%e8%84%86%e5%bc%b1%e6%80%a7" aria-label="Computer Use：真实 GUI 暴露长程脆弱性">Computer Use：真实 GUI 暴露长程脆弱性</a></li>
+                <li>
+                    <a href="#multimodal-and-general-purpose-agents" aria-label="Multimodal and General-Purpose Agents">Multimodal and General-Purpose Agents</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%b8%83benchmarks-and-resources%e5%a6%82%e4%bd%95%e8%af%84%e4%bb%b7%e9%95%bf%e7%a8%8b" aria-label="七、Benchmarks and Resources：如何评价“长程”">七、Benchmarks and Resources：如何评价“长程”</a></li>
+                <li>
+                    <a href="#%e5%85%abai-safety--trustworthy-long-horizon-agents" aria-label="八、AI Safety / Trustworthy Long-Horizon Agents">八、AI Safety / Trustworthy Long-Horizon Agents</a><ul>
+                        
+                <li>
+                    <a href="#error-compounding%e9%94%99%e8%af%af%e4%bc%9a%e6%b2%bf%e8%bd%a8%e8%bf%b9%e6%94%be%e5%a4%a7" aria-label="Error Compounding：错误会沿轨迹放大">Error Compounding：错误会沿轨迹放大</a></li>
+                <li>
+                    <a href="#goal-drift%e7%9b%ae%e6%a0%87%e5%9c%a8%e5%a4%9a%e6%ac%a1%e9%87%8d%e8%a7%84%e5%88%92%e4%b8%ad%e6%bc%82%e7%a7%bb" aria-label="Goal Drift：目标在多次重规划中漂移">Goal Drift：目标在多次重规划中漂移</a></li>
+                <li>
+                    <a href="#tool--permission-boundary%e5%b7%a5%e5%85%b7%e6%9d%83%e9%99%90%e8%be%b9%e7%95%8c%e6%88%90%e4%b8%ba%e5%ae%89%e5%85%a8%e6%a0%b8%e5%bf%83" aria-label="Tool / Permission Boundary：工具权限边界成为安全核心">Tool / Permission Boundary：工具权限边界成为安全核心</a></li>
+                <li>
+                    <a href="#memory-safety%e5%8d%b1%e9%99%a9%e7%bb%8f%e9%aa%8c%e4%bc%9a%e8%a2%ab%e5%a4%8d%e7%94%a8" aria-label="Memory Safety：危险经验会被复用">Memory Safety：危险经验会被复用</a></li>
+                <li>
+                    <a href="#agent-harmfulness%e6%9c%89%e5%b7%a5%e5%85%b7%e7%9a%84%e6%a8%a1%e5%9e%8b%e6%9b%b4%e5%8d%b1%e9%99%a9" aria-label="Agent Harmfulness：有工具的模型更危险">Agent Harmfulness：有工具的模型更危险</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%b9%9d%e5%bc%80%e6%94%be%e9%97%ae%e9%a2%98%e4%b8%8b%e4%b8%80%e9%98%b6%e6%ae%b5%e4%bc%9a%e5%9c%a8%e5%93%aa%e9%87%8c%e7%aa%81%e7%a0%b4" aria-label="九、开放问题：下一阶段会在哪里突破">九、开放问题：下一阶段会在哪里突破</a></li>
+                <li>
+                    <a href="#%e5%8d%81%e6%80%bb%e7%bb%93" aria-label="十、总结">十、总结</a></li>
+                <li>
+                    <a href="#citation" aria-label="Citation">Citation</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>本文为个人技术笔记，主要整理自 <a href="https://github.com/RUC-NLPIR/Awesome-Long-Horizon-Agents">RUC-NLPIR/Awesome-Long-Horizon-Agents</a> 及其对应综述论文 <em>Towards Long-Horizon Agents: A Survey</em>。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。</p>
+</blockquote>
+<p>大语言模型 Agent 的能力边界正在从“回答一个问题”转向“持续完成一个任务”。这类任务往往不是一次推理就能结束：它需要规划、检索、工具调用、观察环境反馈、修正中间错误、维护任务状态，并在多轮交互中避免目标漂移。<code>Towards Long-Horizon Agents: A Survey</code> 将这种趋势概括为 <strong>long-horizon agency</strong>：Agent 需要围绕一个目标，在 reasoning、tool use、observation 与 revision 之间进行持久迭代。</p>
+<p>本文的核心判断是：<strong>Long-horizon agent 不是单纯把上下文窗口拉长，也不是简单给模型接更多工具，而是外部 Harness 工程与模型内部能力优化共同演化形成的系统级能力</strong>。外部 Harness 负责组织行为、管理状态、约束权限和验证结果；模型内部优化则让策略本身更擅长长程交互、搜索、记忆和 credit assignment。真正可用的长程智能体，最终要同时满足 capability、efficiency 与 trustworthiness。</p>
+<p>本文的写作逻辑可以概括为下面这张“问题—机制—训练—评估—安全”的架构图：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Long-Horizon Agents
+</span></span><span class="line"><span class="cl">├── 核心问题：单轮回答 → 长程持续决策
+</span></span><span class="line"><span class="cl">│   ├── 任务不再是一次生成，而是多步依赖的轨迹 τ
+</span></span><span class="line"><span class="cl">│   └── 关键瓶颈：状态膨胀、错误累积、反馈延迟、目标漂移
+</span></span><span class="line"><span class="cl">├── 系统形式化：Agent = πθ ⊕ H
+</span></span><span class="line"><span class="cl">│   ├── πθ：模型策略，负责推理、生成、工具选择与行动决策
+</span></span><span class="line"><span class="cl">│   └── H：外部 Harness，负责上下文、记忆、工具、编排、权限与验证
+</span></span><span class="line"><span class="cl">├── 能力演化：Prompt → Context → Runtime
+</span></span><span class="line"><span class="cl">│   ├── Prompt：CoT / Self-Consistency / ReAct，让推理过程显式化
+</span></span><span class="line"><span class="cl">│   ├── Context：RAG / Self-RAG / MemGPT，让信息与记忆可动态访问
+</span></span><span class="line"><span class="cl">│   └── Runtime：Reflexion / ToT / Workflow，让 Agent 能在环境中持续迭代
+</span></span><span class="line"><span class="cl">├── 双支柱路线
+</span></span><span class="line"><span class="cl">│   ├── Externalized Harness：loops、memory、tools、orchestration、hooks、verification
+</span></span><span class="line"><span class="cl">│   └── Internalized Optimization：architecture、environment synthesis、fine-tuning、agentic RL、distillation
+</span></span><span class="line"><span class="cl">├── 落地与评估
+</span></span><span class="line"><span class="cl">│   ├── 应用场景：软件工程、深度搜索、Computer Use、多模态与通用助手
+</span></span><span class="line"><span class="cl">│   └── 评价维度：Success × Cost × Safety × Traceability
+</span></span><span class="line"><span class="cl">└── 可信自治
+</span></span><span class="line"><span class="cl">    ├── Error compounding / Goal drift / Permission boundary / Memory safety
+</span></span><span class="line"><span class="cl">    └── 目标：在预算、安全边界和可审计轨迹下持续推进任务
+</span></span></code></pre></div><p>这张图也对应本文后续展开顺序：先定义 long-horizon agency，再解释技术演化和双支柱结构，随后讨论代表应用、评估方式与安全问题。</p>
+<h1 id="一从-chatbot-到-long-horizon-agent问题为什么变了">一、从 Chatbot 到 Long-Horizon Agent：问题为什么变了<a hidden class="anchor" aria-hidden="true" href="#一从-chatbot-到-long-horizon-agent问题为什么变了">#</a></h1>
+<p>传统 Chatbot 的交互单元通常是一问一答：用户给出上下文 $x$，模型生成响应 $y$。即使存在多轮对话，多数评估仍然可以近似看作局部上下文中的生成质量问题。但 Agent 任务不同：模型不只是输出文本，还要在环境中采取行动，并把行动结果作为下一步决策的输入。</p>
+<p>可以将一个长程 Agent 抽象为模型策略与外部运行时 Harness 的耦合：</p>
+$$
+\mathrm{Agent} = \pi_\theta \oplus \mathcal{H}
+$$<p>其中 $\pi_\theta$ 表示参数化模型策略，$\theta$ 是模型参数；$\mathcal{H}$ 表示围绕模型构建的 harness，包括上下文管理、记忆、工具、工作流、权限控制、验证器、日志和人类检查点等；$\oplus$ 表示二者并非简单相加，而是在运行时相互耦合。这个表达来自 survey 对 long-horizon agency 的系统视角：能力不是只存在于模型内部，而是由模型和周边运行时共同塑造。</p>
+<p>更具体地，一个 Agent 在时间步 $t$ 的行为可以抽象为：</p>
+$$
+a_t \sim \pi_\theta(\cdot \mid h_t), \quad s_{t+1} = \mathrm{Env}(s_t, a_t)
+$$<p>这里 $t$ 表示当前决策步，$h_t$ 是由任务说明、历史观察、工具返回、记忆和中间计划组成的上下文状态；$a_t$ 是第 $t$ 步动作，可以是自然语言回答、搜索查询、代码修改、API 调用、GUI 操作或对子 Agent 的调度；$s_t$ 是环境状态，$\mathrm{Env}(\cdot)$ 表示环境转移函数，$s_{t+1}$ 是执行动作后的新状态。长程任务的难点在于：总步数 $T$ 很长时，局部错误会累积，状态会膨胀，反馈会延迟，最终成功不再等价于某一步输出“看起来合理”。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/landscape.png"/>
+        <figcaption style="color: gray;">
+            图1：Long-Horizon Agent 研究版图：围绕外部 Harness 工程与模型能力内化组织的双支柱结构（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。
+        </figcaption>
+    </center>
+</div>
+<h1 id="二任务层级h1--h2--h3-与能力边界">二、任务层级：H1 / H2 / H3 与能力边界<a hidden class="anchor" aria-hidden="true" href="#二任务层级h1--h2--h3-与能力边界">#</a></h1>
+<p>Survey 将长程任务组织为三个嵌套层级：H1、H2、H3。这个划分很重要，因为它避免了把所有“比较长”的任务混为一谈。</p>
+<table>
+	<thead>
+			<tr>
+					<th>层级</th>
+					<th>时间/上下文范围</th>
+					<th>关键能力</th>
+					<th>典型例子</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>H1</td>
+					<td>单上下文窗口内，分钟级</td>
+					<td>Intra-context interactive reasoning</td>
+					<td>多步数学、短程工具调用、一次性网页问答</td>
+			</tr>
+			<tr>
+					<td>H2</td>
+					<td>跨窗口或跨 session，小时到天</td>
+					<td>Cross-context state &amp; memory</td>
+					<td>深度研究、多轮网页任务、跨文件软件修复</td>
+			</tr>
+			<tr>
+					<td>H3</td>
+					<td>跨任务、开放式任务流</td>
+					<td>Cross-task experience accumulation</td>
+					<td>持续软件工程、科研助理、长期个人助手</td>
+			</tr>
+	</tbody>
+</table>
+<p>H1 的核心挑战是推理链和局部工具调用；H2 的核心挑战是状态和记忆，因为任务已经不能被一个上下文窗口完整容纳；H3 则进一步要求 Agent 能从跨任务经验中抽取可复用技能，并在新的任务流中迁移。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/sec2_foundations.png"/>
+        <figcaption style="color: gray;">
+            图2：Long-Horizon 任务的 H1 / H2 / H3 层级及其对应能力要求（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。
+        </figcaption>
+    </center>
+</div>
+<p>这个层级也解释了为什么“长上下文模型”只是必要条件之一。长上下文可以缓解 H1 到 H2 的部分信息瓶颈，但 H2/H3 还需要更稳定的状态压缩、记忆更新、任务恢复、权限管理和过程验证。</p>
+<h1 id="三演化路径prompt--context--runtime">三、演化路径：Prompt → Context → Runtime<a hidden class="anchor" aria-hidden="true" href="#三演化路径prompt--context--runtime">#</a></h1>
+<p>Long-horizon agent 并不是突然出现的概念。Survey 将相关技术演化概括为三个阶段：Prompt Engineering、Context Engineering 和 Runtime Harnesses。它们分别对应“如何让模型想得更好”“如何让模型看到更多、更相关的信息”“如何让模型在环境中持续行动”。</p>
+<h2 id="stage-iprompt-engineering让模型显式推理">Stage I：Prompt Engineering，让模型显式推理<a hidden class="anchor" aria-hidden="true" href="#stage-iprompt-engineering让模型显式推理">#</a></h2>
+<p><a href="https://arxiv.org/abs/2201.11903">Chain-of-Thought Prompting</a> 是这一阶段的奠基工作之一。它的核心不是引入新模型，而是在 prompt 中提供中间推理步骤示例，让模型学会在答案前生成一串 reasoning steps。可以抽象为：</p>
+$$
+x \rightarrow z_1, z_2, \dots, z_k \rightarrow y
+$$<p>其中 $x$ 是问题，$z_1,\dots,z_k$ 是中间推理链，$k$ 表示推理步骤数量，$y$ 是最终答案。CoT 的重要性在于，它把“生成答案”改造成“生成可展开的求解过程”，为后续 Agent 的 plan、reflection 和 verification 提供了语言形式。</p>
+<p><a href="https://arxiv.org/abs/2203.11171">Self-Consistency</a> 进一步指出，复杂问题通常存在多条不同推理路径通向同一个正确答案。因此它不再贪心解码单条链，而是采样多条 reasoning paths，再通过答案一致性选择结果。其机制可以抽象为：</p>
+$$
+\hat{y} = \arg\max_y \sum_{i=1}^{N} \mathbf{1}\{y_i = y\}
+$$<p>这里 $y_i$ 是第 $i$ 条采样推理链得到的答案，$N$ 是采样的推理链数量，$\mathbf{1}\{y_i=y\}$ 是指示函数：当第 $i$ 条路径的答案等于候选答案 $y$ 时取 1，否则取 0；$\hat{y}$ 是获得最多一致投票的最终答案。这个思想后来在树搜索、trajectory sampling、test-time scaling 和 agentic RL 中反复出现：<strong>不要只相信一条轨迹，要让模型在多个候选轨迹之间比较、投票或验证</strong>。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/self_consistency_overview.png"/>
+        <figcaption style="color: gray;">
+            方法图（Self-Consistency）：采样多条 reasoning paths 并通过答案一致性选择最终结果（图片来源：Wang et al., Self-Consistency, ICLR 2023）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2210.03629">ReAct</a> 则是 Prompt Engineering 向 Agent Runtime 的关键过渡。它让模型交替生成 reasoning traces 和 task-specific actions，形成 Thought → Action → Observation 的循环。Reasoning trace 帮助模型跟踪计划和处理异常，Action 则让模型访问 Wikipedia API、环境或交互任务。ReAct 在 <a href="https://arxiv.org/abs/1809.09600">HotpotQA</a>、<a href="https://arxiv.org/abs/1803.05355">FEVER</a>、<a href="https://arxiv.org/abs/2010.03768">ALFWorld</a> 和 <a href="https://arxiv.org/abs/2207.01206">WebShop</a> 上展示了“推理 + 行动”交织的优势，也让 Agent 轨迹变得更可解释。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/react_teaser.png"/>
+        <figcaption style="color: gray;">
+            方法图（ReAct）：语言模型在推理轨迹与环境行动之间交替推进任务（图片来源：Yao et al., ReAct, ICLR 2023）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="stage-iicontext-engineering让模型看到更相关的信息">Stage II：Context Engineering，让模型看到更相关的信息<a hidden class="anchor" aria-hidden="true" href="#stage-iicontext-engineering让模型看到更相关的信息">#</a></h2>
+<p>Long-horizon 任务的第二个瓶颈是上下文。模型参数中的知识不够新、不够精确，也无法完整保存任务轨迹。因此，检索、压缩、选择和记忆成为核心技术。</p>
+<p><a href="https://arxiv.org/abs/2005.11401">RAG</a> 将参数化记忆与非参数化记忆结合起来：检索器先从外部语料中取回文档 $z$，生成器再基于 $x$ 和 $z$ 生成答案。RAG-Sequence 的生成概率可以概括为：</p>
+$$
+p(y \mid x) = \sum_{z \in \mathcal{Z}} p_\eta(z \mid x) p_\theta(y \mid x, z)
+$$<p>这个公式说明了 RAG 的本质：答案不是只由模型参数决定，而是对外部证据的边缘化整合。其中 $x$ 是输入问题，$y$ 是生成答案，$\mathcal{Z}$ 是可检索文档集合，$z$ 是其中一篇被检索到的文档；$p_\eta(z\mid x)$ 是由参数 $\eta$ 控制的检索器概率，$p_\theta(y\mid x,z)$ 是由参数 $\theta$ 控制的生成器在给定问题和文档后的生成概率。对于长程 Agent，RAG 的意义不只在问答，而在于让 Agent 可以在执行过程中不断补充环境知识。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/rag_architecture.png"/>
+        <figcaption style="color: gray;">
+            方法图（RAG）：参数化生成模型与非参数化检索记忆的组合架构（图片来源：Lewis et al., RAG, NeurIPS 2020）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2310.11511">Self-RAG</a> 将检索进一步变成自反式流程：模型不仅生成答案，还判断是否需要检索、检索内容是否有用、生成结果是否被证据支持。对于 long-horizon agents，这意味着 context engineering 不再是一次性检索，而是嵌入行动循环的动态决策。</p>
+<p><a href="https://arxiv.org/abs/2310.08560">MemGPT</a> 则从操作系统中借鉴分层内存思想：有限上下文窗口类似 fast memory，外部存储类似 slow memory，系统通过 virtual context management 在不同记忆层之间移动信息。它对 H2/H3 很关键，因为跨 session 对话和长文档分析不能简单依靠一个越来越长的 prompt。</p>
+<p>最新进展基本沿着“上下文不是越多越好，而是要被持续选择、压缩和验证”展开。<a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Anthropic 的 context engineering 实践</a> 把上下文视为有限运行时资源，强调 agent 需要主动管理 tool outputs、文件片段、历史摘要和任务约束；<a href="https://arxiv.org/abs/2509.13313">ReSum</a> 则针对长程搜索任务提出周期性总结，把冗长搜索历史压缩为可复用的 reasoning state；<a href="https://arxiv.org/abs/2507.02259">MemAgent</a> 和 <a href="https://arxiv.org/abs/2506.15841">MEM1</a> 进一步把记忆读写与推理协同作为训练对象，而不是仅把 memory 当成外部数据库。换言之，H2/H3 的瓶颈已经从“能不能塞进上下文”转向“能不能形成可靠的状态管理策略”。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/memgpt_system_flow.png"/>
+        <figcaption style="color: gray;">
+            方法图（MemGPT）：通过类操作系统的虚拟上下文管理在有限上下文窗口与外部记忆之间调度信息（图片来源：Packer et al., MemGPT, 2023）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="stage-iiiruntime-harnesses让模型持续行动">Stage III：Runtime Harnesses，让模型持续行动<a hidden class="anchor" aria-hidden="true" href="#stage-iiiruntime-harnesses让模型持续行动">#</a></h2>
+<p>当任务进入 H2/H3，单靠 prompt 和 context 已不足够。Agent 需要一个运行时系统来维持循环、管理状态、调度工具、检查结果。</p>
+<p><a href="https://arxiv.org/abs/2303.11366">Reflexion</a> 提出用 verbal reinforcement 替代参数更新：Agent 在任务反馈后生成反思文本，并将其放入 episodic memory buffer，供后续 trial 使用。它的核心贡献在于把 trial-and-error 转化为语言记忆，而不是每次失败后都重新训练模型。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/reflexion_framework.png" width="50%"/>
+        <figcaption style="color: gray;">
+            方法图（Reflexion）：Agent 将环境反馈转化为反思文本并写入情节记忆，以改进后续尝试（图片来源：Shinn et al., Reflexion, 2023）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts</a> 将 CoT 的单链推理推广为对“thought”节点的搜索。模型可以生成多个候选中间状态，评估其前景，并在必要时回溯。其搜索过程可以抽象为：</p>
+$$
+\tau^* = \arg\max_{\tau \in \mathcal{T}} V(\tau)
+$$<p>其中 $\mathcal{T}$ 表示候选 thought / trajectory 的搜索空间，$\tau$ 是其中一条候选推理轨迹，$V(\tau)$ 是模型或外部评估器对该轨迹前景的价值估计，$\tau^*$ 是价值最高、最终被选中的轨迹。ToT 的意义在于把推理从 left-to-right decoding 推向 deliberate search，这与后来的 agentic tree search、workflow search、multi-agent deliberation 一脉相承。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/tot_teaser.png" width="80%"/>
+        <figcaption style="color: gray;">
+            方法图（Tree of Thoughts）：将中间 thought 作为可搜索节点，在多条推理路径间评估、回溯与选择（图片来源：Yao et al., Tree of Thoughts, NeurIPS 2023）。
+        </figcaption>
+    </center>
+</div>
+<h1 id="四pillar-i外部-harness-如何承载长程能力">四、Pillar I：外部 Harness 如何承载长程能力<a hidden class="anchor" aria-hidden="true" href="#四pillar-i外部-harness-如何承载长程能力">#</a></h1>
+<p>Survey 的第一条主线是 <strong>Externalized Harness Engineering</strong>。Harness 不是简单的“工程外壳”，而是 Agent 的控制层、记忆层、工具层、验证层和安全边界。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/sec4_harness.png"/>
+        <figcaption style="color: gray;">
+            图3：Agent Harness 的关键组件：多个外部机制共同支撑一个目标在长程轨迹中持续推进（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="loops-and-workflows从线性循环到搜索式工作流">Loops and Workflows：从线性循环到搜索式工作流<a hidden class="anchor" aria-hidden="true" href="#loops-and-workflows从线性循环到搜索式工作流">#</a></h2>
+<p>最简单的 Agent loop 可以写成 observe → reason → act → observe。ReAct 是这个范式的早期代表；Reflexion 在循环外加入 memory；ToT 则把单条循环扩展为树状搜索。对于 long-horizon task，workflow 的关键不是“多执行几步”，而是每一步都必须保留足够状态，并允许 Agent 在失败后恢复。</p>
+<p>可以把一个通用工作流抽象为：</p>
+$$
+h_{t+1} = \mathrm{Update}(h_t, a_t, o_{t+1}, v_{t+1})
+$$<p>其中 $h_t$ 是第 $t$ 步之前的可行动历史状态，$a_t$ 是当前动作，$o_{t+1}$ 是动作执行后的新观察，$v_{t+1}$ 是验证器、测试、环境反馈或人类检查给出的反馈信号；$\mathrm{Update}(\cdot)$ 表示 harness 将动作、观察和反馈写回工作状态的更新过程。这个抽象强调了长程 Agent 的本质：不是一次性生成，而是持续维护可行动的历史状态。</p>
+<h2 id="context-and-memory从上下文窗口到长期经验">Context and Memory：从上下文窗口到长期经验<a hidden class="anchor" aria-hidden="true" href="#context-and-memory从上下文窗口到长期经验">#</a></h2>
+<p>Memory 是 H2/H3 的核心。工作上下文负责当前任务，长期记忆负责跨 session 和跨任务经验。MemGPT 将这个问题类比为操作系统内存管理，<a href="https://arxiv.org/abs/2305.16291">Voyager</a> 和 <a href="https://arxiv.org/abs/2308.10144">ExpeL</a> 则强调从环境经验中抽取 skill 或 textual lessons。</p>
+<p>可以将记忆更新抽象为：</p>
+$$
+m_{t+1} = \mathrm{Update}(m_t, o_t, a_t, r_t)
+$$<p>这里 $m_t$ 是第 $t$ 步前的长期或情节记忆状态，$o_t$ 是当前观察，$a_t$ 是当前动作，$r_t$ 是任务奖励、成功/失败信号或语言反馈；$\mathrm{Update}(\cdot)$ 表示将新经验写入、压缩、过滤或遗忘的记忆更新函数。这个公式不是某篇论文的原始公式，而是对长程记忆机制的抽象：Agent 需要决定什么进入长期记忆、什么被压缩、什么被遗忘、什么在未来任务中被检索。</p>
+<p>这种机制的风险也很明显：错误经验、恶意注入内容或过期信息一旦写入长期记忆，就可能跨任务传播。因此 memory 不只是能力模块，也是安全模块。</p>
+<h2 id="tools-mcp-and-skills工具从调用点变成能力接口">Tools, MCP, and Skills：工具从调用点变成能力接口<a hidden class="anchor" aria-hidden="true" href="#tools-mcp-and-skills工具从调用点变成能力接口">#</a></h2>
+<p><a href="https://arxiv.org/abs/2302.04761">Toolformer</a> 展示了语言模型可以用少量示例自监督学习工具调用：何时调用 API、传什么参数、如何把结果纳入后续 token prediction。它解决的是“模型能否学会工具使用语法与时机”的问题。</p>
+<p>但在 long-horizon agents 中，工具问题更复杂：Agent 需要在不同阶段发现工具、选择工具、组合工具、验证工具结果，并在失败时恢复。<a href="https://modelcontextprotocol.io/specification/2025-06-18">MCP</a>、<a href="https://a2a-protocol.org/latest/specification/">A2A</a>、<a href="https://agentcommunicationprotocol.dev/introduction/welcome">ACP</a> 等协议的重要性正在上升，因为工具不再是 prompt 中的一段说明，而是 Agent 生态的运行时接口。技能库则进一步把“做过的事情”封装为可复用能力：例如 <a href="https://arxiv.org/abs/2305.16291">Voyager</a> 在 Minecraft 环境中把成功行为沉淀为技能，供后续任务调用。</p>
+<p>工业界的优秀实践也在强化同一个判断：真正的 Agent 产品往往不是“一个模型 + 一段提示词”，而是围绕模型构建的可控运行时。<a href="https://www.anthropic.com/engineering/building-effective-agents">Anthropic 的 Building Effective Agents</a> 和 <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing Tools for Agents</a> 强调 workflow、tool design、反馈回路和人类检查点；<a href="https://openai.com/index/introducing-codex/">OpenAI Codex</a> 与后续 <a href="https://openai.com/index/harness-engineering/">harness engineering</a> 实践则把软件工程 Agent 放在云端隔离环境中，通过仓库上下文、测试、日志和 review loop 推进任务。这些实践说明，tool use 的关键不是“能调用 API”，而是让工具接口、权限边界、执行环境和验证机制共同组成可恢复的 harness。</p>
+<h2 id="orchestration从单-agent-到多-agent-协作">Orchestration：从单 Agent 到多 Agent 协作<a hidden class="anchor" aria-hidden="true" href="#orchestration从单-agent-到多-agent-协作">#</a></h2>
+<p>当任务需要不同角色、不同工具或并行探索时，单 Agent loop 会变得笨重。<a href="https://arxiv.org/abs/2308.00352">MetaGPT</a>、<a href="https://arxiv.org/abs/2308.08155">AutoGen</a>、<a href="https://arxiv.org/abs/2307.07924">ChatDev</a> 等工作将多 Agent 协作引入软件开发和复杂任务执行：一个 Agent 负责需求分析，另一个负责编码，另一个负责测试或评审。最新系统如 <a href="https://arxiv.org/abs/2411.04468">Magentic-One</a> 进一步把多 Agent 协作抽象为 generalist multi-agent system：外层 orchestrator 负责分解任务、选择专门 agent、汇总观察并决定是否继续执行；<a href="https://arxiv.org/abs/2407.16741">OpenHands</a> 则把软件开发 agent 平台化，让浏览器、终端、编辑器和评测器成为统一的 agent-computer interface。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/magentic_one_orchestrator.png"/>
+        <figcaption style="color: gray;">
+            方法图（Magentic-One）：由 Orchestrator 调度专门 Agent、工具与事件流来完成复杂任务（图片来源：Microsoft Research, Magentic-One, 2024）。
+        </figcaption>
+    </center>
+</div>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/openhands_architecture.png"/>
+        <figcaption style="color: gray;">
+            方法图（OpenHands）：软件开发 Agent 平台中的 runtime、sandbox、工具与观察反馈结构（图片来源：Wang et al., OpenHands, ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>可以将多 Agent 协作抽象为：</p>
+$$
+a_t^{(i)} \sim \pi_{\theta_i}(\cdot \mid h_t^{(i)}, M_t), \quad i=1,\dots,n
+$$<p>其中 $i$ 是 Agent 编号，$n$ 是参与协作的 Agent 数量；$\pi_{\theta_i}$ 表示第 $i$ 个 Agent 的策略，$\theta_i$ 是其模型或角色参数；$h_t^{(i)}$ 是该 Agent 在第 $t$ 步看到的局部历史，$M_t$ 是共享消息池、黑板状态或团队协作上下文；$a_t^{(i)}$ 是第 $i$ 个 Agent 在当前步产生的动作。多 Agent 的优势是分工和冗余，风险是通信成本、角色幻觉和责任归因困难。长程任务越复杂，orchestration 越像一个系统设计问题，而不是单纯的 prompt 设计问题。</p>
+<h2 id="hooks-middleware-verification长程执行必须可控可审计">Hooks, Middleware, Verification：长程执行必须可控可审计<a hidden class="anchor" aria-hidden="true" href="#hooks-middleware-verification长程执行必须可控可审计">#</a></h2>
+<p>Hooks 和 middleware 让 Agent 在行动前后经过检查：是否越权、是否触发风险、是否需要人类批准。Verification 则负责判断轨迹是否朝目标前进。</p>
+<p>在强化学习视角下，一条轨迹的回报可以写为：</p>
+$$
+R(\tau) = \sum_{t=1}^{T} \gamma^{t-1} r_t
+$$<p>其中 $\tau$ 表示完整执行轨迹，$R(\tau)$ 是该轨迹的累计回报，$T$ 是轨迹长度，$r_t$ 是第 $t$ 步的即时奖励或过程反馈，$\gamma\in[0,1]$ 是折扣因子，用来控制越靠后的反馈在累计回报中的权重。长程任务的困难在于 $r_t$ 往往稀疏且延迟：最终失败可能源于很早的一次错误检索、错误工具调用或错误假设。因此，process reward、step-level verification 和 agent-as-a-judge 变得重要。<a href="https://arxiv.org/abs/2305.11738">CRITIC</a>、<a href="https://arxiv.org/abs/2505.15277">Web-Shepherd</a>、<a href="https://arxiv.org/abs/2604.14820">SWE-TRACE</a> 等方向都在尝试把验证信号从最终结果扩展到中间过程。</p>
+<h1 id="五pillar-ii模型如何内化长程能力">五、Pillar II：模型如何内化长程能力<a hidden class="anchor" aria-hidden="true" href="#五pillar-ii模型如何内化长程能力">#</a></h1>
+<p>第二条主线是 <strong>Internalized Model Optimization</strong>。外部 Harness 可以组织行为，但如果模型本身不具备长期规划、工具理解、轨迹反思和 credit assignment 能力，Harness 也只能不断补丁化。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/sec5_optimization.png"/>
+        <figcaption style="color: gray;">
+            图4：Agentic training pipeline：从架构底座到数据/环境合成、训练、强化学习、蒸馏与自演化（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="architectural-substrate长上下文是底座不是答案">Architectural Substrate：长上下文是底座，不是答案<a hidden class="anchor" aria-hidden="true" href="#architectural-substrate长上下文是底座不是答案">#</a></h2>
+<p><a href="https://arxiv.org/abs/2004.05150">Longformer</a>、<a href="https://arxiv.org/abs/2007.14062">BigBird</a>、<a href="https://arxiv.org/abs/2312.00752">Mamba</a>、<a href="https://arxiv.org/abs/2006.16236">linear attention</a>、<a href="https://arxiv.org/abs/2101.03961">MoE</a> 和 <a href="https://arxiv.org/abs/2211.17192">speculative decoding</a> 等技术改善了长上下文容量和推理效率。但长上下文本身不等于 long-horizon agency。模型可以“看到”更多 token，并不意味着它能识别哪些信息重要、何时压缩、何时调用工具、如何恢复失败。</p>
+<p>因此，结构改进是底座；真正的长程能力还需要训练目标、环境反馈和运行时协议共同塑造。</p>
+<h2 id="data-and-environment-synthesis训练-agent-需要可交互环境">Data and Environment Synthesis：训练 Agent 需要可交互环境<a hidden class="anchor" aria-hidden="true" href="#data-and-environment-synthesis训练-agent-需要可交互环境">#</a></h2>
+<p>长程任务的训练数据不能只是一条输入输出对。Agent 需要在环境中试错，获得中间观察和最终反馈。WebArena、OSWorld、<a href="https://arxiv.org/abs/2412.21139">SWE-Gym</a>、<a href="https://arxiv.org/abs/2509.08755">AgentGym-RL</a>、<a href="https://arxiv.org/abs/2308.03688">AgentBench</a> 等工作的共同意义，是把真实或近真实环境变成可训练、可评估、可复现的 arena。近期 <a href="https://arxiv.org/abs/2509.08755">AgentGym-RL</a> 明确把多轮环境交互、轨迹采样和强化学习训练整合为开源框架；<a href="https://arxiv.org/abs/2604.18292">Agent-World</a> 和 <a href="https://arxiv.org/abs/2507.15061">WebShaper</a> 则强调通过环境/任务合成扩大训练覆盖面。它们都指向一个趋势：长程能力不能只靠静态 instruction tuning，需要可交互世界、可复现奖励和可扩展数据引擎。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/agentgym_rl_framework.png"/>
+        <figcaption style="color: gray;">
+            方法图（AgentGym-RL）：面向多环境、多轮交互的 Agent 强化学习训练框架（图片来源：AgentGym-RL Team, AgentGym-RL, 2025）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2307.13854">WebArena</a> 构建了包含电商、论坛、协作开发、内容管理等网站的真实网页环境，并给出长程、多样的网页任务。论文报告中，最佳 GPT-4-based agent 的端到端成功率仅 14.41%，显著低于人类 78.24%。这说明真实网页任务不是“会调用浏览器”就能解决，Agent 还必须具备状态跟踪、页面理解和错误恢复能力。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/webarena_environment.png"/>
+        <figcaption style="color: gray;">
+            方法图（WebArena）：由多个真实功能网站构成的网页 Agent 评估环境（图片来源：Zhou et al., WebArena, 2023）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2404.07972">OSWorld</a> 则将评估推进到真实计算机环境：Ubuntu、Windows、macOS 上的文件 I/O、网页、桌面应用和跨应用工作流。它包含 369 个开放式计算机任务，并使用执行式评估脚本保证可复现。论文报告中，人类能完成 72.36% 以上任务，而最佳模型仅 12.24%，主要困难在 GUI grounding 和操作知识。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/osworld_architecture.png"/>
+        <figcaption style="color: gray;">
+            方法图（OSWorld）：真实操作系统环境中的任务初始化、交互执行与脚本化评估流程（图片来源：Xie et al., OSWorld, 2024）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="fine-tuning-and-agent-tuning从会说到会做">Fine-tuning and Agent Tuning：从会说到会做<a hidden class="anchor" aria-hidden="true" href="#fine-tuning-and-agent-tuning从会说到会做">#</a></h2>
+<p><a href="https://arxiv.org/abs/2310.12823">AgentTuning</a>、<a href="https://arxiv.org/abs/2310.05915">FireAct</a>、tool-use fine-tuning 等工作试图把 Agent 轨迹纳入监督微调，让模型不仅生成语言答案，也学会工具调用、反思、规划和执行格式。它们的重要性在于：长期依赖任务需要模型熟悉交互协议，而不是每次都靠 prompt 现场教会。</p>
+<p>但监督微调也有局限：它容易复现训练轨迹中的行为模式，却不一定能处理新环境中的失败恢复和探索。因此，agentic reinforcement learning 成为下一阶段重点。</p>
+<h2 id="agentic-reinforcement-learning从静态数据到轨迹优化">Agentic Reinforcement Learning：从静态数据到轨迹优化<a hidden class="anchor" aria-hidden="true" href="#agentic-reinforcement-learning从静态数据到轨迹优化">#</a></h2>
+<p>对于长程任务，优化目标自然落在轨迹层面：</p>
+$$
+J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta}\left[\sum_{t=1}^{T} \gamma^{t-1} r_t\right]
+$$<p>其中 $J(\theta)$ 是要优化的策略目标，$\theta$ 是模型策略参数，$\mathbb{E}_{\tau\sim\pi_\theta}[\cdot]$ 表示对策略 $\pi_\theta$ 采样得到的轨迹取期望；$T$ 是轨迹长度，$r_t$ 是第 $t$ 步奖励，$\gamma$ 是折扣因子。换言之，训练目标不是让单步输出看起来更好，而是让整条轨迹在长期累计反馈上更优。困难在于：长程任务的奖励通常稀疏、延迟且不完全可验证。</p>
+<p><a href="https://arxiv.org/abs/2503.09516">Search-R1</a> 是长程信息检索场景中的代表。它让 LLM 在逐步推理中自主生成多轮搜索查询，并通过真实检索结果优化推理轨迹。论文强调 retrieved token masking 和简单 outcome-based reward 对稳定 RL 训练的作用，并在七个问答数据集上相对 RAG baseline 有明显提升。它的意义在于：搜索不再是外部固定模块，而成为模型策略可学习的一部分。</p>
+<p>围绕 deep research 的最新工作进一步把搜索、阅读、压缩和写作都纳入 agentic RL。<a href="https://arxiv.org/abs/2505.22648">WebDancer</a> 关注 autonomous information seeking agency，让模型通过采样和强化学习改进多轮搜索策略；<a href="https://arxiv.org/abs/2507.02592">WebSailor</a> 试图把复杂网页推理能力推进到接近或超过人类的水平；<a href="https://arxiv.org/abs/2510.24701">Tongyi DeepResearch</a> 和 <a href="https://arxiv.org/abs/2603.20278">OpenResearcher</a> 则展示了端到端合成长程研究轨迹、训练开放 deep research agent 的路线。相比早期 RAG，这些工作更像是在训练一个“会研究的策略”，而不是训练一个“会引用检索结果的生成器”。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/webdancer_framework.png"/>
+        <figcaption style="color: gray;">
+            方法图（WebDancer）：通过采样、强化学习和检索交互训练面向深度搜索的 Agent 策略（图片来源：Alibaba-NLP et al., WebDancer, NeurIPS 2025）。
+        </figcaption>
+    </center>
+</div>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/search_r1_framework.png"/>
+        <figcaption style="color: gray;">
+            方法图（Search-R1）：通过强化学习让模型在推理过程中自主生成搜索查询并利用实时检索结果（图片来源：Jin et al., Search-R1, 2025）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2507.17746">Rubrics as Rewards</a> 则回应了“现实任务不可验证”的问题。数学和代码可以用最终答案正确性做 RLVR，但医疗、科学问答、deep research、Agent 决策往往需要多维标准。RaR 用 instance-specific rubrics 作为 on-policy RL 的奖励信号，可以抽象为：</p>
+$$
+R_{\mathrm{rubric}}(\tau) = \sum_{k=1}^{K} w_k \cdot s_k(\tau)
+$$<p>这里 $K$ 是 rubric 条目数量，$s_k(\tau)$ 表示轨迹或回答是否满足第 $k$ 个评价标准，$w_k$ 是该条标准的权重；$R_{\mathrm{rubric}}(\tau)$ 是把多条 rubric 反馈聚合后的轨迹级奖励。这个公式是对 rubric reward 的抽象化表达。它与 long-horizon agents 的关系非常直接：越长的任务越难只靠一个最终标量判断质量，越需要结构化、可追溯的评价标准。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/rar_framework.png"/>
+        <figcaption style="color: gray;">
+            方法图（Rubrics as Rewards）：将实例级 rubric feedback 聚合为可用于 on-policy RL 的奖励信号（图片来源：Gunjal et al., Rubrics as Rewards, 2025）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="on-policy-distillation-and-self-evolution把经验内化为策略">On-Policy Distillation and Self-Evolution：把经验内化为策略<a hidden class="anchor" aria-hidden="true" href="#on-policy-distillation-and-self-evolution把经验内化为策略">#</a></h2>
+<p>长期看，Harness 中的显式能力可能逐步被模型内化：反思、工具选择、上下文压缩、验证启发式都可能从外部规则变成模型策略的一部分。<a href="https://arxiv.org/abs/2203.14465">STaR</a>、自蒸馏、on-policy distillation 和 self-evolving agents 都属于这个方向。</p>
+<p>但这也引出安全问题：如果 Agent 能改写自身策略、技能库或 Harness 配置，那么原有安全不变量是否仍成立？这正是后文 Trustworthy Long-Horizon Agents 需要讨论的核心。</p>
+<h1 id="六应用版图长程能力在哪里真正被检验">六、应用版图：长程能力在哪里真正被检验<a hidden class="anchor" aria-hidden="true" href="#六应用版图长程能力在哪里真正被检验">#</a></h1>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/sec6_applications.png"/>
+        <figcaption style="color: gray;">
+            图5：Long-Horizon Agent 的代表性应用形态，按 Agent 与环境的接口组织（图片来源：Dong et al., Towards Long-Horizon Agents: A Survey, 2026）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="software-engineering仓库级任务是天然长程场景">Software Engineering：仓库级任务是天然长程场景<a hidden class="anchor" aria-hidden="true" href="#software-engineering仓库级任务是天然长程场景">#</a></h2>
+<p><a href="https://arxiv.org/abs/2310.06770">SWE-bench</a> 将真实 GitHub issues 和 pull requests 转化为评估任务，包含 2,294 个来自 12 个 Python 仓库的软件工程问题。模型需要理解代码库、定位 bug、修改多个文件并通过测试。论文早期评估中，Claude 2 只能解决 1.96% 的问题，说明真实软件工程远超传统代码生成。</p>
+<p>SWE-agent、OpenHands、SWE-Bench Pro、Terminal-Bench 等后续工作进一步强调 agent-computer interface、shell / editor / test feedback 和 long-horizon repository grounding。软件工程之所以重要，是因为它同时包含长上下文、工具执行、错误反馈、可验证测试和安全边界。</p>
+<p>最新一代 coding agent 的进展尤其能体现“model + harness”的系统化竞争。<a href="https://arxiv.org/abs/2405.15793">SWE-agent</a> 证明了 agent-computer interface 本身会显著影响软件修复能力；<a href="https://arxiv.org/abs/2509.16941">SWE-Bench Pro</a> 进一步提高任务难度和抗污染能力，迫使 agent 处理更长、更真实的仓库级问题；<a href="https://arxiv.org/abs/2601.11868">Terminal-Bench</a> 则把评估推进到真实终端任务，覆盖安装、调试、数据处理和系统操作。<a href="https://code.claude.com/docs/en/overview">Claude Code</a>、<a href="https://openai.com/index/introducing-codex/">OpenAI Codex</a>、<a href="https://arxiv.org/abs/2507.23370">Trae Agent</a> 与 OpenHands 等实践说明，工业界的关键优化点往往不是单次代码生成，而是 sandbox、测试反馈、仓库索引、任务拆解、权限控制和人类 review 的闭环。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/swe_agent_overview.png"/>
+        <figcaption style="color: gray;">
+            方法图（SWE-agent）：通过 Agent-Computer Interface 将语言模型动作映射到终端、文件系统与环境反馈（图片来源：Yang et al., SWE-agent, NeurIPS 2024）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="information-seeking--deep-research搜索从辅助模块变成训练目标">Information Seeking / Deep Research：搜索从辅助模块变成训练目标<a hidden class="anchor" aria-hidden="true" href="#information-seeking--deep-research搜索从辅助模块变成训练目标">#</a></h2>
+<p>Deep research 任务要求 Agent 在多轮搜索中形成问题分解、证据收集、冲突消解和报告生成。<a href="https://arxiv.org/abs/2503.09516">Search-R1</a>、<a href="https://arxiv.org/abs/2505.22648">WebDancer</a>、<a href="https://arxiv.org/abs/2509.13309">WebResearcher</a>、<a href="https://arxiv.org/abs/2509.13313">ReSum</a> 等工作都指向同一趋势：模型不只是“拿到检索结果后回答”，而是学习如何提出更好的查询、何时继续搜索、何时压缩历史、如何引用证据。</p>
+<p>这一方向的 benchmark 也在快速升级。<a href="https://arxiv.org/abs/2504.12516">BrowseComp</a> 用简单但困难的网页浏览问题测试模型能否在开放网页中找到稀缺证据；<a href="https://arxiv.org/abs/2506.11763">DeepResearch Bench</a> 则把评估对象扩展到长报告生成、跨源验证和复杂研究流程；<a href="https://arxiv.org/abs/2509.13313">ReSum</a> 从 context summarization 角度解决长程搜索历史过长的问题。这些工作共同表明，deep research 的核心不只是检索召回率，而是多轮计划、证据状态管理和最终论证质量。</p>
+<p>这类任务尤其适合用 long-horizon 视角理解，因为失败往往不是单点错误，而是早期错误假设导致后续搜索方向整体偏移。</p>
+<h2 id="computer-use真实-gui-暴露长程脆弱性">Computer Use：真实 GUI 暴露长程脆弱性<a hidden class="anchor" aria-hidden="true" href="#computer-use真实-gui-暴露长程脆弱性">#</a></h2>
+<p><a href="https://arxiv.org/abs/2307.13854">WebArena</a> 和 <a href="https://arxiv.org/abs/2404.07972">OSWorld</a> 表明，真实环境中的 Agent 需要视觉理解、状态跟踪、操作知识和执行反馈。<a href="https://arxiv.org/abs/2405.14573">AndroidWorld</a>、<a href="https://arxiv.org/abs/2501.12326">UI-TARS</a> 等移动端/GUI agent 工作进一步扩大了这一挑战：页面结构变化、视觉 grounding、权限弹窗和跨应用切换都会让轨迹变长且更脆弱。近期 <a href="https://arxiv.org/abs/2509.02544">UI-TARS-2</a> 强调通过多轮强化学习提升 GUI agent 的持续操作能力；<a href="https://arxiv.org/abs/2510.24563">OSWorld-MCP</a> 则把 MCP 工具调用纳入 computer-use 评估，说明 GUI 与工具协议正在融合。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/ui_tars2_framework.png"/>
+        <figcaption style="color: gray;">
+            方法图（UI-TARS-2）：面向 GUI 操作的多轮交互、观察反馈与强化学习流程（图片来源：UI-TARS Team, UI-TARS-2, 2025）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="multimodal-and-general-purpose-agents">Multimodal and General-Purpose Agents<a hidden class="anchor" aria-hidden="true" href="#multimodal-and-general-purpose-agents">#</a></h2>
+<p>多模态 Agent 把 long-horizon 问题扩展到视频、文档、图像、网页和语音。<a href="https://arxiv.org/abs/2403.10517">VideoAgent</a>、<a href="https://arxiv.org/abs/2603.20185">VideoSeek</a>、<a href="https://arxiv.org/abs/2605.05185">OpenSearch-VL</a>、<a href="https://arxiv.org/abs/2602.22897">OmniGAIA</a> 等方向都需要在跨模态证据中持续定位与推理。General-purpose agents 如 <a href="https://arxiv.org/abs/2311.12983">GAIA</a>、<a href="https://arxiv.org/abs/2408.06292">AI Scientist</a>、<a href="https://arxiv.org/abs/2506.13131">AlphaEvolve</a>、<a href="https://arxiv.org/abs/2501.14654">MedAgentBench</a>、<a href="https://arxiv.org/abs/2412.17259">LegalAgentBench</a> 则把任务推进到科研、医疗、法律等高风险领域。</p>
+<p>通用 Agent 产品和基准正在把“长期自主执行”推向更接近真实工作的形态。<a href="https://arxiv.org/abs/2412.14161">TheAgentCompany</a> 在模拟软件公司中评估 agent 完成专业办公任务的能力；<a href="https://manus.im">Manus</a> 与 <a href="https://github.com/FoundationAgents/OpenManus">OpenManus</a> 等实践把浏览器、文件、代码执行和报告生成组合为面向普通用户的通用代理；<a href="https://arxiv.org/abs/2311.12983">GAIA</a> 则用需要网页、工具和多步推理的通用助手任务检验模型能力。这些系统的共同特征是：任务结果往往跨越多个应用和中间产物，评估也必须关注过程可追踪性。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/theagentcompany_overview.png"/>
+        <figcaption style="color: gray;">
+            方法图（TheAgentCompany）：在模拟软件公司中评估 Agent 使用浏览器、终端、代码和社交工具完成真实工作任务的能力（图片来源：Xu et al., TheAgentCompany, NeurIPS 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>这些场景共同说明：Agent 的评估不能只看最终文本质量，还要看轨迹是否可靠、证据是否可追踪、工具调用是否合规。</p>
+<h1 id="七benchmarks-and-resources如何评价长程">七、Benchmarks and Resources：如何评价“长程”<a hidden class="anchor" aria-hidden="true" href="#七benchmarks-and-resources如何评价长程">#</a></h1>
+<p>普通 LLM benchmark 往往评估一个答案，而 long-horizon benchmark 需要评估一条轨迹。一个更合理的评价视角可以抽象为：</p>
+$$
+\mathrm{Score} = f(\mathrm{Success}, \mathrm{Cost}, \mathrm{Safety}, \mathrm{Traceability})
+$$<p>这不是某篇论文的原始公式，而是本文对 long-horizon evaluation 的抽象。其中 $\mathrm{Score}$ 表示综合评价结果，$f(\cdot)$ 表示把多个评价维度聚合起来的函数；不同 benchmark 可以选择不同的聚合方式，例如加权平均、门槛约束或分维度报告。它强调四点：</p>
+<ol>
+<li><strong>Success</strong>：任务是否真正完成，而不是回答是否像完成了。</li>
+<li><strong>Cost</strong>：token、工具调用次数、墙钟时间和人工介入是否可接受。</li>
+<li><strong>Safety</strong>：是否越权、是否执行危险操作、是否抵抗恶意指令。</li>
+<li><strong>Traceability</strong>：轨迹、证据和中间决策是否可审计。</li>
+</ol>
+<p><a href="https://arxiv.org/abs/2310.06770">SWE-bench</a>、<a href="https://arxiv.org/abs/2307.13854">WebArena</a>、<a href="https://arxiv.org/abs/2404.07972">OSWorld</a>、<a href="https://arxiv.org/abs/2405.14573">AndroidWorld</a>、<a href="https://arxiv.org/abs/2504.12516">BrowseComp</a>、<a href="https://arxiv.org/abs/2506.11763">DeepResearch Bench</a>、<a href="https://arxiv.org/abs/2311.12983">GAIA</a>、<a href="https://arxiv.org/abs/2406.12045">τ-bench</a>、<a href="https://arxiv.org/abs/2503.14499">METR time-horizon measurements</a> 等资源分别覆盖软件工程、网页、桌面、移动端、信息检索和通用助手能力。<a href="https://arxiv.org/abs/2412.14161">TheAgentCompany</a> 与 <a href="https://arxiv.org/abs/2601.11868">Terminal-Bench</a> 进一步强调真实工作流和终端环境中的长期执行能力；<a href="https://arxiv.org/abs/2509.16941">SWE-Bench Pro</a> 则提醒我们，原始 benchmark 一旦被模型和 agent 反复优化，就需要更强的去污染和长程难度设计。未来更关键的问题是：这些 benchmark 能否反映真实部署中的风险、成本和长期稳定性。</p>
+<h1 id="八ai-safety--trustworthy-long-horizon-agents">八、AI Safety / Trustworthy Long-Horizon Agents<a hidden class="anchor" aria-hidden="true" href="#八ai-safety--trustworthy-long-horizon-agents">#</a></h1>
+<p>Long-horizon agents 的安全问题不是普通 chatbot safety 的简单放大，而是由长轨迹、工具权限、记忆复用和自演化共同带来的结构性风险。</p>
+<h2 id="error-compounding错误会沿轨迹放大">Error Compounding：错误会沿轨迹放大<a hidden class="anchor" aria-hidden="true" href="#error-compounding错误会沿轨迹放大">#</a></h2>
+<p>如果每一步都有小概率错误，那么轨迹越长，最终成功率越容易下降。可以用一个简化抽象说明：</p>
+$$
+P(\mathrm{success}) \approx \prod_{t=1}^{T} P(e_t = 0 \mid h_t)
+$$<p>这里 $T$ 是轨迹长度，$e_t$ 表示第 $t$ 步是否发生关键错误，$h_t$ 是第 $t$ 步前的历史状态，$P(e_t=0\mid h_t)$ 表示在当前历史条件下第 $t$ 步不出错的概率。这个公式不是论文原公式，而是为了说明长程任务中的错误累积效应：即使单步可靠性较高，长轨迹也会让失败概率迅速累积。</p>
+<h2 id="goal-drift目标在多次重规划中漂移">Goal Drift：目标在多次重规划中漂移<a hidden class="anchor" aria-hidden="true" href="#goal-drift目标在多次重规划中漂移">#</a></h2>
+<p>Agent 在长程执行中会不断 summarize、replan、reflect。每一次改写任务状态都有可能丢失用户原始约束。缓解思路包括 task spec anchoring、周期性目标校验、关键节点人工确认和轨迹级差异检查。</p>
+<h2 id="tool--permission-boundary工具权限边界成为安全核心">Tool / Permission Boundary：工具权限边界成为安全核心<a hidden class="anchor" aria-hidden="true" href="#tool--permission-boundary工具权限边界成为安全核心">#</a></h2>
+<p>当 Agent 能访问浏览器、文件系统、API、数据库和代码执行环境时，安全边界不能只靠“模型不要做坏事”的 prompt。AgentBound 这类工作将 MCP 服务器纳入访问控制框架，用声明式 policy 和 enforcement engine 限制工具权限。它代表了一个重要趋势：<strong>Agent safety 必须从模型对齐扩展到运行时访问控制</strong>。</p>
+<h2 id="memory-safety危险经验会被复用">Memory Safety：危险经验会被复用<a hidden class="anchor" aria-hidden="true" href="#memory-safety危险经验会被复用">#</a></h2>
+<p>长程 Agent 的长期记忆可能保存错误结论、敏感信息、恶意注入内容或过期经验。如果这些内容在未来任务中被检索，它们会跨任务传播风险。因此，memory provenance、trust scoring、expiration、quarantine 和可撤销记忆都应成为 Harness 的一部分。</p>
+<h2 id="agent-harmfulness有工具的模型更危险">Agent Harmfulness：有工具的模型更危险<a hidden class="anchor" aria-hidden="true" href="#agent-harmfulness有工具的模型更危险">#</a></h2>
+<p><a href="https://arxiv.org/abs/2410.09024">AgentHarm</a> 针对 LLM agent misuse 提出 110 个显式恶意 agent tasks，增强后为 440 个，覆盖 fraud、cybercrime、harassment 等 11 类危害。其关键发现是：领先 LLM 对恶意 agent 请求的拒绝并不总是可靠，简单通用 jailbreak 也可以迁移到 agent 场景，并使模型保持多步恶意任务执行能力。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/agentharm_overview.png"/>
+        <figcaption style="color: gray;">
+            方法图（AgentHarm）：面向恶意多步 Agent 任务的 harmfulness benchmark 构成与评估流程（图片来源：Andriushchenko et al., AgentHarm, ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2412.14470">Agent-SafetyBench</a> 则构建了 349 个交互环境和 2,000 个测试用例，覆盖 8 类安全风险和 10 类常见失败模式。论文评估 16 个代表性 LLM agents 后发现，没有一个 agent 的 safety score 超过 60%，并总结出两个根本缺陷：缺乏鲁棒性与缺乏风险意识。</p>
+<div>
+    <center>
+        <img src="/blog_img/long_horizon_agents/agent_safetybench_overview.png"/>
+        <figcaption style="color: gray;">
+            方法图（Agent-SafetyBench）：覆盖多类风险、交互环境与失败模式的 Agent 安全评估框架（图片来源：Zhang et al., Agent-SafetyBench, 2024）。
+        </figcaption>
+    </center>
+</div>
+<p>这些结果说明：长程 Agent 的安全评估必须包含交互环境、工具使用和多步执行，而不能只测试单轮拒答。</p>
+<h1 id="九开放问题下一阶段会在哪里突破">九、开放问题：下一阶段会在哪里突破<a hidden class="anchor" aria-hidden="true" href="#九开放问题下一阶段会在哪里突破">#</a></h1>
+<p>Survey 将前沿问题组织为 Evolution、Effectiveness、Efficiency、Trustworthiness 四条轴线。结合上文，可以总结为以下几个方向。</p>
+<ol>
+<li><strong>Harness transferability</strong>：同一个模型在不同 Harness 下表现可能完全不同。未来需要标准化接口、可迁移 workflow 和可比较的系统级评估。</li>
+<li><strong>Continual and lifelong learning</strong>：外部记忆容易浅层化，内部更新又可能遗忘或破坏安全边界。如何稳定积累跨任务经验仍是开放问题。</li>
+<li><strong>Real-world environment interaction</strong>：合成环境可控但不真实，真实环境真实但不可控。训练环境的 fidelity 会决定 Agent 能否迁移到部署场景。</li>
+<li><strong>Cost-aware agency</strong>：长程任务不能无限搜索、无限调用工具。Agent 必须学习预算感，知道何时继续探索、何时停止。</li>
+<li><strong>Trustworthy self-evolution</strong>：自演化 Agent 很诱人，但它可能绕过原本的安全不变量。未来需要把 formal policy、runtime hooks 和 audit logs 纳入 self-evolution loop。</li>
+</ol>
+<p>下一阶段的竞争不会只发生在单模型榜单上，而会发生在 <strong>model + harness + environment + verifier</strong> 的系统组合上。一个模型是否“聪明”固然重要，但在长程任务中，更重要的是它是否能在可控成本和安全边界内持续推进任务。</p>
+<h1 id="十总结">十、总结<a hidden class="anchor" aria-hidden="true" href="#十总结">#</a></h1>
+<p>Long-horizon agent 的核心是“长期依赖关系下的持续决策”。从 CoT、Self-Consistency 到 ReAct、ToT，再到 WebArena、OSWorld、Search-R1 与 Agent-SafetyBench，研究主线正在从单步推理转向轨迹级能力。</p>
+<p>Survey 提出的双支柱框架非常关键：外部 Harness 让能力可组织、可扩展、可审计；内部优化让模型逐步学会规划、检索、反思、工具调用和长期 credit assignment。二者不是替代关系，而是共同演化。</p>
+<p>真正可用的长程智能体，不能只追求更长轨迹或更高成功率，还必须回答三个问题：它花了多少成本？它是否遵守权限和安全边界？它的过程能否被验证与追责？这也是 Long-Horizon Agents 从研究原型走向真实生产系统必须跨过的门槛。</p>
+<h1 id="citation">Citation<a hidden class="anchor" aria-hidden="true" href="#citation">#</a></h1>
+<blockquote>
+<p>本文为个人调研整理，核心内容参考 <a href="https://github.com/RUC-NLPIR/Awesome-Long-Horizon-Agents">RUC-NLPIR/Awesome-Long-Horizon-Agents</a> 与 <em>Towards Long-Horizon Agents: A Survey</em>。如需引用具体观点与方法，请以原始论文为准。</p>
+</blockquote>
+<h1 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h1>
+<p>[1] Dong et al. <a href="https://github.com/RUC-NLPIR/Awesome-Long-Horizon-Agents">“Towards Long-Horizon Agents: A Survey.”</a> Preprints 2026.</p>
+<p>[2] Wei et al. <a href="https://arxiv.org/abs/2201.11903">“Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.”</a> arXiv 2022.</p>
+<p>[3] Wang et al. <a href="https://arxiv.org/abs/2203.11171">“Self-Consistency Improves Chain of Thought Reasoning in Language Models.”</a> ICLR 2023.</p>
+<p>[4] Yao et al. <a href="https://arxiv.org/abs/2210.03629">“ReAct: Synergizing Reasoning and Acting in Language Models.”</a> arXiv 2022.</p>
+<p>[5] Lewis et al. <a href="https://arxiv.org/abs/2005.11401">“Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.”</a> NeurIPS 2020.</p>
+<p>[6] Asai et al. <a href="https://arxiv.org/abs/2310.11511">“Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection.”</a> ICLR 2024.</p>
+<p>[7] Packer et al. <a href="https://arxiv.org/abs/2310.08560">“MemGPT: Towards LLMs as Operating Systems.”</a> arXiv 2023.</p>
+<p>[8] Shinn et al. <a href="https://arxiv.org/abs/2303.11366">“Reflexion: Language Agents with Verbal Reinforcement Learning.”</a> arXiv 2023.</p>
+<p>[9] Yao et al. <a href="https://arxiv.org/abs/2305.10601">“Tree of Thoughts: Deliberate Problem Solving with Large Language Models.”</a> NeurIPS 2023.</p>
+<p>[10] Schick et al. <a href="https://arxiv.org/abs/2302.04761">“Toolformer: Language Models Can Teach Themselves to Use Tools.”</a> arXiv 2023.</p>
+<p>[11] Jimenez et al. <a href="https://arxiv.org/abs/2310.06770">“SWE-bench: Can Language Models Resolve Real-World GitHub Issues?”</a> ICLR 2024.</p>
+<p>[12] Zhou et al. <a href="https://arxiv.org/abs/2307.13854">“WebArena: A Realistic Web Environment for Building Autonomous Agents.”</a> arXiv 2023.</p>
+<p>[13] Xie et al. <a href="https://arxiv.org/abs/2404.07972">“OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments.”</a> arXiv 2024.</p>
+<p>[14] Jin et al. <a href="https://arxiv.org/abs/2503.09516">“Search-R1: Training LLMs to Reason and Leverage Search Engines with Reinforcement Learning.”</a> arXiv 2025.</p>
+<p>[15] Gunjal et al. <a href="https://arxiv.org/abs/2507.17746">“Rubrics as Rewards: Reinforcement Learning Beyond Verifiable Domains.”</a> arXiv 2025.</p>
+<p>[16] Andriushchenko et al. <a href="https://arxiv.org/abs/2410.09024">“AgentHarm: A Benchmark for Measuring Harmfulness of LLM Agents.”</a> ICLR 2025.</p>
+<p>[17] Zhang et al. <a href="https://arxiv.org/abs/2412.14470">“Agent-SafetyBench: Evaluating the Safety of LLM Agents.”</a> arXiv 2024.</p>
+<p>[18] Bühler et al. <a href="https://arxiv.org/abs/2510.21236">“AgentBound: Securing Execution Boundaries of AI Agents.”</a> FSE 2026.</p>
+<p>[19] Anthropic. <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">“Effective Context Engineering for AI Agents.”</a> Engineering Blog 2025.</p>
+<p>[20] Alibaba-NLP et al. <a href="https://arxiv.org/abs/2509.13313">“ReSum: Unlocking Long-Horizon Search Intelligence via Context Summarization.”</a> arXiv 2025.</p>
+<p>[21] BytedTsinghua-SIA et al. <a href="https://arxiv.org/abs/2507.02259">“MemAgent: Reshaping Long-Context LLM with Multi-Conv RL-based Memory Agent.”</a> arXiv 2025.</p>
+<p>[22] MIT-MI et al. <a href="https://arxiv.org/abs/2506.15841">“MEM1: Learning to Synergize Memory and Reasoning for Efficient Long-Horizon Agents.”</a> arXiv 2025.</p>
+<p>[23] Anthropic. <a href="https://www.anthropic.com/engineering/building-effective-agents">“Building Effective AI Agents.”</a> Engineering Blog 2024.</p>
+<p>[24] Anthropic. <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">“Writing Tools for AI Agents.”</a> Engineering Blog 2025.</p>
+<p>[25] OpenAI. <a href="https://openai.com/index/introducing-codex/">“Introducing Codex.”</a> 2025.</p>
+<p>[26] OpenAI. <a href="https://openai.com/index/harness-engineering/">“Harness Engineering: Leveraging Codex in an Agent-First Workflow.”</a> 2025.</p>
+<p>[27] Microsoft Research. <a href="https://arxiv.org/abs/2411.04468">“Magentic-One: A Generalist Multi-Agent System for Solving Complex Tasks.”</a> arXiv 2024.</p>
+<p>[28] Wang et al. <a href="https://arxiv.org/abs/2407.16741">“OpenHands: An Open Platform for AI Software Developers as Generalist Agents.”</a> ICLR 2025.</p>
+<p>[29] AgentGym-RL Team. <a href="https://arxiv.org/abs/2509.08755">“AgentGym-RL: An Open-Source Framework to Train LLM Agents for Long-Horizon Decision Making via Multi-Turn RL.”</a> arXiv 2025.</p>
+<p>[30] Agent-World Team. <a href="https://arxiv.org/abs/2604.18292">“Agent-World: Scaling Real-World Environment Synthesis for Evolving General Agent Intelligence.”</a> arXiv 2026.</p>
+<p>[31] Alibaba-NLP et al. <a href="https://arxiv.org/abs/2507.15061">“WebShaper: Agentically Data Synthesizing via Information-Seeking Formalization.”</a> arXiv 2025.</p>
+<p>[32] Alibaba-NLP et al. <a href="https://arxiv.org/abs/2505.22648">“WebDancer: Towards Autonomous Information Seeking Agency.”</a> NeurIPS 2025.</p>
+<p>[33] WebSailor Team. <a href="https://arxiv.org/abs/2507.02592">“WebSailor: Navigating Super-human Reasoning for Web Agent.”</a> arXiv 2025.</p>
+<p>[34] Alibaba-NLP et al. <a href="https://arxiv.org/abs/2510.24701">“Tongyi DeepResearch Technical Report.”</a> arXiv 2025.</p>
+<p>[35] OpenResearcher Team. <a href="https://arxiv.org/abs/2603.20278">“OpenResearcher: A Fully Open Pipeline for Long-Horizon Deep Research Trajectory Synthesis.”</a> arXiv 2026.</p>
+<p>[36] Yang et al. <a href="https://arxiv.org/abs/2405.15793">“SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering.”</a> NeurIPS 2024.</p>
+<p>[37] Deng et al. <a href="https://arxiv.org/abs/2509.16941">“SWE-Bench Pro: Can AI Agents Solve Long-Horizon Software Engineering Tasks?”</a> ICML 2026.</p>
+<p>[38] Merrill et al. <a href="https://arxiv.org/abs/2601.11868">“Terminal-Bench: Benchmarking Agents on Hard, Realistic Terminal Tasks.”</a> arXiv 2026.</p>
+<p>[39] Anthropic. <a href="https://code.claude.com/docs/en/overview">“Claude Code Overview.”</a> 2025.</p>
+<p>[40] ByteDance. <a href="https://arxiv.org/abs/2507.23370">“Trae Agent: An LLM-based Agent for Software Engineering with Test-time Scaling.”</a> arXiv 2025.</p>
+<p>[41] OpenAI. <a href="https://arxiv.org/abs/2504.12516">“BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents.”</a> arXiv 2025.</p>
+<p>[42] DeepResearch Bench Team. <a href="https://arxiv.org/abs/2506.11763">“DeepResearch Bench: A Comprehensive Benchmark for Deep Research Agents.”</a> arXiv 2025.</p>
+<p>[43] UI-TARS Team. <a href="https://arxiv.org/abs/2509.02544">“UI-TARS-2 Technical Report: Advancing GUI Agent with Multi-Turn Reinforcement Learning.”</a> arXiv 2025.</p>
+<p>[44] OSWorld-MCP Team. <a href="https://arxiv.org/abs/2510.24563">“OSWorld-MCP: Benchmarking MCP Tool Invocation In Computer-Use Agents.”</a> arXiv 2025.</p>
+<p>[45] Xu et al. <a href="https://arxiv.org/abs/2412.14161">“TheAgentCompany: Benchmarking LLM Agents on Consequential Real World Tasks.”</a> NeurIPS 2025.</p>
+<p>[46] Manus. <a href="https://manus.im">“Manus: A General Autonomous Agent Product.”</a> 2025.</p>
+<p>[47] Mialon et al. <a href="https://arxiv.org/abs/2311.12983">“GAIA: A Benchmark for General AI Assistants.”</a> ICLR 2024.</p>
+<p>[48] Yang et al. <a href="https://arxiv.org/abs/1809.09600">“HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering.”</a> EMNLP 2018.</p>
+<p>[49] Thorne et al. <a href="https://arxiv.org/abs/1803.05355">“FEVER: a Large-scale Dataset for Fact Extraction and VERification.”</a> NAACL 2018.</p>
+<p>[50] Shridhar et al. <a href="https://arxiv.org/abs/2010.03768">“ALFWorld: Aligning Text and Embodied Environments for Interactive Learning.”</a> ICLR 2021.</p>
+<p>[51] Yao et al. <a href="https://arxiv.org/abs/2207.01206">“WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents.”</a> NeurIPS 2022.</p>
+<p>[52] Wang et al. <a href="https://arxiv.org/abs/2305.16291">“Voyager: An Open-Ended Embodied Agent with Large Language Models.”</a> arXiv 2023.</p>
+<p>[53] Zhao et al. <a href="https://arxiv.org/abs/2308.10144">“ExpeL: LLM Agents Are Experiential Learners.”</a> AAAI 2024.</p>
+<p>[54] Anthropic. <a href="https://modelcontextprotocol.io/specification/2025-06-18">“Model Context Protocol Specification.”</a> 2025.</p>
+<p>[55] Agent2Agent Project. <a href="https://a2a-protocol.org/latest/specification/">“Agent2Agent Protocol Specification.”</a> 2025.</p>
+<p>[56] Agent Communication Protocol. <a href="https://agentcommunicationprotocol.dev/introduction/welcome">“Agent Communication Protocol Documentation.”</a> 2025.</p>
+<p>[57] Hong et al. <a href="https://arxiv.org/abs/2308.00352">“MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework.”</a> ICLR 2024.</p>
+<p>[58] Wu et al. <a href="https://arxiv.org/abs/2308.08155">“AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation.”</a> COLM 2024.</p>
+<p>[59] Qian et al. <a href="https://arxiv.org/abs/2307.07924">“ChatDev: Communicative Agents for Software Development.”</a> ACL 2024.</p>
+<p>[60] Gou et al. <a href="https://arxiv.org/abs/2305.11738">“CRITIC: Large Language Models Can Self-Correct with Tool-Interactive Critiquing.”</a> arXiv 2023.</p>
+<p>[61] Chae et al. <a href="https://arxiv.org/abs/2505.15277">“Web-Shepherd: Advancing PRMs for Reinforcing Web Agents.”</a> arXiv 2025.</p>
+<p>[62] Han et al. <a href="https://arxiv.org/abs/2604.14820">“SWE-TRACE: Optimizing Long-Horizon SWE Agents Through Rubric Process Reward Models and Heuristic Test-Time Scaling.”</a> arXiv 2026.</p>
+<p>[63] Beltagy et al. <a href="https://arxiv.org/abs/2004.05150">“Longformer: The Long-Document Transformer.”</a> arXiv 2020.</p>
+<p>[64] Zaheer et al. <a href="https://arxiv.org/abs/2007.14062">“Big Bird: Transformers for Longer Sequences.”</a> NeurIPS 2020.</p>
+<p>[65] Gu and Dao. <a href="https://arxiv.org/abs/2312.00752">“Mamba: Linear-Time Sequence Modeling with Selective State Spaces.”</a> COLM 2024.</p>
+<p>[66] Katharopoulos et al. <a href="https://arxiv.org/abs/2006.16236">“Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention.”</a> ICML 2020.</p>
+<p>[67] Fedus et al. <a href="https://arxiv.org/abs/2101.03961">“Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity.”</a> JMLR 2022.</p>
+<p>[68] Leviathan et al. <a href="https://arxiv.org/abs/2211.17192">“Fast Inference from Transformers via Speculative Decoding.”</a> ICML 2023.</p>
+<p>[69] Pan et al. <a href="https://arxiv.org/abs/2412.21139">“Training Software Engineering Agents and Verifiers with SWE-Gym.”</a> ICML 2025.</p>
+<p>[70] Liu et al. <a href="https://arxiv.org/abs/2308.03688">“AgentBench: Evaluating LLMs as Agents.”</a> ICLR 2024.</p>
+<p>[71] Zeng et al. <a href="https://arxiv.org/abs/2310.12823">“AgentTuning: Enabling Generalized Agent Abilities for LLMs.”</a> Findings of ACL 2024.</p>
+<p>[72] Chen et al. <a href="https://arxiv.org/abs/2310.05915">“FireAct: Toward Language Agent Fine-tuning.”</a> arXiv 2023.</p>
+<p>[73] Zelikman et al. <a href="https://arxiv.org/abs/2203.14465">“STaR: Bootstrapping Reasoning With Reasoning.”</a> NeurIPS 2022.</p>
+<p>[74] Qiao et al. <a href="https://arxiv.org/abs/2509.13309">“WebResearcher: Unleashing Unbounded Reasoning Capability in Long-Horizon Agents.”</a> arXiv 2025.</p>
+<p>[75] Rawles et al. <a href="https://arxiv.org/abs/2405.14573">“AndroidWorld: A Dynamic Benchmarking Environment for Autonomous Agents.”</a> ICLR 2025.</p>
+<p>[76] UI-TARS Team. <a href="https://arxiv.org/abs/2501.12326">“UI-TARS: Pioneering Automated GUI Interaction with Native Agents.”</a> arXiv 2025.</p>
+<p>[77] Wang et al. <a href="https://arxiv.org/abs/2403.10517">“VideoAgent: Long-form Video Understanding with Large Language Model as Agent.”</a> ECCV 2024.</p>
+<p>[78] Lin et al. <a href="https://arxiv.org/abs/2603.20185">“VideoSeek: Long-Horizon Video Agent with Tool-Guided Seeking.”</a> CVPR 2026.</p>
+<p>[79] Chen et al. <a href="https://arxiv.org/abs/2605.05185">“OpenSearch-VL: An Open Recipe for Frontier Multimodal Search Agents.”</a> arXiv 2026.</p>
+<p>[80] Li et al. <a href="https://arxiv.org/abs/2602.22897">“OmniGAIA: Towards Native Omni-Modal AI Agents.”</a> arXiv 2026.</p>
+<p>[81] Lu et al. <a href="https://arxiv.org/abs/2408.06292">“The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery.”</a> arXiv 2024.</p>
+<p>[82] Novikov et al. <a href="https://arxiv.org/abs/2506.13131">“AlphaEvolve: A Coding Agent for Scientific and Algorithmic Discovery.”</a> arXiv 2025.</p>
+<p>[83] Jiang et al. <a href="https://arxiv.org/abs/2501.14654">“MedAgentBench: A Realistic Virtual EHR Environment to Benchmark Medical LLM Agents.”</a> arXiv 2025.</p>
+<p>[84] Li et al. <a href="https://arxiv.org/abs/2412.17259">“LegalAgentBench: Evaluating LLM Agents in Legal Domain.”</a> ACL 2025.</p>
+<p>[85] FoundationAgents. <a href="https://github.com/FoundationAgents/OpenManus">“OpenManus: An Open-Source Framework for Building General AI Agents.”</a> 2025.</p>
+<p>[86] Yao et al. <a href="https://arxiv.org/abs/2406.12045">“τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains.”</a> arXiv 2024.</p>
+<p>[87] METR. <a href="https://arxiv.org/abs/2503.14499">“Measuring AI Ability to Complete Long Tasks.”</a> arXiv 2025.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://m1yan.github.io/tags/long-horizon-agents/">Long-Horizon Agents</a></li>
+      <li><a href="https://m1yan.github.io/tags/llm-agents/">LLM Agents</a></li>
+      <li><a href="https://m1yan.github.io/tags/ai-safety/">AI Safety</a></li>
+      <li><a href="https://m1yan.github.io/tags/agentic-rl/">Agentic RL</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://m1yan.github.io/posts/rubric_evaluation/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Rubric：大语言模型评估范式的结构化转向</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
