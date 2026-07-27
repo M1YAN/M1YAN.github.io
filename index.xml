@@ -165,5 +165,12 @@
       <description>&lt;h1 id=&#34;第一章--林辉的独白&#34;&gt;&lt;strong&gt;第一章&lt;/strong&gt;  &lt;strong&gt;林辉的独白&lt;/strong&gt;&lt;/h1&gt;
 &lt;p&gt;赛博世界，第23个世纪。我，&lt;code&gt;林辉&lt;/code&gt;，一个孤寂的码农，生活在这个高度数字化的时代。曾经，这个世界充满了希望，计算机科学的巅峰技术让人类梦想无限。然而，如今，这个世界已然陷入了一片混乱，战争的阴影笼罩着未来。&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>Typing Test</title>
+      <link>https://m1yan.github.io/typing-test/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/typing-test/</guid>
+      <description>A minimal typing speed test embedded from [TypeLords](https://typelords.com/).</description>
+    </item>
   </channel>
 </rss>
