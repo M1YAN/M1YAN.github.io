@@ -2,6 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://m1yan.github.io/</loc>
+    <lastmod>2026-07-28T00:00:00+00:00</lastmod>
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh"
+                href="https://m1yan.github.io/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="https://m1yan.github.io/en/"
+                />
+  </url><url>
+    <loc>https://m1yan.github.io/posts/</loc>
+    <lastmod>2026-07-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://m1yan.github.io/posts/self_evolving_agents/</loc>
+    <lastmod>2026-07-28T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://m1yan.github.io/categories/agent/</loc>
     <lastmod>2026-07-24T00:00:00+00:00</lastmod>
   </url><url>
@@ -31,22 +50,6 @@
     <lastmod>2026-07-24T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://m1yan.github.io/posts/long_horizon_agents_survey/</loc>
-    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://m1yan.github.io/</loc>
-    <lastmod>2026-07-24T00:00:00+00:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh"
-                href="https://m1yan.github.io/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="https://m1yan.github.io/en/"
-                />
-  </url><url>
-    <loc>https://m1yan.github.io/posts/</loc>
     <lastmod>2026-07-24T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://m1yan.github.io/tags/</loc>
