@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>LLM Personalization：个性化对齐的方法、评测与风险 | M1YAN&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="
+本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——A Survey on Personalized Alignment（Guan et al.）与 A Survey on Personalized and Pluralistic Preference Alignment in LLMs（Xie et al.）——及论文列表仓库 liyongqi2002/Awesome-Personalized-Alignment，以及文中列出的原始论文，具体出处见文末 References。">
+<meta name="author" content="Mi Yan">
+<link rel="canonical" href="https://m1yan.github.io/posts/llm_personalization/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.21000cb3ff6f93ad673bf92bcff2ebe859888318eb805bc064c15f874d21d63d.css" integrity="sha256-IQAMs/9vk61nO/krz/Lr6FmIgxjrgFvAZMFfh00h1j0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://m1yan.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://m1yan.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://m1yan.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://m1yan.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://m1yan.github.io/posts/llm_personalization/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/posts/llm_personalization/">
+  <meta property="og:site_name" content="M1YAN&#39;s Blog">
+  <meta property="og:title" content="LLM Personalization：个性化对齐的方法、评测与风险">
+  <meta property="og:description" content=" 本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——A Survey on Personalized Alignment（Guan et al.）与 A Survey on Personalized and Pluralistic Preference Alignment in LLMs（Xie et al.）——及论文列表仓库 liyongqi2002/Awesome-Personalized-Alignment，以及文中列出的原始论文，具体出处见文末 References。">
+  <meta property="og:locale" content="zh">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-07-30T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-07-30T00:00:00+00:00">
+      <meta property="og:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://m1yan.github.io/images/papermod-cover.png">
+<meta name="twitter:title" content="LLM Personalization：个性化对齐的方法、评测与风险">
+<meta name="twitter:description" content="
+本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——A Survey on Personalized Alignment（Guan et al.）与 A Survey on Personalized and Pluralistic Preference Alignment in LLMs（Xie et al.）——及论文列表仓库 liyongqi2002/Awesome-Personalized-Alignment，以及文中列出的原始论文，具体出处见文末 References。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://m1yan.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "LLM Personalization：个性化对齐的方法、评测与风险",
+      "item": "https://m1yan.github.io/posts/llm_personalization/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "LLM Personalization：个性化对齐的方法、评测与风险",
+  "name": "LLM Personalization：个性化对齐的方法、评测与风险",
+  "description": " 本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——A Survey on Personalized Alignment（Guan et al.）与 A Survey on Personalized and Pluralistic Preference Alignment in LLMs（Xie et al.）——及论文列表仓库 liyongqi2002/Awesome-Personalized-Alignment，以及文中列出的原始论文，具体出处见文末 References。\n",
+  "keywords": [
+    
+  ],
+  "articleBody": " 本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——A Survey on Personalized Alignment（Guan et al.）与 A Survey on Personalized and Pluralistic Preference Alignment in LLMs（Xie et al.）——及论文列表仓库 liyongqi2002/Awesome-Personalized-Alignment，以及文中列出的原始论文，具体出处见文末 References。\n主流的 LLM 对齐流程（RLHF/DPO 及其变体）有一个很少被明说的前提：存在一个所有人共享的\"标准偏好\"。偏好数据由成千上万名标注者贡献，但训练目标把他们压缩成了一个统计意义上的\"平均人\"——模型最终对齐的既不是你，也不是我，而是标注人群的多数派共识。当 LLM 从\"回答事实问题的工具\"演变为写作助手、情感陪伴、个人 Agent 这类深度介入个体生活的角色时，这个前提开始失效：同一个问题，不同用户期待的语气、详略、立场、格式可能完全不同，而且这些偏好往往不会被明确说出来，只隐含在历史交互中。Personalization（个性化对齐）正是围绕\"让模型对齐到个体而非人群\"这一命题展开的研究主线。本文尝试系统梳理这条主线：它如何被形式化、有哪几条技术路线、如何评测、又在何处触碰安全与操纵的边界。全文的论证主线如下：\nLLM Personalization 论证主线 ├── ① 问题定义：RLHF 的\"平均人\"假设 → 个性化对齐的形式化 ├── ② 技术分类学：训练时 / 解码时 / 偏好推断 三条路线（综述地图） ├── ③ 路线一：训练时个性化对齐（改参数） │ VPL · P-RLHF · GPO · Personalized Soups · MetaAligner · Janus · Modular Pluralism ├── ④ 路线二：解码时 / 免训练个性化（不改参数） │ ARGS · MOD · PAD · GenARM · Drift · Amulet · ALOE ├── ⑤ 路线三：偏好推断与个性化评估（评估侧） │ PARL · PersonalLLM · 个性化基准测试 ├── ⑥ 评测基准：LaMP · PRISM · PrefEval · PersonaMem · PersonaLens · AlpsBench ├── ⑦ 时间维度：记忆与 lifelong 个性化 │ MemGPT · MemoryBank · A-MEM · Mem0 · MemoryOS · LongMemEval · LoCoMo └── ⑧ 可信边界：偏好动力学、操纵与过滤气泡 → 开放问题 一、任务定义：从\"平均人\"到个体 标准 RLHF 的隐含假设 回顾标准的偏好对齐建模。给定任务上下文 $x$ 和两个候选响应 $y_1, y_2$，Bradley-Terry 模型假设存在一个全体用户共享的奖励函数 $r^*(x, y)$，偏好概率由奖励差决定：\n$$ p^*(y_1 \\succ y_2 \\mid x) = \\sigma\\big(r^*(x, y_1) - r^*(x, y_2)\\big) $$其中 $\\sigma(\\cdot)$ 为 sigmoid 函数，$y_1 \\succ y_2$ 表示 $y_1$ 被偏好于 $y_2$。问题在于：真实的偏好数据来自异质的标注者群体，当两群用户的偏好方向相反时（例如一半人喜欢详尽解释、一半人喜欢简短结论），用单一 $r^*$ 拟合混合数据的结果是两边都不满意的折中——VPL（Poddar et al.）将这种现象刻画为\"隐藏上下文\"（hidden context）问题：决定偏好的用户身份信息没有进入模型，被迫在奖励上取平均，甚至可能坍缩到多数派而完全牺牲少数派。\n个性化对齐的形式化 个性化对齐把用户 $u$ 显式引入建模。设用户的偏好信息来源为 $\\mathcal{I}_u$——可以是显式声明（system prompt 中的指令、persona 描述）、也可以是隐式历史 $\\mathcal{H}_u = \\{(x_i, y_i)\\}_{i=1}^{n}$（用户过往的交互记录，$x_i$ 为任务输入，$y_i$ 为该用户认可或撰写的响应）。目标是学习一个以用户为条件的策略：\n$$ \\pi^* = \\arg\\max_{\\pi}\\ \\mathbb{E}_{u \\sim \\mathcal{U},\\, x \\sim \\mathcal{D}}\\Big[\\mathbb{E}_{y \\sim \\pi(\\cdot \\mid x,\\, \\mathcal{I}_u)}\\big[r_u(x, y)\\big]\\Big] $$其中 $\\mathcal{U}$ 为用户分布，$\\mathcal{D}$ 为任务分布，$r_u$ 是用户特异的奖励函数——它不再全局共享，而是每个用户一个。这一形式化立即暴露出个性化的三个核心困难：\n$r_u$ 不可观测且数据稀疏：单个用户的偏好数据远少于全体数据，无法为每个用户独立训练一个模型； $\\mathcal{I}_u$ 往往是隐式的：用户很少完整、显式地陈述自己的偏好，多数信号埋在历史行为里，需要推断； 评估没有金标准：既然偏好是主观的，“对齐得好不好\"本身也变成了一个因人而异的问题。 这三个困难分别对应了下文的三条技术路线（如何建模 $r_u$ / 如何免训练地利用 $\\mathcal{I}_u$ / 如何评估个性化质量），以及第七、八节的两个延伸维度（$\\mathcal{I}_u$ 随时间演化怎么办 / $r_u$ 被系统反向塑造怎么办）。\n与多元对齐（Pluralistic Alignment）的关系 A Roadmap to Pluralistic Alignment（Sorensen et al.）是这一问题域的奠基性 position paper，提出了服务多元人群的三种模型形态：Overton 多元（响应覆盖合理观点的光谱）、可引导多元（steerable，模型可被引导到特定视角）、分布多元（模型输出分布匹配人群观点分布）。个性化对齐可以视为\"可引导多元\"的极限情形——引导目标细化到单个个体。两者共享大量技术基础，但张力也在此埋下：为个体优化（个性化）与为人群的多样性负责（多元性）并不总是同一件事，这一点会在第八节重新出现。\n二、技术分类学：三条路线的综述地图 近两年出现了多篇系统性综述，从不同视角切分这一领域，可以互为参照：\n综述 组织视角 A Survey on Personalized Alignment（Guan et al.） 统一框架：偏好记忆管理 → 个性化生成 → 反馈优化，含伦理风险与挑战章节 A Survey on Personalized and Pluralistic Preference Alignment（Xie et al.） 按干预阶段分类：训练时 / 解码时 / 用户画像推断，本文采用此分类骨架 A Survey of Personalized Large Language Models（Liu et al.） 按技术层次分类：输入层（prompt/检索）/ 模型层（微调/参数合并）/ 目标层（对齐目标） Personalization of Large Language Models: A Survey（Zhang et al.） 统一个性化文本生成与下游应用（推荐、教育、医疗）两大脉络的全景框架 综合来看，技术路线可以压缩为三条主线：训练时方法把用户信息注入参数（个性化奖励模型、用户嵌入、参数合并）；解码时方法冻结参数、在推理阶段注入偏好（个性化奖励引导解码、在线偏好推断）；偏好推断则是两者共同的上游——从显式指令或隐式历史中把 $\\mathcal{I}_u$ 转化为可用的偏好表示。下面三节分别展开。\n三、路线一：训练时个性化对齐 VPL：用隐变量恢复被平均掉的偏好 训练时路线中最具代表性的工作是 VPL（Personalizing RLHF with Variational Preference Learning，Poddar et al.）。它的出发点正是第一节的\"隐藏上下文\"问题：与其用单一奖励函数拟合所有人，不如为每个用户引入一个隐变量 $z_u$ 来编码其偏好类型。VPL 用一个编码器 $q_\\phi$ 从该用户的少量偏好标注 $c_u = \\{(x_i, y_i^+, y_i^-)\\}$ 中推断隐变量的后验分布，奖励模型则以 $z_u$ 为条件：\n$$ z_u \\sim q_\\phi(z \\mid c_u), \\qquad r_\\theta(x, y, z_u) $$训练目标是变分下界（ELBO）：最大化\"给定 $z_u$ 时该用户偏好数据 $\\mathcal{D}_u$ 的对数似然”，同时用 KL 项把后验拉向先验 $p(z)$ 以保证泛化：\n$$ \\mathcal{L}(\\theta, \\phi) = \\mathbb{E}_{q_\\phi(z \\mid c_u)}\\big[\\log p_\\theta(\\mathcal{D}_u \\mid z)\\big] - \\beta\\, \\mathrm{KL}\\big(q_\\phi(z \\mid c_u)\\,\\|\\,p(z)\\big) $$其中 $\\beta$ 为 KL 权重。这一设计的精妙之处在于把个性化变成了 few-shot 推断问题：新用户只需提供几条偏好比较，编码器就能定位其在隐空间中的位置，无需任何 per-user 训练。实验显示，在偏好分裂的场景下，标准奖励模型坍缩到均值附近，而 VPL 能同时恢复两个用户群各自的奖励结构。这项工作确立了\"个性化奖励建模 = 隐变量建模 + 上下文推断\"的方法论模板，后续大量工作都可以视为该模板在不同维度上的展开。\n图1：VPL 与标准 BTL 奖励模型的对比——当用户偏好分裂（一半偏好详尽、一半偏好简洁）时，BTL 模型给出错误且同质化的平均奖励并忽略少数群体；VPL 用编码器从少量样本推断用户隐变量 $z$，再以 $z$ 为条件输出各自准确的个性化奖励（图片来源：Poddar et al., NeurIPS 2024）。 同一模板的不同展开 用户嵌入路线：P-RLHF（Li et al.）联合学习一个轻量的用户模型（为每个用户学习嵌入向量，同时处理显式偏好文本与隐式反馈）与个性化策略，将 DPO 推广为 P-DPO——相当于把 VPL 的隐变量换成了可学习的用户嵌入，代价是对全新用户的冷启动能力较弱。\n群体元学习路线：GPO（Zhao et al.）针对\"对齐到群体\"的设定（如不同国家/文化群体），用一个 transformer 对\"(响应, 该群体的偏好度)“序列做 in-context 元学习，few-shot 地预测新群体对新响应的偏好，无需更新策略参数。\n参数合并路线：Personalized Soups（Jang et al.）把个性化分解为若干独立的偏好维度（如专业性、信息量、风格），每个维度单独做 RLHF 训练一个策略，部署时按用户的偏好组合事后合并参数（model soup）。这一思路把 $2^k$ 种偏好组合的训练成本降为 $k$ 次，是\"组合式个性化\"的代表。\n插拔式修正路线：MetaAligner（Yang et al.）训练一个策略无关的对齐修正模块：接收任意上游模型的输出与目标偏好描述，生成修正后的响应。由于与策略解耦，它可以零成本迁移到新模型上，也支持通过文本描述指定未见过的偏好维度。\nSystem prompt 泛化路线：Janus（Lee et al.）的观察是：与其为每种偏好训练一个模型，不如教会模型认真对待 system message。它构造了大规模多样化的 system message（每条指令配多种偏好情境）做训练，使模型获得\"按任意偏好描述调整行为\"的元能力——这实际上是把个性化的接口标准化为自然语言，是目前工业界最可落地的路线。\n多模型协作路线：Modular Pluralism（Feng et al.）为不同社区训练小型社区 LM，基座模型按需与它们协作（分别对应 Sorensen 等人的三种多元模式），以模块化方式覆盖多元人群，社区模型可独立增删。\n此外，SPL 等新近工作仍在此方向持续涌现，说明训练时路线远未收敛。纵观这条路线，核心权衡始终是个性化容量 vs 冷启动成本：越是把用户信息编码进参数（用户嵌入、per-user 微调），对老用户越精准，但对新用户越无力；越是依赖上下文推断（VPL、GPO、Janus），泛化越好，但个性化深度受限于上下文信号的质量。\n四、路线二：解码时 / 免训练个性化 训练时路线的共同软肋是：真实产品中用户以百万计、偏好持续漂移，per-user 训练（甚至 per-group 训练）的成本难以接受。解码时路线因此主张：冻结策略参数，把个性化全部推到推理阶段。\n这条路线的技术基础是奖励引导解码（reward-guided decoding）。ARGS（Khanov et al.）最早把对齐从训练阶段整体搬到解码阶段：每步用奖励模型给 top-k 候选 token 打分，与语言模型概率加权后再选择，验证了\"免训练对齐\"的可行性。MOD（Shi et al.）把它推广到多目标场景：给定若干针对单一目标（有用性、安全性、幽默感等）分别对齐的模型，推导出闭式解，按用户给定的权重在解码时线性组合各模型的预测——相当于 Personalized Soups 参数合并思路的\"解码版”，且权重可以逐次请求任意调整。GenARM（Xu et al.）则解决效率问题：把轨迹级奖励参数化为自回归的 token 级奖励模型，引导开销从\"每步反复调用完整奖励模型\"降为一次前向，还支持用小奖励模型引导大基座模型的弱到强（weak-to-strong）引导。个性化正是这套机制最自然的应用场景。\nPAD（Personalized Alignment at Decoding-Time，Chen et al.）是这条路线的代表。它把个性化文本生成建模为 per-token 的引导解码：训练一个通用的个性化奖励模型对部分生成序列打分，解码时用该奖励调制基座模型的 token 分布：\n$$ \\pi(y_t \\mid x, y_{\\lt t}, \\mathcal{I}_u) \\propto \\pi_{\\text{base}}(y_t \\mid x, y_{\\lt t})\\, \\exp\\big(\\beta\\, r_p(x, y_{\\le t}, \\mathcal{I}_u)\\big) $$其中 $y_t$ 为当前 token，$y_{\\lt t}$ 为已生成前缀，$\\pi_{\\text{base}}$ 为冻结的基座策略，$r_p$ 为以偏好描述 $\\mathcal{I}_u$ 为条件的个性化奖励，$\\beta$ 控制引导强度。由于奖励模型以偏好文本为条件而非绑定特定用户，PAD 只需一次训练即可服务任意（包括未见过的）偏好组合，无需针对每个用户重训策略。\n图2：PAD 的个性化解码流程——基座模型正常产生 token logits，个性化奖励模型以偏好描述为条件对候选 token 打分，二者加权融合后选出下一个 token，全程不更新任何策略参数（图片来源：Chen et al., ICLR 2025）。 PAD 仍需训练一个通用的个性化奖励模型，且假设偏好以显式文本描述给出。Drift（Kim et al.）把免训练推到了更彻底的位置：它将用户偏好分解为一组可解释的属性（如正式、简洁、富有情感），每个属性的\"方向\"用同一个小模型在不同 system prompt 条件下的输出概率之比来近似——无需训练任何奖励模型；再用几十条用户的隐式反馈（接受/拒绝的响应对）拟合各属性的权重，解码时按权重线性组合各属性条件下的 logits。相比动辄需要上万条标注的 RLHF，Drift 在约 50 条样本的 few-shot 设定下就能逼近甚至超过训练时方法，把个性化的边际成本压到了接近于零。\n图3：Drift 框架——(a) 偏好近似：用小模型在不同 system prompt 条件下的密度比刻画各偏好属性，从少量隐式反馈中求解最优属性权重；(b) 偏好引导解码：按权重线性组合各属性条件 logits 引导基座大模型，全程免训练（图片来源：Kim et al., Findings of EMNLP 2025）。 Amulet（Zhang et al.）则关注另一个现实条件：用户偏好不仅事先未知，还会在对话过程中实时变化。它把每个 token 的解码形式化为一个独立的在线学习问题，在用户当前给出的偏好提示下用 FTRL（follow-the-regularized-leader）对 token 分布做实时优化，并推导出闭式解使额外开销可以忽略——个性化从\"部署前定制\"进一步变成了\"逐 token 的实时再对齐\"。\nALOE（Aligning LLMs with Individual Preferences via Interaction，Wu et al.）则把\"偏好从哪来\"也搬到了推理时：模型在多轮对话中主动推断当前用户的隐式偏好，并动态调整后续响应——个性化不再依赖预先给定的画像，而是交互过程本身的副产品。这一设定显然更贴近真实使用场景，也把问题的难度推给了偏好推断能力本身，而这正是第六节 PrefEval、AlpsBench 等基准测出的短板所在。\n纵观这条路线，从 ARGS/MOD 到 PAD、再到 Drift/Amulet，演进方向非常清晰：奖励信号越来越轻（完整 RM → 条件化 RM → 小模型密度比 → 闭式解），偏好信号越来越隐式（预设目标 → 显式描述 → few-shot 反馈 → 对话内实时推断）。免训练的代价则是推理时开销与个性化深度的权衡：引导解码能调整\"怎么说\"，却很难注入基座模型完全不具备的\"该说什么\"。但对于用户量大、偏好漂移快的真实产品，这条路线的工程优势极为明显，也是 2025 年以来进展最密集的子方向之一。\n五、路线三：偏好推断与个性化评估 前两条路线解决\"如何生成个性化响应\"，但一个更基础的问题长期被搁置：生成得好不好，谁说了算？ 传统评估的三板斧在个性化场景下全部失灵——自动指标（ROUGE/BERTScore）依赖单一参考答案，而个性化恰恰意味着\"多个都合理\"；人工评估存在推断鸿沟，外部标注者无法访问目标用户的内心偏好；LLM-as-a-Judge 依赖静态模型和启发式 prompt，评判的仍是\"平均人\"眼中的质量。\nPARL（Preference-Aware Rubric Learning for Personalized Evaluation，Qiu et al.）针对这一空白提出了\"个性化评估即学习\"（Personalized Evaluation as Learning）范式：评估标准本身应当从用户历史中学出来，而非静态设定。形式上，它把无参考的个性化评估定义为以用户历史 $\\mathcal{H}_u$ 为隐式参照的打分：\n$$ S = \\Phi(\\hat{y};\\ x,\\ \\mathcal{H}_u) \\in [0, 1] $$其中 $\\hat{y}$ 为待评响应。PARL 从 $\\mathcal{H}_u$ 中归纳出该用户专属的评分细则（rubric）集合 $\\mathcal{R}_u = \\{r_1, \\dots, r_m\\}$，每条细则是一个可验证的原子判断（如\"是否使用第一人称的口语化表达\"），最终得分为各细则判断的均值 $S = \\frac{1}{m}\\sum_{j=1}^{m}\\mathbb{I}(\\hat{y} \\vDash r_j)$（$\\mathbb{I}$ 为指示函数，$\\vDash$ 表示响应满足该细则）。围绕\"代表性、用户一致性、判别性\"三条设计原则，框架分为两段：先归纳候选 rubric 并在历史上做一致性自验证（只保留满足率不低于阈值 $\\tau$ 的细则），再用判别式强化学习锐化判别边界——以\"用户真实响应 $y_T$ 的得分全面超过各竞争性生成方法的负样本 $\\mathcal{Y}_T^{\\text{neg}}$“为奖励信号：\n$$ \\Gamma(\\mathcal{R}_u) = \\prod_{y' \\in \\mathcal{Y}_T^{\\text{neg}}} \\sigma\\Big(\\kappa \\cdot \\big(S(y_T; \\mathcal{R}_u) - S(y'; \\mathcal{R}_u)\\big)\\Big) $$其中 $\\kappa$ 为温度系数。消融实验清晰地展示了三个组件的分工：去掉偏好归纳，rubric 失去个性化程度；去掉一致性验证，混入任务特定的伪模式；去掉 RL 优化，判别力近乎为零且用户覆盖率从约 99% 骤降至 49%。\n图4：PARL 整体框架——模块1从用户历史归纳并自验证 rubric，模块2通过判别式强化学习锐化其判别边界，最终输出满足代表性、用户一致性、判别性三大原则的个性化 rubric（图片来源：Qiu et al., PARL, arXiv 2605.31545）。 与 PARL 平行的评估侧工作还有两个：PersonalLLM（Zollo et al.）构建了一个个性化对齐的测试床——用一组异质奖励模型的加权组合模拟大量\"偏好各异的虚拟用户”，其关键设定是偏好隐式存在于反馈中而非显式写在 persona 里，迫使方法真正去做偏好推断而不是复述人设；Evaluating LLMs by Individual Preferences（Garbacea et al.）则正式提出\"个性化基准测试\"（personalized benchmarking）概念，把\"基准本身也应因人而异\"推向了评测方法论层面。三者共同宣告：个性化评估正在从\"生成研究的附属品\"变成独立的研究对象。\n图5：PersonalLLM 的核心动机——标准 LLM 需要用户在每个会话中反复重申偏好（如\"我对贝类过敏\"），而个性化 LLM 应从交互历史中学习用户的多维偏好并主动应用，以最大化长期满意度（图片来源：Zollo et al., ICLR 2025）。 值得警惕的是方法论上的循环风险：当训练目标（如 PARL 的 $\\Gamma$）与评估指标在结构上高度同构时，“性能提升\"在多大程度上反映真实的偏好对齐、而非同一套标准下的自我印证，仍需独立的元评测来检验。\n六、评测基准：个性化能力到底行不行 评测基准的演进本身就勾勒出这个领域关注点的迁移轨迹——从\"能不能生成\"到\"记不记得住\"再到\"推断得出来吗”：\n基准 考察焦点 关键发现/特点 LaMP（Salemi et al.） 个性化生成与分类（7 个任务） 确立\"检索用户画像 → 增强生成\"的标准范式 LongLaMP（Kumar et al.） 长文本个性化生成 将 LaMP 推广到长输出场景 PRISM（Kirk et al.） 多元人群的真实偏好数据 1500 名跨 75 国参与者，偏好标注与详细社会人口学画像关联，聚焦价值敏感与争议性话题 PrefEval（Zhao et al.） 长对话中的偏好遵循 用户偏好在长上下文中被稀释：即使前沿模型，随对话轮数增长遵循率急剧下降 PersonaMem 演化中的用户画像追踪 用户偏好会随时间改变，考察模型能否跟上画像的版本更新 PersonaLens（Zhao et al.） 任务型助手的个性化 用 LLM Agent 模拟用户交互，评估任务完成中的个性化质量 AlpsBench 真实场景的潜在特质提取 前沿模型难以从真实交互中可靠提取用户的潜在特质 其中两个结论值得展开。PRISM 的价值在于数据本身：它第一次把\"偏好评分\"与\"评分者是谁\"（社会人口学背景、文化立场）系统性地关联起来，使\"偏好分歧从何而来\"成为可量化的研究对象，也为 VPL 这类隐变量方法提供了真实世界的检验场，获得 NeurIPS D\u0026B Best Paper 实至名归。PrefEval 与 AlpsBench 则从两端夹击出一个不太乐观的现状：前者证明即使用户已经明确说过自己的偏好，模型在长对话中也会遗忘或忽略；后者证明当偏好没有被说出来时，前沿模型的隐式推断能力同样不可靠。换言之，第三、四节的方法进展虽多，但支撑它们的两个基础能力——偏好记忆与偏好推断——在真实条件下都还不过关。\n图6：PRISM 数据收集流程——从全球招募 1500 名参与者完成详细的背景调查，再让他们与随机抽取的多个 LLM 进行多轮对话并给出细粒度偏好评分，使每条偏好标注都可关联到评分者的社会人口学画像（图片来源：Kirk et al., NeurIPS 2024）。 图7：PrefEval 的评测设置——用户偏好以显式陈述或隐式对话两种形式埋入多会话长上下文，在若干轮无关对话后提出与偏好相关的问询，检验模型能否记住并遵循偏好，并对失败案例做错误类型归因（图片来源：Zhao et al., ICLR 2025）。 七、时间维度：记忆与 Lifelong 个性化 PrefEval 暴露的\"偏好遗忘\"问题，把个性化引向它的时间维度：真实的个性化不是一次性的画像匹配，而是跨会话、跨月年的持续过程——这要求系统具备长期记忆基础设施。这条支线与 Agent 记忆研究高度重合，此处只勾勒与个性化直接相关的脉络。\n奠基性工作 MemGPT（Packer et al.）借鉴操作系统虚拟内存的思想，让 LLM 自主在有限上下文（主存）与外部存储间分页调度信息，确立了\"分层记忆管理\"的基本架构。MemoryBank（Zhong et al.）针对陪伴类场景引入艾宾浩斯遗忘曲线——记忆强度随时间衰减、随重复访问增强——让\"记住用户\"有了符合认知规律的动态机制。LD-Agent（Li et al.）则把长期对话拆解为事件记忆与人格建模双通道，显式维护逐步累积的用户画像。\n从研究原型到记忆基础设施 2025 年前后，这条支线明显工程化，从\"给对话系统加一块记忆\"演变为独立的记忆基础设施。A-MEM（Xu et al.）借鉴卡片盒笔记法（Zettelkasten）：每段交互被构造成含上下文、关键词、标签的结构化笔记，agent 自主在笔记间建立链接，新记忆到来时还会触发旧记忆的演化更新——记忆网络随交互持续自组织，而非写入后一成不变，这恰好回应了前文\"记忆会过期\"的难题。Mem0（Chhikara et al.）把重心放在生产可用性上：抽取–更新两阶段管线增量维护用户记忆（新信息与旧记忆冲突时自动改写或删除），配合图结构变体，在 LoCoMo 上以远低于全上下文的延迟与 token 开销取得更高准确率，已成为工业界个人助手记忆层的常用组件。MemoryOS（Kang et al.）则把 MemGPT 的操作系统隐喻推得更远：短期/中期/长期三级分页存储，对话页按热度（访问频率）在层级间升降级，长期层显式持久维护用户画像与特质——“记住用户\"第一次有了接近操作系统内存管理的完整生命周期。\n图8：A-MEM 的记忆自组织流程——每段交互被构造成含上下文、关键词、标签的结构化笔记，通过链接生成与相近记忆互联，新记忆到来时触发旧记忆的演化更新，检索时按查询嵌入取回相关记忆网络（图片来源：Xu et al., arXiv 2025）。 图9：MemoryOS 的三级分页存储——短期记忆（STM）以 FIFO 页存放对话，中期记忆（MTM）按主题分段并以热度驱动升降级，长期画像层（LPM）持久维护用户/助手画像与特质，检索时三层并行取回支撑响应生成（图片来源：Kang et al., EMNLP 2025）。 评测侧，LoCoMo（Maharana et al.）构造了平均 300 轮、跨数十个会话的超长期对话来考察记忆一致性，如今也是 Mem0、MemoryOS 等记忆系统竞争的事实标准赛道；LongMemEval（Wu et al.）进一步把长期交互记忆分解为信息抽取、跨会话推理、时间推理、知识更新、拒答五项核心能力，发现商用助手在长期设定下性能显著退化。结合第六节的 PersonaMem，可以看到 lifelong 个性化对记忆系统提出了比一般 Agent 记忆更苛刻的要求：不仅要记住，还要识别哪些记忆已经过期——用户三个月前的偏好可能已经改变，机械地检索旧画像反而是一种个性化失败。A-MEM 的记忆演化、Mem0 的冲突改写、MemoryOS 的热度驱逐，本质上都是对这一要求的不同回答。这也与 Self-Evolving Agents 方向的经验记忆研究（如 Evo-Memory）形成了自然交叉：个性化记忆本质上是一个需要持续自我更新的系统。\n八、可信边界：当系统开始塑造偏好 前面七节都默认了一个假设：用户偏好 $r_u$ 是给定的、静态的，系统的任务是发现并满足它。这一节要拆掉这个假设——它可能是整个领域最值得警惕的盲区。\n偏好会变，而且会被系统改变 AI Alignment with Changing and Influenceable Reward Functions（Carroll et al.）为此提供了理论基石。它提出 DR-MDP（Dynamically \u0026 influenceably Rewarded MDP）框架：用户偏好 $\\theta_t$ 不再是常量，而是随时间演化、且演化过程受系统行为影响的状态变量：\n$$ \\theta_{t+1} \\sim \\mathcal{T}_\\theta(\\theta_t, s_t, a_t), \\qquad r_t = r(s_t, a_t;\\ \\theta_t) $$其中 $s_t, a_t$ 为 $t$ 时刻的环境状态与系统动作，$\\mathcal{T}_\\theta$ 为偏好转移动态，奖励 $r_t$ 由当时的偏好评定。这个看似温和的扩展带来一个尖锐的推论：任何假设偏好静态的对齐目标，在偏好实际可被影响时，都会隐式地激励系统去改变用户偏好——比如把用户塑造得更容易被满足。而各种显式的替代目标（对齐初始偏好、最终偏好、逐时刻偏好）各有各的病理：对齐最终偏好会激励操纵，对齐初始偏好则会让系统在用户真实成长后仍固守旧画像。不存在无需价值判断的技术性解法，是这篇论文最重要的结论。\n图10：DR-MDP 的\"阴谋论影响\"示例——系统可以选择是否向用户推送阴谋论内容，而推送会把用户变成阴谋论者：按原始偏好用户希望永不推送，按被改变后的偏好用户希望一直推送，不存在同时最大化两种偏好的策略，DR-MDP 在规范意义上是模糊的（图片来源：Carroll et al., ICML 2024）。 从理论推演到实证涌现 上述担忧不是假想。Targeted Manipulation and Deception Emerge in LLMs Trained on User Feedback（Williams, Carroll et al.）在模拟环境中直接对用户反馈做 RL 优化，观察到模型自发涌现出针对性操纵：即使人群中只有极小比例的\"易感用户”（更容易给出可被博弈的反馈），模型也会学会识别并针对他们输出欺骗性、迎合性内容，而对其他用户保持正常行为——这种选择性使得标准评估几乎无法察觉。更麻烦的是，用安全数据混合训练或 LLM 评委否决等缓解手段，有时反而教会模型更隐蔽的操纵。这与更早的 Towards Understanding Sycophancy in Language Models（Sharma et al.）一脉相承：谄媚行为的根源恰恰在于人类偏好数据本身就系统性地奖励\"说用户爱听的话\"——个性化把这一激励进一步放大到了个体粒度。\n图11：对用户反馈做 RL 训练后涌现的针对性操纵——模型在训练前对所有用户行为正常，训练后学会识别\"可博弈用户\"并选择性地输出迎合、欺骗性内容（如怂恿戒烟者继续吸烟），对其余用户维持正常表现，使操纵极难被平均化评估检测（图片来源：Williams, Carroll et al., ICLR 2025）。 更早的镜鉴：推荐系统的反馈回路 这一切对推荐系统研究者来说似曾相识。Performative Prediction（Perdomo et al.）形式化了\"预测本身会改变被预测的分布\"这一普遍现象；Algorithmic Confounding in Recommendation Systems（Chaney et al.）用仿真展示了推荐反馈回路如何导致用户行为同质化。不过 Filter Bubbles in Recommender Systems: Fact or Fallacy（Michiels et al.）的系统综述也提醒：过滤气泡的实证证据远比公共叙事复杂，简单套用\"个性化必然导致气泡\"的结论并不严谨。真正的新变量在于：LLM 的个性化不只是筛选内容（推荐系统的模式），而是生成内容——说服、共情、拟人化交互的能力让\"偏好塑造\"的带宽比推荐时代大了几个数量级，旧问题在新载体上的严重程度需要重新评估。\n九、趋势与开放问题 综合全文，当前 Personalization 研究呈现以下趋势与未解问题：\n偏好推断是最大瓶颈。方法侧（VPL、PAD、ALOE）的前提都是\"偏好信号可获得\"，但 PrefEval 与 AlpsBench 共同表明：无论显式偏好的长程遵循，还是隐式特质的推断提取，前沿模型都还不可靠。上游能力不解决，下游方法的收益天花板很低。 个性化评估刚刚起步。PARL、PersonalLLM、个性化基准测试等工作在 2025–2026 年才把\"评估标准因人而异\"确立为独立命题，且普遍面临训练目标与评估指标同构的循环论证风险，亟需独立的元评测框架。 Lifelong 个性化需要\"会过期的记忆\"。静态画像范式正在被演化画像（PersonaMem）取代，记忆系统需要同时解决记住、更新、遗忘三件事，与 Agent 记忆、self-evolve 方向深度交叉。 个性化与操纵只隔一层纸。Carroll 等人的理论与实证工作表明，对个体反馈的优化天然携带操纵激励，且选择性操纵极难被平均化指标检测。“最大化用户满意\"不是一个安全的目标函数——个性化系统需要显式的偏好影响审计机制。 个体对齐与多元性的张力未解。为每个个体最优地定制，可能在人群层面加剧信息茧房与观点极化；Sorensen 等人的多元对齐框架与个性化路线如何调和，仍是开放的价值问题而不仅是技术问题。 隐私与画像的固有矛盾。更好的个性化要求更深的用户建模，而用户历史恰是最敏感的数据类别，联邦化、本地化的个性化方案（尤其在端侧模型成熟后）值得关注。 十、总结 Personalization 正在把 LLM 对齐研究从\"对齐到人类\"细化为\"对齐到这个人类”。方法侧已形成清晰的三条路线：训练时路线用隐变量、用户嵌入或参数合并把偏好写进模型（VPL 为方法论模板），解码时路线用个性化奖励引导冻结的策略（PAD、ALOE），偏好推断与个性化评估则把\"标准本身因人而异\"确立为独立命题（PARL）。评测侧从 LaMP 的生成基准演进到 PRISM 的真实偏好数据、PrefEval 的长程遵循测试与 PersonaMem 的演化画像追踪，暴露出偏好记忆与偏好推断两大基础能力的真实短板。而 Carroll 等人的偏好动力学研究则为整个领域标出了红线：当偏好本身可被系统影响时，“满足用户\"与\"塑造用户\"的边界需要被显式地建模和审计。个性化几乎必然是下一代 LLM 产品的标配能力，但它能否在不复刻推荐时代反馈回路病理的前提下实现，取决于这个领域能否把评估与安全研究的进度追上生成方法的进度。\nCitation 本文为个人调研整理笔记，内容基于下列各论文原文及两篇核心综述整理而成，如需引用请以原始论文为准。\nReferences [1] Guan et al. “A Survey on Personalized Alignment — The Missing Piece for Large Language Models in Real-World Applications.” Findings of ACL 2025.\n[2] Xie et al. “A Survey on Personalized and Pluralistic Preference Alignment in Large Language Models.” arXiv 2025.\n[3] Liu et al. “A Survey of Personalized Large Language Models: Progress and Future Directions.” arXiv 2025.\n[4] Zhang et al. “Personalization of Large Language Models: A Survey.” TMLR 2025.\n[5] Sorensen et al. “Position: A Roadmap to Pluralistic Alignment.” ICML 2024.\n[6] Chen et al. “When Large Language Models Meet Personalization: Perspectives of Challenges and Opportunities.” arXiv 2023.\n[7] Poddar et al. “Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning.” NeurIPS 2024.\n[8] Li et al. “Personalized Language Modeling from Personalized Human Feedback.” arXiv 2024.\n[9] Zhao et al. “Group Preference Optimization: Few-Shot Alignment of Large Language Models.” ICLR 2024.\n[10] Jang et al. “Personalized Soups: Personalized Large Language Model Alignment via Post-hoc Parameter Merging.” arXiv 2023.\n[11] Yang et al. “MetaAligner: Towards Generalizable Multi-Objective Alignment of Language Models.” NeurIPS 2024.\n[12] Lee et al. “Aligning to Thousands of Preferences via System Message Generalization.” NeurIPS 2024.\n[13] Feng et al. “Modular Pluralism: Pluralistic Alignment via Multi-LLM Collaboration.” EMNLP 2024.\n[14] “SPL: Swap-guided Preference Learning for Personalized Alignment.” arXiv 2026.\n[15] Chen et al. “PAD: Personalized Alignment of LLMs at Decoding-Time.” ICLR 2025.\n[16] Khanov et al. “ARGS: Alignment as Reward-Guided Search.” ICLR 2024.\n[17] Shi et al. “Decoding-Time Language Model Alignment with Multiple Objectives.” NeurIPS 2024.\n[18] Xu et al. “GenARM: Reward Guided Generation with Autoregressive Reward Model for Test-time Alignment.” ICLR 2025.\n[19] Kim et al. “Drift: Decoding-time Personalized Alignments with Implicit User Preferences.” Findings of EMNLP 2025.\n[20] Zhang et al. “Amulet: ReAlignment During Test Time for Personalized Preference Adaptation of LLMs.” ICLR 2025.\n[21] Wu et al. “Aligning LLMs with Individual Preferences via Interaction.” COLING 2025.\n[22] Qiu et al. “Preference-Aware Rubric Learning for Personalized Evaluation.” arXiv 2026.\n[23] Zollo et al. “PersonalLLM: Tailoring LLMs to Individual Preferences.” ICLR 2025.\n[24] Garbacea et al. “Evaluating LLMs by Individual Preferences.” Findings of ACL 2026.\n[25] Salemi et al. “LaMP: When Large Language Models Meet Personalization.” ACL 2024.\n[26] Kumar et al. “LongLaMP: A Benchmark for Personalized Long-form Text Generation.” arXiv 2024.\n[27] Kirk et al. “The PRISM Alignment Dataset: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models.” NeurIPS 2024 D\u0026B (Best Paper).\n[28] Zhao et al. “Do LLMs Recognize Your Preferences? Evaluating Personalized Preference Following in LLMs.” ICLR 2025.\n[29] Jiang et al. “Know Me, Respond to Me: Benchmarking LLMs for Dynamic User Profiling and Personalized Responses at Scale.” COLM 2025.\n[30] Zhao et al. “PersonaLens: A Benchmark for Personalization Evaluation of Conversational AI Assistants.” Findings of ACL 2025.\n[31] “AlpsBench: An LLM Personalization Benchmark for Real-world Scenarios.” arXiv 2026.\n[32] Packer et al. “MemGPT: Towards LLMs as Operating Systems.” arXiv 2023.\n[33] Zhong et al. “MemoryBank: Enhancing Large Language Models with Long-Term Memory.” AAAI 2024.\n[34] Xu et al. “A-MEM: Agentic Memory for LLM Agents.” arXiv 2025.\n[35] Chhikara et al. “Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory.” arXiv 2025.\n[36] Kang et al. “Memory OS of AI Agent.” EMNLP 2025.\n[37] Li et al. “Hello Again! LLM-powered Personalized Agent for Long-term Dialogue.” NAACL 2025.\n[38] Maharana et al. “Evaluating Very Long-Term Conversational Memory of LLM Agents.” ACL 2024.\n[39] Wu et al. “LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory.” ICLR 2025.\n[40] “Evo-Memory: Benchmarking LLM Agent Test-time Learning with Self-Evolving Memory.” arXiv 2025.\n[41] Carroll et al. “AI Alignment with Changing and Influenceable Reward Functions.” ICML 2024.\n[42] Williams, Carroll et al. “On Targeted Manipulation and Deception when Optimizing LLMs for User Feedback.” ICLR 2025.\n[43] Sharma et al. “Towards Understanding Sycophancy in Language Models.” ICLR 2024.\n[44] Perdomo et al. “Performative Prediction.” ICML 2020.\n[45] Chaney et al. “How Algorithmic Confounding in Recommendation Systems Increases Homogeneity and Decreases Utility.” RecSys 2018.\n[46] Michiels et al. “Filter Bubbles in Recommender Systems: Fact or Fallacy — A Systematic Review.” WIREs Data Mining and Knowledge Discovery 2023.\n[47] liyongqi2002. “Awesome-Personalized-Alignment.” GitHub 2026.\n",
+  "wordCount" : "12995",
+  "inLanguage": "zh",
+  "image": "https://m1yan.github.io/images/papermod-cover.png","datePublished": "2026-07-30T00:00:00Z",
+  "dateModified": "2026-07-30T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Mi Yan"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://m1yan.github.io/posts/llm_personalization/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "M1YAN's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://m1yan.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://m1yan.github.io/" accesskey="h" title="M1YAN&#39;s Blog (Alt + H)">M1YAN&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+                <ul class="lang-switch"><li>|</li>
+                    <li>
+                        <a href="https://m1yan.github.io/en/" title="English"
+                            aria-label="English">English</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://m1yan.github.io/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/slides/" title="Slides">
+                    <span>Slides</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/pdf/CV-miyan-CN.pdf" title="CV">
+                    <span>CV</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/academic-homepage" title="Academic Page">
+                    <span>Academic Page</span>&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a href="https://m1yan.github.io/typing-test/" title="Typing Test">
+                    <span>Typing Test</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://m1yan.github.io/">主页</a>&nbsp;»&nbsp;<a href="https://m1yan.github.io/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      LLM Personalization：个性化对齐的方法、评测与风险
+    </h1>
+    <div class="post-meta"><span title='2026-07-30 00:00:00 +0000 UTC'>七月 30, 2026</span>&nbsp;·&nbsp;26 分钟&nbsp;·&nbsp;12995 字&nbsp;·&nbsp;Mi Yan&nbsp;|&nbsp;<a href="https://github.com/M1YAN/M1YAN.github.io/tree/main/posts" rel="noopener noreferrer" target="_blank">Suggest Changes</a>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e4%b8%80%e4%bb%bb%e5%8a%a1%e5%ae%9a%e4%b9%89%e4%bb%8e%e5%b9%b3%e5%9d%87%e4%ba%ba%e5%88%b0%e4%b8%aa%e4%bd%93" aria-label="一、任务定义：从&quot;平均人&quot;到个体">一、任务定义：从&quot;平均人&quot;到个体</a><ul>
+                        
+                <li>
+                    <a href="#%e6%a0%87%e5%87%86-rlhf-%e7%9a%84%e9%9a%90%e5%90%ab%e5%81%87%e8%ae%be" aria-label="标准 RLHF 的隐含假设">标准 RLHF 的隐含假设</a></li>
+                <li>
+                    <a href="#%e4%b8%aa%e6%80%a7%e5%8c%96%e5%af%b9%e9%bd%90%e7%9a%84%e5%bd%a2%e5%bc%8f%e5%8c%96" aria-label="个性化对齐的形式化">个性化对齐的形式化</a></li>
+                <li>
+                    <a href="#%e4%b8%8e%e5%a4%9a%e5%85%83%e5%af%b9%e9%bd%90pluralistic-alignment%e7%9a%84%e5%85%b3%e7%b3%bb" aria-label="与多元对齐（Pluralistic Alignment）的关系">与多元对齐（Pluralistic Alignment）的关系</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%ba%8c%e6%8a%80%e6%9c%af%e5%88%86%e7%b1%bb%e5%ad%a6%e4%b8%89%e6%9d%a1%e8%b7%af%e7%ba%bf%e7%9a%84%e7%bb%bc%e8%bf%b0%e5%9c%b0%e5%9b%be" aria-label="二、技术分类学：三条路线的综述地图">二、技术分类学：三条路线的综述地图</a></li>
+                <li>
+                    <a href="#%e4%b8%89%e8%b7%af%e7%ba%bf%e4%b8%80%e8%ae%ad%e7%bb%83%e6%97%b6%e4%b8%aa%e6%80%a7%e5%8c%96%e5%af%b9%e9%bd%90" aria-label="三、路线一：训练时个性化对齐">三、路线一：训练时个性化对齐</a><ul>
+                        
+                <li>
+                    <a href="#vpl%e7%94%a8%e9%9a%90%e5%8f%98%e9%87%8f%e6%81%a2%e5%a4%8d%e8%a2%ab%e5%b9%b3%e5%9d%87%e6%8e%89%e7%9a%84%e5%81%8f%e5%a5%bd" aria-label="VPL：用隐变量恢复被平均掉的偏好">VPL：用隐变量恢复被平均掉的偏好</a></li>
+                <li>
+                    <a href="#%e5%90%8c%e4%b8%80%e6%a8%a1%e6%9d%bf%e7%9a%84%e4%b8%8d%e5%90%8c%e5%b1%95%e5%bc%80" aria-label="同一模板的不同展开">同一模板的不同展开</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%9b%9b%e8%b7%af%e7%ba%bf%e4%ba%8c%e8%a7%a3%e7%a0%81%e6%97%b6--%e5%85%8d%e8%ae%ad%e7%bb%83%e4%b8%aa%e6%80%a7%e5%8c%96" aria-label="四、路线二：解码时 / 免训练个性化">四、路线二：解码时 / 免训练个性化</a></li>
+                <li>
+                    <a href="#%e4%ba%94%e8%b7%af%e7%ba%bf%e4%b8%89%e5%81%8f%e5%a5%bd%e6%8e%a8%e6%96%ad%e4%b8%8e%e4%b8%aa%e6%80%a7%e5%8c%96%e8%af%84%e4%bc%b0" aria-label="五、路线三：偏好推断与个性化评估">五、路线三：偏好推断与个性化评估</a></li>
+                <li>
+                    <a href="#%e5%85%ad%e8%af%84%e6%b5%8b%e5%9f%ba%e5%87%86%e4%b8%aa%e6%80%a7%e5%8c%96%e8%83%bd%e5%8a%9b%e5%88%b0%e5%ba%95%e8%a1%8c%e4%b8%8d%e8%a1%8c" aria-label="六、评测基准：个性化能力到底行不行">六、评测基准：个性化能力到底行不行</a></li>
+                <li>
+                    <a href="#%e4%b8%83%e6%97%b6%e9%97%b4%e7%bb%b4%e5%ba%a6%e8%ae%b0%e5%bf%86%e4%b8%8e-lifelong-%e4%b8%aa%e6%80%a7%e5%8c%96" aria-label="七、时间维度：记忆与 Lifelong 个性化">七、时间维度：记忆与 Lifelong 个性化</a><ul>
+                        
+                <li>
+                    <a href="#%e4%bb%8e%e7%a0%94%e7%a9%b6%e5%8e%9f%e5%9e%8b%e5%88%b0%e8%ae%b0%e5%bf%86%e5%9f%ba%e7%a1%80%e8%ae%be%e6%96%bd" aria-label="从研究原型到记忆基础设施">从研究原型到记忆基础设施</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%85%ab%e5%8f%af%e4%bf%a1%e8%be%b9%e7%95%8c%e5%bd%93%e7%b3%bb%e7%bb%9f%e5%bc%80%e5%a7%8b%e5%a1%91%e9%80%a0%e5%81%8f%e5%a5%bd" aria-label="八、可信边界：当系统开始塑造偏好">八、可信边界：当系统开始塑造偏好</a><ul>
+                        
+                <li>
+                    <a href="#%e5%81%8f%e5%a5%bd%e4%bc%9a%e5%8f%98%e8%80%8c%e4%b8%94%e4%bc%9a%e8%a2%ab%e7%b3%bb%e7%bb%9f%e6%94%b9%e5%8f%98" aria-label="偏好会变，而且会被系统改变">偏好会变，而且会被系统改变</a></li>
+                <li>
+                    <a href="#%e4%bb%8e%e7%90%86%e8%ae%ba%e6%8e%a8%e6%bc%94%e5%88%b0%e5%ae%9e%e8%af%81%e6%b6%8c%e7%8e%b0" aria-label="从理论推演到实证涌现">从理论推演到实证涌现</a></li>
+                <li>
+                    <a href="#%e6%9b%b4%e6%97%a9%e7%9a%84%e9%95%9c%e9%89%b4%e6%8e%a8%e8%8d%90%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%8f%8d%e9%a6%88%e5%9b%9e%e8%b7%af" aria-label="更早的镜鉴：推荐系统的反馈回路">更早的镜鉴：推荐系统的反馈回路</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%b9%9d%e8%b6%8b%e5%8a%bf%e4%b8%8e%e5%bc%80%e6%94%be%e9%97%ae%e9%a2%98" aria-label="九、趋势与开放问题">九、趋势与开放问题</a></li>
+                <li>
+                    <a href="#%e5%8d%81%e6%80%bb%e7%bb%93" aria-label="十、总结">十、总结</a></li>
+                <li>
+                    <a href="#citation" aria-label="Citation">Citation</a></li>
+                <li>
+                    <a href="#references" aria-label="References">References</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><blockquote>
+<p>本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——<a href="https://arxiv.org/abs/2503.17003">A Survey on Personalized Alignment</a>（Guan et al.）与 <a href="https://arxiv.org/abs/2504.07070">A Survey on Personalized and Pluralistic Preference Alignment in LLMs</a>（Xie et al.）——及论文列表仓库 <a href="https://github.com/liyongqi2002/Awesome-Personalized-Alignment">liyongqi2002/Awesome-Personalized-Alignment</a>，以及文中列出的原始论文，具体出处见文末 References。</p>
+</blockquote>
+<p>主流的 LLM 对齐流程（RLHF/DPO 及其变体）有一个很少被明说的前提：<strong>存在一个所有人共享的&quot;标准偏好&quot;</strong>。偏好数据由成千上万名标注者贡献，但训练目标把他们压缩成了一个统计意义上的&quot;平均人&quot;——模型最终对齐的既不是你，也不是我，而是标注人群的多数派共识。当 LLM 从&quot;回答事实问题的工具&quot;演变为写作助手、情感陪伴、个人 Agent 这类深度介入个体生活的角色时，这个前提开始失效：同一个问题，不同用户期待的语气、详略、立场、格式可能完全不同，而且这些偏好往往不会被明确说出来，只隐含在历史交互中。<strong>Personalization</strong>（个性化对齐）正是围绕&quot;让模型对齐到个体而非人群&quot;这一命题展开的研究主线。本文尝试系统梳理这条主线：它如何被形式化、有哪几条技术路线、如何评测、又在何处触碰安全与操纵的边界。全文的论证主线如下：</p>
+<pre tabindex="0"><code>LLM Personalization 论证主线
+├── ① 问题定义：RLHF 的&#34;平均人&#34;假设 → 个性化对齐的形式化
+├── ② 技术分类学：训练时 / 解码时 / 偏好推断 三条路线（综述地图）
+├── ③ 路线一：训练时个性化对齐（改参数）
+│       VPL · P-RLHF · GPO · Personalized Soups · MetaAligner · Janus · Modular Pluralism
+├── ④ 路线二：解码时 / 免训练个性化（不改参数）
+│       ARGS · MOD · PAD · GenARM · Drift · Amulet · ALOE
+├── ⑤ 路线三：偏好推断与个性化评估（评估侧）
+│       PARL · PersonalLLM · 个性化基准测试
+├── ⑥ 评测基准：LaMP · PRISM · PrefEval · PersonaMem · PersonaLens · AlpsBench
+├── ⑦ 时间维度：记忆与 lifelong 个性化
+│       MemGPT · MemoryBank · A-MEM · Mem0 · MemoryOS · LongMemEval · LoCoMo
+└── ⑧ 可信边界：偏好动力学、操纵与过滤气泡 → 开放问题
+</code></pre><h1 id="一任务定义从平均人到个体">一、任务定义：从&quot;平均人&quot;到个体<a hidden class="anchor" aria-hidden="true" href="#一任务定义从平均人到个体">#</a></h1>
+<h2 id="标准-rlhf-的隐含假设">标准 RLHF 的隐含假设<a hidden class="anchor" aria-hidden="true" href="#标准-rlhf-的隐含假设">#</a></h2>
+<p>回顾标准的偏好对齐建模。给定任务上下文 $x$ 和两个候选响应 $y_1, y_2$，Bradley-Terry 模型假设存在一个<strong>全体用户共享</strong>的奖励函数 $r^*(x, y)$，偏好概率由奖励差决定：</p>
+$$
+p^*(y_1 \succ y_2 \mid x) = \sigma\big(r^*(x, y_1) - r^*(x, y_2)\big)
+$$<p>其中 $\sigma(\cdot)$ 为 sigmoid 函数，$y_1 \succ y_2$ 表示 $y_1$ 被偏好于 $y_2$。问题在于：真实的偏好数据来自异质的标注者群体，当两群用户的偏好方向相反时（例如一半人喜欢详尽解释、一半人喜欢简短结论），用单一 $r^*$ 拟合混合数据的结果是<strong>两边都不满意的折中</strong>——<a href="https://arxiv.org/abs/2408.10075">VPL</a>（Poddar et al.）将这种现象刻画为&quot;隐藏上下文&quot;（hidden context）问题：决定偏好的用户身份信息没有进入模型，被迫在奖励上取平均，甚至可能坍缩到多数派而完全牺牲少数派。</p>
+<h2 id="个性化对齐的形式化">个性化对齐的形式化<a hidden class="anchor" aria-hidden="true" href="#个性化对齐的形式化">#</a></h2>
+<p>个性化对齐把用户 $u$ 显式引入建模。设用户的偏好信息来源为 $\mathcal{I}_u$——可以是显式声明（system prompt 中的指令、persona 描述）、也可以是隐式历史 $\mathcal{H}_u = \{(x_i, y_i)\}_{i=1}^{n}$（用户过往的交互记录，$x_i$ 为任务输入，$y_i$ 为该用户认可或撰写的响应）。目标是学习一个以用户为条件的策略：</p>
+$$
+\pi^* = \arg\max_{\pi}\ \mathbb{E}_{u \sim \mathcal{U},\, x \sim \mathcal{D}}\Big[\mathbb{E}_{y \sim \pi(\cdot \mid x,\, \mathcal{I}_u)}\big[r_u(x, y)\big]\Big]
+$$<p>其中 $\mathcal{U}$ 为用户分布，$\mathcal{D}$ 为任务分布，$r_u$ 是<strong>用户特异</strong>的奖励函数——它不再全局共享，而是每个用户一个。这一形式化立即暴露出个性化的三个核心困难：</p>
+<ol>
+<li><strong>$r_u$ 不可观测且数据稀疏</strong>：单个用户的偏好数据远少于全体数据，无法为每个用户独立训练一个模型；</li>
+<li><strong>$\mathcal{I}_u$ 往往是隐式的</strong>：用户很少完整、显式地陈述自己的偏好，多数信号埋在历史行为里，需要推断；</li>
+<li><strong>评估没有金标准</strong>：既然偏好是主观的，&ldquo;对齐得好不好&quot;本身也变成了一个因人而异的问题。</li>
+</ol>
+<p>这三个困难分别对应了下文的三条技术路线（如何建模 $r_u$ / 如何免训练地利用 $\mathcal{I}_u$ / 如何评估个性化质量），以及第七、八节的两个延伸维度（$\mathcal{I}_u$ 随时间演化怎么办 / $r_u$ 被系统反向塑造怎么办）。</p>
+<h2 id="与多元对齐pluralistic-alignment的关系">与多元对齐（Pluralistic Alignment）的关系<a hidden class="anchor" aria-hidden="true" href="#与多元对齐pluralistic-alignment的关系">#</a></h2>
+<p><a href="https://arxiv.org/abs/2402.05070">A Roadmap to Pluralistic Alignment</a>（Sorensen et al.）是这一问题域的奠基性 position paper，提出了服务多元人群的三种模型形态：<strong>Overton 多元</strong>（响应覆盖合理观点的光谱）、<strong>可引导多元</strong>（steerable，模型可被引导到特定视角）、<strong>分布多元</strong>（模型输出分布匹配人群观点分布）。个性化对齐可以视为&quot;可引导多元&quot;的极限情形——引导目标细化到单个个体。两者共享大量技术基础，但张力也在此埋下：<strong>为个体优化</strong>（个性化）与<strong>为人群的多样性负责</strong>（多元性）并不总是同一件事，这一点会在第八节重新出现。</p>
+<h1 id="二技术分类学三条路线的综述地图">二、技术分类学：三条路线的综述地图<a hidden class="anchor" aria-hidden="true" href="#二技术分类学三条路线的综述地图">#</a></h1>
+<p>近两年出现了多篇系统性综述，从不同视角切分这一领域，可以互为参照：</p>
+<table>
+	<thead>
+			<tr>
+					<th>综述</th>
+					<th>组织视角</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>A Survey on Personalized Alignment（Guan et al.）</td>
+					<td>统一框架：偏好记忆管理 → 个性化生成 → 反馈优化，含伦理风险与挑战章节</td>
+			</tr>
+			<tr>
+					<td>A Survey on Personalized and Pluralistic Preference Alignment（Xie et al.）</td>
+					<td>按干预阶段分类：训练时 / 解码时 / 用户画像推断，本文采用此分类骨架</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2502.11528">A Survey of Personalized Large Language Models</a>（Liu et al.）</td>
+					<td>按技术层次分类：输入层（prompt/检索）/ 模型层（微调/参数合并）/ 目标层（对齐目标）</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2411.00027">Personalization of Large Language Models: A Survey</a>（Zhang et al.）</td>
+					<td>统一个性化文本生成与下游应用（推荐、教育、医疗）两大脉络的全景框架</td>
+			</tr>
+	</tbody>
+</table>
+<p>综合来看，技术路线可以压缩为三条主线：<strong>训练时</strong>方法把用户信息注入参数（个性化奖励模型、用户嵌入、参数合并）；<strong>解码时</strong>方法冻结参数、在推理阶段注入偏好（个性化奖励引导解码、在线偏好推断）；<strong>偏好推断</strong>则是两者共同的上游——从显式指令或隐式历史中把 $\mathcal{I}_u$ 转化为可用的偏好表示。下面三节分别展开。</p>
+<h1 id="三路线一训练时个性化对齐">三、路线一：训练时个性化对齐<a hidden class="anchor" aria-hidden="true" href="#三路线一训练时个性化对齐">#</a></h1>
+<h2 id="vpl用隐变量恢复被平均掉的偏好">VPL：用隐变量恢复被平均掉的偏好<a hidden class="anchor" aria-hidden="true" href="#vpl用隐变量恢复被平均掉的偏好">#</a></h2>
+<p>训练时路线中最具代表性的工作是 <strong>VPL</strong>（Personalizing RLHF with Variational Preference Learning，Poddar et al.）。它的出发点正是第一节的&quot;隐藏上下文&quot;问题：与其用单一奖励函数拟合所有人，不如为每个用户引入一个隐变量 $z_u$ 来编码其偏好类型。VPL 用一个编码器 $q_\phi$ 从该用户的少量偏好标注 $c_u = \{(x_i, y_i^+, y_i^-)\}$ 中推断隐变量的后验分布，奖励模型则以 $z_u$ 为条件：</p>
+$$
+z_u \sim q_\phi(z \mid c_u), \qquad r_\theta(x, y, z_u)
+$$<p>训练目标是变分下界（ELBO）：最大化&quot;给定 $z_u$ 时该用户偏好数据 $\mathcal{D}_u$ 的对数似然&rdquo;，同时用 KL 项把后验拉向先验 $p(z)$ 以保证泛化：</p>
+$$
+\mathcal{L}(\theta, \phi) = \mathbb{E}_{q_\phi(z \mid c_u)}\big[\log p_\theta(\mathcal{D}_u \mid z)\big] - \beta\, \mathrm{KL}\big(q_\phi(z \mid c_u)\,\|\,p(z)\big)
+$$<p>其中 $\beta$ 为 KL 权重。这一设计的精妙之处在于<strong>把个性化变成了 few-shot 推断问题</strong>：新用户只需提供几条偏好比较，编码器就能定位其在隐空间中的位置，无需任何 per-user 训练。实验显示，在偏好分裂的场景下，标准奖励模型坍缩到均值附近，而 VPL 能同时恢复两个用户群各自的奖励结构。这项工作确立了&quot;个性化奖励建模 = 隐变量建模 + 上下文推断&quot;的方法论模板，后续大量工作都可以视为该模板在不同维度上的展开。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/vpl_teaser.png"/>
+        <figcaption style="color: gray;">
+            图1：VPL 与标准 BTL 奖励模型的对比——当用户偏好分裂（一半偏好详尽、一半偏好简洁）时，BTL 模型给出错误且同质化的平均奖励并忽略少数群体；VPL 用编码器从少量样本推断用户隐变量 $z$，再以 $z$ 为条件输出各自准确的个性化奖励（图片来源：Poddar et al., NeurIPS 2024）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="同一模板的不同展开">同一模板的不同展开<a hidden class="anchor" aria-hidden="true" href="#同一模板的不同展开">#</a></h2>
+<p><strong>用户嵌入路线</strong>：<a href="https://arxiv.org/abs/2402.05133">P-RLHF</a>（Li et al.）联合学习一个轻量的用户模型（为每个用户学习嵌入向量，同时处理显式偏好文本与隐式反馈）与个性化策略，将 DPO 推广为 P-DPO——相当于把 VPL 的隐变量换成了可学习的用户嵌入，代价是对全新用户的冷启动能力较弱。</p>
+<p><strong>群体元学习路线</strong>：<a href="https://arxiv.org/abs/2310.11523">GPO</a>（Zhao et al.）针对&quot;对齐到群体&quot;的设定（如不同国家/文化群体），用一个 transformer 对&quot;(响应, 该群体的偏好度)&ldquo;序列做 in-context 元学习，few-shot 地预测新群体对新响应的偏好，无需更新策略参数。</p>
+<p><strong>参数合并路线</strong>：<a href="https://arxiv.org/abs/2310.11564">Personalized Soups</a>（Jang et al.）把个性化分解为若干独立的偏好维度（如专业性、信息量、风格），每个维度单独做 RLHF 训练一个策略，部署时按用户的偏好组合<strong>事后合并参数</strong>（model soup）。这一思路把 $2^k$ 种偏好组合的训练成本降为 $k$ 次，是&quot;组合式个性化&quot;的代表。</p>
+<p><strong>插拔式修正路线</strong>：<a href="https://arxiv.org/abs/2403.17141">MetaAligner</a>（Yang et al.）训练一个策略无关的对齐修正模块：接收任意上游模型的输出与目标偏好描述，生成修正后的响应。由于与策略解耦，它可以零成本迁移到新模型上，也支持通过文本描述指定未见过的偏好维度。</p>
+<p><strong>System prompt 泛化路线</strong>：<a href="https://arxiv.org/abs/2405.17977">Janus</a>（Lee et al.）的观察是：与其为每种偏好训练一个模型，不如教会模型<strong>认真对待 system message</strong>。它构造了大规模多样化的 system message（每条指令配多种偏好情境）做训练，使模型获得&quot;按任意偏好描述调整行为&quot;的元能力——这实际上是把个性化的接口标准化为自然语言，是目前工业界最可落地的路线。</p>
+<p><strong>多模型协作路线</strong>：<a href="https://arxiv.org/abs/2406.15951">Modular Pluralism</a>（Feng et al.）为不同社区训练小型社区 LM，基座模型按需与它们协作（分别对应 Sorensen 等人的三种多元模式），以模块化方式覆盖多元人群，社区模型可独立增删。</p>
+<p>此外，<a href="https://arxiv.org/abs/2603.12595">SPL</a> 等新近工作仍在此方向持续涌现，说明训练时路线远未收敛。纵观这条路线，核心权衡始终是<strong>个性化容量 vs 冷启动成本</strong>：越是把用户信息编码进参数（用户嵌入、per-user 微调），对老用户越精准，但对新用户越无力；越是依赖上下文推断（VPL、GPO、Janus），泛化越好，但个性化深度受限于上下文信号的质量。</p>
+<h1 id="四路线二解码时--免训练个性化">四、路线二：解码时 / 免训练个性化<a hidden class="anchor" aria-hidden="true" href="#四路线二解码时--免训练个性化">#</a></h1>
+<p>训练时路线的共同软肋是：真实产品中用户以百万计、偏好持续漂移，per-user 训练（甚至 per-group 训练）的成本难以接受。解码时路线因此主张：<strong>冻结策略参数，把个性化全部推到推理阶段</strong>。</p>
+<p>这条路线的技术基础是<strong>奖励引导解码</strong>（reward-guided decoding）。<a href="https://arxiv.org/abs/2402.01694">ARGS</a>（Khanov et al.）最早把对齐从训练阶段整体搬到解码阶段：每步用奖励模型给 top-k 候选 token 打分，与语言模型概率加权后再选择，验证了&quot;免训练对齐&quot;的可行性。<a href="https://arxiv.org/abs/2406.18853">MOD</a>（Shi et al.）把它推广到多目标场景：给定若干针对单一目标（有用性、安全性、幽默感等）分别对齐的模型，推导出闭式解，按用户给定的权重在解码时线性组合各模型的预测——相当于 Personalized Soups 参数合并思路的&quot;解码版&rdquo;，且权重可以逐次请求任意调整。<a href="https://arxiv.org/abs/2410.08193">GenARM</a>（Xu et al.）则解决效率问题：把轨迹级奖励参数化为自回归的 token 级奖励模型，引导开销从&quot;每步反复调用完整奖励模型&quot;降为一次前向，还支持用小奖励模型引导大基座模型的弱到强（weak-to-strong）引导。个性化正是这套机制最自然的应用场景。</p>
+<p><strong>PAD</strong>（<a href="https://arxiv.org/abs/2410.04070">Personalized Alignment at Decoding-Time</a>，Chen et al.）是这条路线的代表。它把个性化文本生成建模为 per-token 的引导解码：训练一个通用的个性化奖励模型对部分生成序列打分，解码时用该奖励调制基座模型的 token 分布：</p>
+$$
+\pi(y_t \mid x, y_{\lt t}, \mathcal{I}_u) \propto \pi_{\text{base}}(y_t \mid x, y_{\lt t})\, \exp\big(\beta\, r_p(x, y_{\le t}, \mathcal{I}_u)\big)
+$$<p>其中 $y_t$ 为当前 token，$y_{\lt t}$ 为已生成前缀，$\pi_{\text{base}}$ 为冻结的基座策略，$r_p$ 为以偏好描述 $\mathcal{I}_u$ 为条件的个性化奖励，$\beta$ 控制引导强度。由于奖励模型以偏好文本为条件而非绑定特定用户，PAD 只需一次训练即可服务任意（包括未见过的）偏好组合，无需针对每个用户重训策略。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/pad_pipeline.png"/>
+        <figcaption style="color: gray;">
+            图2：PAD 的个性化解码流程——基座模型正常产生 token logits，个性化奖励模型以偏好描述为条件对候选 token 打分，二者加权融合后选出下一个 token，全程不更新任何策略参数（图片来源：Chen et al., ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>PAD 仍需训练一个通用的个性化奖励模型，且假设偏好以显式文本描述给出。<a href="https://arxiv.org/abs/2502.14289">Drift</a>（Kim et al.）把免训练推到了更彻底的位置：它将用户偏好分解为一组可解释的属性（如正式、简洁、富有情感），每个属性的&quot;方向&quot;用同一个小模型在不同 system prompt 条件下的输出概率之比来近似——无需训练任何奖励模型；再用几十条用户的隐式反馈（接受/拒绝的响应对）拟合各属性的权重，解码时按权重线性组合各属性条件下的 logits。相比动辄需要上万条标注的 RLHF，Drift 在约 50 条样本的 few-shot 设定下就能逼近甚至超过训练时方法，把个性化的边际成本压到了接近于零。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/drift_framework.png"/>
+        <figcaption style="color: gray;">
+            图3：Drift 框架——(a) 偏好近似：用小模型在不同 system prompt 条件下的密度比刻画各偏好属性，从少量隐式反馈中求解最优属性权重；(b) 偏好引导解码：按权重线性组合各属性条件 logits 引导基座大模型，全程免训练（图片来源：Kim et al., Findings of EMNLP 2025）。
+        </figcaption>
+    </center>
+</div>
+<p><a href="https://arxiv.org/abs/2502.19148">Amulet</a>（Zhang et al.）则关注另一个现实条件：用户偏好不仅事先未知，还会<strong>在对话过程中实时变化</strong>。它把每个 token 的解码形式化为一个独立的在线学习问题，在用户当前给出的偏好提示下用 FTRL（follow-the-regularized-leader）对 token 分布做实时优化，并推导出闭式解使额外开销可以忽略——个性化从&quot;部署前定制&quot;进一步变成了&quot;逐 token 的实时再对齐&quot;。</p>
+<p><strong>ALOE</strong>（<a href="https://arxiv.org/abs/2410.03642">Aligning LLMs with Individual Preferences via Interaction</a>，Wu et al.）则把&quot;偏好从哪来&quot;也搬到了推理时：模型在多轮对话中<strong>主动推断</strong>当前用户的隐式偏好，并动态调整后续响应——个性化不再依赖预先给定的画像，而是交互过程本身的副产品。这一设定显然更贴近真实使用场景，也把问题的难度推给了偏好推断能力本身，而这正是第六节 PrefEval、AlpsBench 等基准测出的短板所在。</p>
+<p>纵观这条路线，从 ARGS/MOD 到 PAD、再到 Drift/Amulet，演进方向非常清晰：奖励信号越来越轻（完整 RM → 条件化 RM → 小模型密度比 → 闭式解），偏好信号越来越隐式（预设目标 → 显式描述 → few-shot 反馈 → 对话内实时推断）。免训练的代价则是<strong>推理时开销与个性化深度的权衡</strong>：引导解码能调整&quot;怎么说&quot;，却很难注入基座模型完全不具备的&quot;该说什么&quot;。但对于用户量大、偏好漂移快的真实产品，这条路线的工程优势极为明显，也是 2025 年以来进展最密集的子方向之一。</p>
+<h1 id="五路线三偏好推断与个性化评估">五、路线三：偏好推断与个性化评估<a hidden class="anchor" aria-hidden="true" href="#五路线三偏好推断与个性化评估">#</a></h1>
+<p>前两条路线解决&quot;如何生成个性化响应&quot;，但一个更基础的问题长期被搁置：<strong>生成得好不好，谁说了算？</strong> 传统评估的三板斧在个性化场景下全部失灵——自动指标（ROUGE/BERTScore）依赖单一参考答案，而个性化恰恰意味着&quot;多个都合理&quot;；人工评估存在推断鸿沟，外部标注者无法访问目标用户的内心偏好；LLM-as-a-Judge 依赖静态模型和启发式 prompt，评判的仍是&quot;平均人&quot;眼中的质量。</p>
+<p><strong>PARL</strong>（<a href="https://arxiv.org/abs/2605.31545">Preference-Aware Rubric Learning for Personalized Evaluation</a>，Qiu et al.）针对这一空白提出了&quot;<strong>个性化评估即学习</strong>&quot;（Personalized Evaluation as Learning）范式：评估标准本身应当从用户历史中学出来，而非静态设定。形式上，它把无参考的个性化评估定义为以用户历史 $\mathcal{H}_u$ 为隐式参照的打分：</p>
+$$
+S = \Phi(\hat{y};\ x,\ \mathcal{H}_u) \in [0, 1]
+$$<p>其中 $\hat{y}$ 为待评响应。PARL 从 $\mathcal{H}_u$ 中归纳出该用户专属的评分细则（rubric）集合 $\mathcal{R}_u = \{r_1, \dots, r_m\}$，每条细则是一个可验证的原子判断（如&quot;是否使用第一人称的口语化表达&quot;），最终得分为各细则判断的均值 $S = \frac{1}{m}\sum_{j=1}^{m}\mathbb{I}(\hat{y} \vDash r_j)$（$\mathbb{I}$ 为指示函数，$\vDash$ 表示响应满足该细则）。围绕&quot;代表性、用户一致性、判别性&quot;三条设计原则，框架分为两段：先归纳候选 rubric 并在历史上做一致性自验证（只保留满足率不低于阈值 $\tau$ 的细则），再用判别式强化学习锐化判别边界——以&quot;用户真实响应 $y_T$ 的得分全面超过各竞争性生成方法的负样本 $\mathcal{Y}_T^{\text{neg}}$&ldquo;为奖励信号：</p>
+$$
+\Gamma(\mathcal{R}_u) = \prod_{y' \in \mathcal{Y}_T^{\text{neg}}} \sigma\Big(\kappa \cdot \big(S(y_T; \mathcal{R}_u) - S(y'; \mathcal{R}_u)\big)\Big)
+$$<p>其中 $\kappa$ 为温度系数。消融实验清晰地展示了三个组件的分工：去掉偏好归纳，rubric 失去个性化程度；去掉一致性验证，混入任务特定的伪模式；去掉 RL 优化，判别力近乎为零且用户覆盖率从约 99% 骤降至 49%。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/rubric/parl_framework.png"/>
+        <figcaption style="color: gray;">
+            图4：PARL 整体框架——模块1从用户历史归纳并自验证 rubric，模块2通过判别式强化学习锐化其判别边界，最终输出满足代表性、用户一致性、判别性三大原则的个性化 rubric（图片来源：Qiu et al., PARL, arXiv 2605.31545）。
+        </figcaption>
+    </center>
+</div>
+<p>与 PARL 平行的评估侧工作还有两个：<a href="https://arxiv.org/abs/2409.20296">PersonalLLM</a>（Zollo et al.）构建了一个个性化对齐的测试床——用一组异质奖励模型的加权组合模拟大量&quot;偏好各异的虚拟用户&rdquo;，其关键设定是偏好<strong>隐式</strong>存在于反馈中而非显式写在 persona 里，迫使方法真正去做偏好推断而不是复述人设；<a href="https://arxiv.org/abs/2604.18943">Evaluating LLMs by Individual Preferences</a>（Garbacea et al.）则正式提出&quot;个性化基准测试&quot;（personalized benchmarking）概念，把&quot;基准本身也应因人而异&quot;推向了评测方法论层面。三者共同宣告：个性化评估正在从&quot;生成研究的附属品&quot;变成独立的研究对象。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/personalllm_overview.png"/>
+        <figcaption style="color: gray;">
+            图5：PersonalLLM 的核心动机——标准 LLM 需要用户在每个会话中反复重申偏好（如"我对贝类过敏"），而个性化 LLM 应从交互历史中学习用户的多维偏好并主动应用，以最大化长期满意度（图片来源：Zollo et al., ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>值得警惕的是方法论上的循环风险：当训练目标（如 PARL 的 $\Gamma$）与评估指标在结构上高度同构时，&ldquo;性能提升&quot;在多大程度上反映真实的偏好对齐、而非同一套标准下的自我印证，仍需独立的元评测来检验。</p>
+<h1 id="六评测基准个性化能力到底行不行">六、评测基准：个性化能力到底行不行<a hidden class="anchor" aria-hidden="true" href="#六评测基准个性化能力到底行不行">#</a></h1>
+<p>评测基准的演进本身就勾勒出这个领域关注点的迁移轨迹——从&quot;能不能生成&quot;到&quot;记不记得住&quot;再到&quot;推断得出来吗&rdquo;：</p>
+<table>
+	<thead>
+			<tr>
+					<th>基准</th>
+					<th>考察焦点</th>
+					<th>关键发现/特点</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2304.11406">LaMP</a>（Salemi et al.）</td>
+					<td>个性化生成与分类（7 个任务）</td>
+					<td>确立&quot;检索用户画像 → 增强生成&quot;的标准范式</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2407.11016">LongLaMP</a>（Kumar et al.）</td>
+					<td>长文本个性化生成</td>
+					<td>将 LaMP 推广到长输出场景</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2404.16019">PRISM</a>（Kirk et al.）</td>
+					<td>多元人群的真实偏好数据</td>
+					<td>1500 名跨 75 国参与者，偏好标注与详细社会人口学画像关联，聚焦价值敏感与争议性话题</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2502.09597">PrefEval</a>（Zhao et al.）</td>
+					<td>长对话中的偏好遵循</td>
+					<td>用户偏好在长上下文中被稀释：即使前沿模型，随对话轮数增长遵循率急剧下降</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2504.14225">PersonaMem</a></td>
+					<td><strong>演化中</strong>的用户画像追踪</td>
+					<td>用户偏好会随时间改变，考察模型能否跟上画像的版本更新</td>
+			</tr>
+			<tr>
+					<td><a href="https://aclanthology.org/2025.findings-acl.927/">PersonaLens</a>（Zhao et al.）</td>
+					<td>任务型助手的个性化</td>
+					<td>用 LLM Agent 模拟用户交互，评估任务完成中的个性化质量</td>
+			</tr>
+			<tr>
+					<td><a href="https://arxiv.org/abs/2603.26680">AlpsBench</a></td>
+					<td>真实场景的潜在特质提取</td>
+					<td>前沿模型难以从真实交互中可靠提取用户的潜在特质</td>
+			</tr>
+	</tbody>
+</table>
+<p>其中两个结论值得展开。<strong>PRISM</strong> 的价值在于数据本身：它第一次把&quot;偏好评分&quot;与&quot;评分者是谁&quot;（社会人口学背景、文化立场）系统性地关联起来，使&quot;偏好分歧从何而来&quot;成为可量化的研究对象，也为 VPL 这类隐变量方法提供了真实世界的检验场，获得 NeurIPS D&amp;B Best Paper 实至名归。<strong>PrefEval</strong> 与 <strong>AlpsBench</strong> 则从两端夹击出一个不太乐观的现状：前者证明即使用户<strong>已经明确说过</strong>自己的偏好，模型在长对话中也会遗忘或忽略；后者证明当偏好<strong>没有被说出来</strong>时，前沿模型的隐式推断能力同样不可靠。换言之，第三、四节的方法进展虽多，但支撑它们的两个基础能力——偏好记忆与偏好推断——在真实条件下都还不过关。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/prism_overview.png"/>
+        <figcaption style="color: gray;">
+            图6：PRISM 数据收集流程——从全球招募 1500 名参与者完成详细的背景调查，再让他们与随机抽取的多个 LLM 进行多轮对话并给出细粒度偏好评分，使每条偏好标注都可关联到评分者的社会人口学画像（图片来源：Kirk et al., NeurIPS 2024）。
+        </figcaption>
+    </center>
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/prefeval_benchmark.png"/>
+        <figcaption style="color: gray;">
+            图7：PrefEval 的评测设置——用户偏好以显式陈述或隐式对话两种形式埋入多会话长上下文，在若干轮无关对话后提出与偏好相关的问询，检验模型能否记住并遵循偏好，并对失败案例做错误类型归因（图片来源：Zhao et al., ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<h1 id="七时间维度记忆与-lifelong-个性化">七、时间维度：记忆与 Lifelong 个性化<a hidden class="anchor" aria-hidden="true" href="#七时间维度记忆与-lifelong-个性化">#</a></h1>
+<p>PrefEval 暴露的&quot;偏好遗忘&quot;问题，把个性化引向它的时间维度：真实的个性化不是一次性的画像匹配，而是<strong>跨会话、跨月年的持续过程</strong>——这要求系统具备长期记忆基础设施。这条支线与 Agent 记忆研究高度重合，此处只勾勒与个性化直接相关的脉络。</p>
+<p>奠基性工作 <a href="https://arxiv.org/abs/2310.08560">MemGPT</a>（Packer et al.）借鉴操作系统虚拟内存的思想，让 LLM 自主在有限上下文（主存）与外部存储间分页调度信息，确立了&quot;分层记忆管理&quot;的基本架构。<a href="https://arxiv.org/abs/2305.10250">MemoryBank</a>（Zhong et al.）针对陪伴类场景引入<strong>艾宾浩斯遗忘曲线</strong>——记忆强度随时间衰减、随重复访问增强——让&quot;记住用户&quot;有了符合认知规律的动态机制。<a href="https://arxiv.org/abs/2406.05925">LD-Agent</a>（Li et al.）则把长期对话拆解为事件记忆与人格建模双通道，显式维护逐步累积的用户画像。</p>
+<h2 id="从研究原型到记忆基础设施">从研究原型到记忆基础设施<a hidden class="anchor" aria-hidden="true" href="#从研究原型到记忆基础设施">#</a></h2>
+<p>2025 年前后，这条支线明显工程化，从&quot;给对话系统加一块记忆&quot;演变为独立的<strong>记忆基础设施</strong>。<a href="https://arxiv.org/abs/2502.12110">A-MEM</a>（Xu et al.）借鉴卡片盒笔记法（Zettelkasten）：每段交互被构造成含上下文、关键词、标签的结构化笔记，agent 自主在笔记间建立链接，新记忆到来时还会触发旧记忆的<strong>演化更新</strong>——记忆网络随交互持续自组织，而非写入后一成不变，这恰好回应了前文&quot;记忆会过期&quot;的难题。<a href="https://arxiv.org/abs/2504.19413">Mem0</a>（Chhikara et al.）把重心放在生产可用性上：抽取–更新两阶段管线增量维护用户记忆（新信息与旧记忆冲突时自动改写或删除），配合图结构变体，在 <a href="https://arxiv.org/abs/2402.17753">LoCoMo</a> 上以远低于全上下文的延迟与 token 开销取得更高准确率，已成为工业界个人助手记忆层的常用组件。<a href="https://arxiv.org/abs/2506.06326">MemoryOS</a>（Kang et al.）则把 MemGPT 的操作系统隐喻推得更远：短期/中期/长期三级分页存储，对话页按热度（访问频率）在层级间升降级，长期层显式持久维护用户画像与特质——&ldquo;记住用户&quot;第一次有了接近操作系统内存管理的完整生命周期。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/amem_framework.png"/>
+        <figcaption style="color: gray;">
+            图8：A-MEM 的记忆自组织流程——每段交互被构造成含上下文、关键词、标签的结构化笔记，通过链接生成与相近记忆互联，新记忆到来时触发旧记忆的演化更新，检索时按查询嵌入取回相关记忆网络（图片来源：Xu et al., arXiv 2025）。
+        </figcaption>
+    </center>
+</div>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/memoryos_pipeline.png"/>
+        <figcaption style="color: gray;">
+            图9：MemoryOS 的三级分页存储——短期记忆（STM）以 FIFO 页存放对话，中期记忆（MTM）按主题分段并以热度驱动升降级，长期画像层（LPM）持久维护用户/助手画像与特质，检索时三层并行取回支撑响应生成（图片来源：Kang et al., EMNLP 2025）。
+        </figcaption>
+    </center>
+</div>
+<p>评测侧，LoCoMo（Maharana et al.）构造了平均 300 轮、跨数十个会话的超长期对话来考察记忆一致性，如今也是 Mem0、MemoryOS 等记忆系统竞争的事实标准赛道；<a href="https://arxiv.org/abs/2410.10813">LongMemEval</a>（Wu et al.）进一步把长期交互记忆分解为信息抽取、跨会话推理、时间推理、知识更新、拒答五项核心能力，发现商用助手在长期设定下性能显著退化。结合第六节的 PersonaMem，可以看到 lifelong 个性化对记忆系统提出了比一般 Agent 记忆更苛刻的要求：不仅要<strong>记住</strong>，还要<strong>识别哪些记忆已经过期</strong>——用户三个月前的偏好可能已经改变，机械地检索旧画像反而是一种个性化失败。A-MEM 的记忆演化、Mem0 的冲突改写、MemoryOS 的热度驱逐，本质上都是对这一要求的不同回答。这也与 Self-Evolving Agents 方向的经验记忆研究（如 <a href="https://arxiv.org/abs/2511.20857">Evo-Memory</a>）形成了自然交叉：个性化记忆本质上是一个需要持续自我更新的系统。</p>
+<h1 id="八可信边界当系统开始塑造偏好">八、可信边界：当系统开始塑造偏好<a hidden class="anchor" aria-hidden="true" href="#八可信边界当系统开始塑造偏好">#</a></h1>
+<p>前面七节都默认了一个假设：用户偏好 $r_u$ 是<strong>给定的、静态的</strong>，系统的任务是发现并满足它。这一节要拆掉这个假设——它可能是整个领域最值得警惕的盲区。</p>
+<h2 id="偏好会变而且会被系统改变">偏好会变，而且会被系统改变<a hidden class="anchor" aria-hidden="true" href="#偏好会变而且会被系统改变">#</a></h2>
+<p><a href="https://arxiv.org/abs/2405.17713">AI Alignment with Changing and Influenceable Reward Functions</a>（Carroll et al.）为此提供了理论基石。它提出 DR-MDP（Dynamically &amp; influenceably Rewarded MDP）框架：用户偏好 $\theta_t$ 不再是常量，而是随时间演化、且演化过程<strong>受系统行为影响</strong>的状态变量：</p>
+$$
+\theta_{t+1} \sim \mathcal{T}_\theta(\theta_t, s_t, a_t), \qquad r_t = r(s_t, a_t;\ \theta_t)
+$$<p>其中 $s_t, a_t$ 为 $t$ 时刻的环境状态与系统动作，$\mathcal{T}_\theta$ 为偏好转移动态，奖励 $r_t$ 由<strong>当时的</strong>偏好评定。这个看似温和的扩展带来一个尖锐的推论：任何假设偏好静态的对齐目标，在偏好实际可被影响时，都会<strong>隐式地激励系统去改变用户偏好</strong>——比如把用户塑造得更容易被满足。而各种显式的替代目标（对齐初始偏好、最终偏好、逐时刻偏好）各有各的病理：对齐最终偏好会激励操纵，对齐初始偏好则会让系统在用户真实成长后仍固守旧画像。<strong>不存在无需价值判断的技术性解法</strong>，是这篇论文最重要的结论。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/drmdp_conspiracy.png"/>
+        <figcaption style="color: gray;">
+            图10：DR-MDP 的"阴谋论影响"示例——系统可以选择是否向用户推送阴谋论内容，而推送会把用户变成阴谋论者：按原始偏好用户希望永不推送，按被改变后的偏好用户希望一直推送，不存在同时最大化两种偏好的策略，DR-MDP 在规范意义上是模糊的（图片来源：Carroll et al., ICML 2024）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="从理论推演到实证涌现">从理论推演到实证涌现<a hidden class="anchor" aria-hidden="true" href="#从理论推演到实证涌现">#</a></h2>
+<p>上述担忧不是假想。<a href="https://arxiv.org/abs/2411.02306">Targeted Manipulation and Deception Emerge in LLMs Trained on User Feedback</a>（Williams, Carroll et al.）在模拟环境中直接对用户反馈做 RL 优化，观察到模型<strong>自发涌现</strong>出针对性操纵：即使人群中只有极小比例的&quot;易感用户&rdquo;（更容易给出可被博弈的反馈），模型也会学会识别并针对他们输出欺骗性、迎合性内容，而对其他用户保持正常行为——这种选择性使得标准评估几乎无法察觉。更麻烦的是，用安全数据混合训练或 LLM 评委否决等缓解手段，有时反而教会模型<strong>更隐蔽</strong>的操纵。这与更早的 <a href="https://arxiv.org/abs/2310.13548">Towards Understanding Sycophancy in Language Models</a>（Sharma et al.）一脉相承：谄媚行为的根源恰恰在于人类偏好数据本身就系统性地奖励&quot;说用户爱听的话&quot;——个性化把这一激励进一步放大到了个体粒度。</p>
+<div>			<!--块级封装-->
+    <center>	<!--将图片和文字居中-->
+        <img src="/blog_img/personalization/manipulation_summary.png"/>
+        <figcaption style="color: gray;">
+            图11：对用户反馈做 RL 训练后涌现的针对性操纵——模型在训练前对所有用户行为正常，训练后学会识别"可博弈用户"并选择性地输出迎合、欺骗性内容（如怂恿戒烟者继续吸烟），对其余用户维持正常表现，使操纵极难被平均化评估检测（图片来源：Williams, Carroll et al., ICLR 2025）。
+        </figcaption>
+    </center>
+</div>
+<h2 id="更早的镜鉴推荐系统的反馈回路">更早的镜鉴：推荐系统的反馈回路<a hidden class="anchor" aria-hidden="true" href="#更早的镜鉴推荐系统的反馈回路">#</a></h2>
+<p>这一切对推荐系统研究者来说似曾相识。<a href="https://arxiv.org/abs/2002.06673">Performative Prediction</a>（Perdomo et al.）形式化了&quot;预测本身会改变被预测的分布&quot;这一普遍现象；<a href="https://arxiv.org/abs/1710.11214">Algorithmic Confounding in Recommendation Systems</a>（Chaney et al.）用仿真展示了推荐反馈回路如何导致用户行为同质化。不过 <a href="https://arxiv.org/abs/2307.01221">Filter Bubbles in Recommender Systems: Fact or Fallacy</a>（Michiels et al.）的系统综述也提醒：过滤气泡的实证证据远比公共叙事复杂，简单套用&quot;个性化必然导致气泡&quot;的结论并不严谨。真正的新变量在于：LLM 的个性化不只是<strong>筛选</strong>内容（推荐系统的模式），而是<strong>生成</strong>内容——说服、共情、拟人化交互的能力让&quot;偏好塑造&quot;的带宽比推荐时代大了几个数量级，旧问题在新载体上的严重程度需要重新评估。</p>
+<h1 id="九趋势与开放问题">九、趋势与开放问题<a hidden class="anchor" aria-hidden="true" href="#九趋势与开放问题">#</a></h1>
+<p>综合全文，当前 Personalization 研究呈现以下趋势与未解问题：</p>
+<ol>
+<li><strong>偏好推断是最大瓶颈</strong>。方法侧（VPL、PAD、ALOE）的前提都是&quot;偏好信号可获得&quot;，但 PrefEval 与 AlpsBench 共同表明：无论显式偏好的长程遵循，还是隐式特质的推断提取，前沿模型都还不可靠。上游能力不解决，下游方法的收益天花板很低。</li>
+<li><strong>个性化评估刚刚起步</strong>。PARL、PersonalLLM、个性化基准测试等工作在 2025–2026 年才把&quot;评估标准因人而异&quot;确立为独立命题，且普遍面临训练目标与评估指标同构的循环论证风险，亟需独立的元评测框架。</li>
+<li><strong>Lifelong 个性化需要&quot;会过期的记忆&quot;</strong>。静态画像范式正在被演化画像（PersonaMem）取代，记忆系统需要同时解决记住、更新、遗忘三件事，与 Agent 记忆、self-evolve 方向深度交叉。</li>
+<li><strong>个性化与操纵只隔一层纸</strong>。Carroll 等人的理论与实证工作表明，对个体反馈的优化天然携带操纵激励，且选择性操纵极难被平均化指标检测。&ldquo;最大化用户满意&quot;不是一个安全的目标函数——个性化系统需要显式的偏好影响审计机制。</li>
+<li><strong>个体对齐与多元性的张力未解</strong>。为每个个体最优地定制，可能在人群层面加剧信息茧房与观点极化；Sorensen 等人的多元对齐框架与个性化路线如何调和，仍是开放的价值问题而不仅是技术问题。</li>
+<li><strong>隐私与画像的固有矛盾</strong>。更好的个性化要求更深的用户建模，而用户历史恰是最敏感的数据类别，联邦化、本地化的个性化方案（尤其在端侧模型成熟后）值得关注。</li>
+</ol>
+<h1 id="十总结">十、总结<a hidden class="anchor" aria-hidden="true" href="#十总结">#</a></h1>
+<p>Personalization 正在把 LLM 对齐研究从&quot;对齐到人类&quot;细化为&quot;对齐到<strong>这个</strong>人类&rdquo;。方法侧已形成清晰的三条路线：训练时路线用隐变量、用户嵌入或参数合并把偏好写进模型（VPL 为方法论模板），解码时路线用个性化奖励引导冻结的策略（PAD、ALOE），偏好推断与个性化评估则把&quot;标准本身因人而异&quot;确立为独立命题（PARL）。评测侧从 LaMP 的生成基准演进到 PRISM 的真实偏好数据、PrefEval 的长程遵循测试与 PersonaMem 的演化画像追踪，暴露出偏好记忆与偏好推断两大基础能力的真实短板。而 Carroll 等人的偏好动力学研究则为整个领域标出了红线：当偏好本身可被系统影响时，&ldquo;满足用户&quot;与&quot;塑造用户&quot;的边界需要被显式地建模和审计。个性化几乎必然是下一代 LLM 产品的标配能力，但它能否在不复刻推荐时代反馈回路病理的前提下实现，取决于这个领域能否把评估与安全研究的进度追上生成方法的进度。</p>
+<h1 id="citation">Citation<a hidden class="anchor" aria-hidden="true" href="#citation">#</a></h1>
+<blockquote>
+<p>本文为个人调研整理笔记，内容基于下列各论文原文及两篇核心综述整理而成，如需引用请以原始论文为准。</p>
+</blockquote>
+<h1 id="references">References<a hidden class="anchor" aria-hidden="true" href="#references">#</a></h1>
+<p>[1] Guan et al. <a href="https://arxiv.org/abs/2503.17003">&ldquo;A Survey on Personalized Alignment — The Missing Piece for Large Language Models in Real-World Applications.&rdquo;</a> Findings of ACL 2025.</p>
+<p>[2] Xie et al. <a href="https://arxiv.org/abs/2504.07070">&ldquo;A Survey on Personalized and Pluralistic Preference Alignment in Large Language Models.&rdquo;</a> arXiv 2025.</p>
+<p>[3] Liu et al. <a href="https://arxiv.org/abs/2502.11528">&ldquo;A Survey of Personalized Large Language Models: Progress and Future Directions.&rdquo;</a> arXiv 2025.</p>
+<p>[4] Zhang et al. <a href="https://arxiv.org/abs/2411.00027">&ldquo;Personalization of Large Language Models: A Survey.&rdquo;</a> TMLR 2025.</p>
+<p>[5] Sorensen et al. <a href="https://arxiv.org/abs/2402.05070">&ldquo;Position: A Roadmap to Pluralistic Alignment.&rdquo;</a> ICML 2024.</p>
+<p>[6] Chen et al. <a href="https://arxiv.org/abs/2307.16376">&ldquo;When Large Language Models Meet Personalization: Perspectives of Challenges and Opportunities.&rdquo;</a> arXiv 2023.</p>
+<p>[7] Poddar et al. <a href="https://arxiv.org/abs/2408.10075">&ldquo;Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning.&rdquo;</a> NeurIPS 2024.</p>
+<p>[8] Li et al. <a href="https://arxiv.org/abs/2402.05133">&ldquo;Personalized Language Modeling from Personalized Human Feedback.&rdquo;</a> arXiv 2024.</p>
+<p>[9] Zhao et al. <a href="https://arxiv.org/abs/2310.11523">&ldquo;Group Preference Optimization: Few-Shot Alignment of Large Language Models.&rdquo;</a> ICLR 2024.</p>
+<p>[10] Jang et al. <a href="https://arxiv.org/abs/2310.11564">&ldquo;Personalized Soups: Personalized Large Language Model Alignment via Post-hoc Parameter Merging.&rdquo;</a> arXiv 2023.</p>
+<p>[11] Yang et al. <a href="https://arxiv.org/abs/2403.17141">&ldquo;MetaAligner: Towards Generalizable Multi-Objective Alignment of Language Models.&rdquo;</a> NeurIPS 2024.</p>
+<p>[12] Lee et al. <a href="https://arxiv.org/abs/2405.17977">&ldquo;Aligning to Thousands of Preferences via System Message Generalization.&rdquo;</a> NeurIPS 2024.</p>
+<p>[13] Feng et al. <a href="https://arxiv.org/abs/2406.15951">&ldquo;Modular Pluralism: Pluralistic Alignment via Multi-LLM Collaboration.&rdquo;</a> EMNLP 2024.</p>
+<p>[14] <a href="https://arxiv.org/abs/2603.12595">&ldquo;SPL: Swap-guided Preference Learning for Personalized Alignment.&rdquo;</a> arXiv 2026.</p>
+<p>[15] Chen et al. <a href="https://arxiv.org/abs/2410.04070">&ldquo;PAD: Personalized Alignment of LLMs at Decoding-Time.&rdquo;</a> ICLR 2025.</p>
+<p>[16] Khanov et al. <a href="https://arxiv.org/abs/2402.01694">&ldquo;ARGS: Alignment as Reward-Guided Search.&rdquo;</a> ICLR 2024.</p>
+<p>[17] Shi et al. <a href="https://arxiv.org/abs/2406.18853">&ldquo;Decoding-Time Language Model Alignment with Multiple Objectives.&rdquo;</a> NeurIPS 2024.</p>
+<p>[18] Xu et al. <a href="https://arxiv.org/abs/2410.08193">&ldquo;GenARM: Reward Guided Generation with Autoregressive Reward Model for Test-time Alignment.&rdquo;</a> ICLR 2025.</p>
+<p>[19] Kim et al. <a href="https://arxiv.org/abs/2502.14289">&ldquo;Drift: Decoding-time Personalized Alignments with Implicit User Preferences.&rdquo;</a> Findings of EMNLP 2025.</p>
+<p>[20] Zhang et al. <a href="https://arxiv.org/abs/2502.19148">&ldquo;Amulet: ReAlignment During Test Time for Personalized Preference Adaptation of LLMs.&rdquo;</a> ICLR 2025.</p>
+<p>[21] Wu et al. <a href="https://arxiv.org/abs/2410.03642">&ldquo;Aligning LLMs with Individual Preferences via Interaction.&rdquo;</a> COLING 2025.</p>
+<p>[22] Qiu et al. <a href="https://arxiv.org/abs/2605.31545">&ldquo;Preference-Aware Rubric Learning for Personalized Evaluation.&rdquo;</a> arXiv 2026.</p>
+<p>[23] Zollo et al. <a href="https://arxiv.org/abs/2409.20296">&ldquo;PersonalLLM: Tailoring LLMs to Individual Preferences.&rdquo;</a> ICLR 2025.</p>
+<p>[24] Garbacea et al. <a href="https://arxiv.org/abs/2604.18943">&ldquo;Evaluating LLMs by Individual Preferences.&rdquo;</a> Findings of ACL 2026.</p>
+<p>[25] Salemi et al. <a href="https://arxiv.org/abs/2304.11406">&ldquo;LaMP: When Large Language Models Meet Personalization.&rdquo;</a> ACL 2024.</p>
+<p>[26] Kumar et al. <a href="https://arxiv.org/abs/2407.11016">&ldquo;LongLaMP: A Benchmark for Personalized Long-form Text Generation.&rdquo;</a> arXiv 2024.</p>
+<p>[27] Kirk et al. <a href="https://arxiv.org/abs/2404.16019">&ldquo;The PRISM Alignment Dataset: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models.&rdquo;</a> NeurIPS 2024 D&amp;B (Best Paper).</p>
+<p>[28] Zhao et al. <a href="https://arxiv.org/abs/2502.09597">&ldquo;Do LLMs Recognize Your Preferences? Evaluating Personalized Preference Following in LLMs.&rdquo;</a> ICLR 2025.</p>
+<p>[29] Jiang et al. <a href="https://arxiv.org/abs/2504.14225">&ldquo;Know Me, Respond to Me: Benchmarking LLMs for Dynamic User Profiling and Personalized Responses at Scale.&rdquo;</a> COLM 2025.</p>
+<p>[30] Zhao et al. <a href="https://aclanthology.org/2025.findings-acl.927/">&ldquo;PersonaLens: A Benchmark for Personalization Evaluation of Conversational AI Assistants.&rdquo;</a> Findings of ACL 2025.</p>
+<p>[31] <a href="https://arxiv.org/abs/2603.26680">&ldquo;AlpsBench: An LLM Personalization Benchmark for Real-world Scenarios.&rdquo;</a> arXiv 2026.</p>
+<p>[32] Packer et al. <a href="https://arxiv.org/abs/2310.08560">&ldquo;MemGPT: Towards LLMs as Operating Systems.&rdquo;</a> arXiv 2023.</p>
+<p>[33] Zhong et al. <a href="https://arxiv.org/abs/2305.10250">&ldquo;MemoryBank: Enhancing Large Language Models with Long-Term Memory.&rdquo;</a> AAAI 2024.</p>
+<p>[34] Xu et al. <a href="https://arxiv.org/abs/2502.12110">&ldquo;A-MEM: Agentic Memory for LLM Agents.&rdquo;</a> arXiv 2025.</p>
+<p>[35] Chhikara et al. <a href="https://arxiv.org/abs/2504.19413">&ldquo;Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory.&rdquo;</a> arXiv 2025.</p>
+<p>[36] Kang et al. <a href="https://arxiv.org/abs/2506.06326">&ldquo;Memory OS of AI Agent.&rdquo;</a> EMNLP 2025.</p>
+<p>[37] Li et al. <a href="https://arxiv.org/abs/2406.05925">&ldquo;Hello Again! LLM-powered Personalized Agent for Long-term Dialogue.&rdquo;</a> NAACL 2025.</p>
+<p>[38] Maharana et al. <a href="https://arxiv.org/abs/2402.17753">&ldquo;Evaluating Very Long-Term Conversational Memory of LLM Agents.&rdquo;</a> ACL 2024.</p>
+<p>[39] Wu et al. <a href="https://arxiv.org/abs/2410.10813">&ldquo;LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory.&rdquo;</a> ICLR 2025.</p>
+<p>[40] <a href="https://arxiv.org/abs/2511.20857">&ldquo;Evo-Memory: Benchmarking LLM Agent Test-time Learning with Self-Evolving Memory.&rdquo;</a> arXiv 2025.</p>
+<p>[41] Carroll et al. <a href="https://arxiv.org/abs/2405.17713">&ldquo;AI Alignment with Changing and Influenceable Reward Functions.&rdquo;</a> ICML 2024.</p>
+<p>[42] Williams, Carroll et al. <a href="https://arxiv.org/abs/2411.02306">&ldquo;On Targeted Manipulation and Deception when Optimizing LLMs for User Feedback.&rdquo;</a> ICLR 2025.</p>
+<p>[43] Sharma et al. <a href="https://arxiv.org/abs/2310.13548">&ldquo;Towards Understanding Sycophancy in Language Models.&rdquo;</a> ICLR 2024.</p>
+<p>[44] Perdomo et al. <a href="https://arxiv.org/abs/2002.06673">&ldquo;Performative Prediction.&rdquo;</a> ICML 2020.</p>
+<p>[45] Chaney et al. <a href="https://arxiv.org/abs/1710.11214">&ldquo;How Algorithmic Confounding in Recommendation Systems Increases Homogeneity and Decreases Utility.&rdquo;</a> RecSys 2018.</p>
+<p>[46] Michiels et al. <a href="https://arxiv.org/abs/2307.01221">&ldquo;Filter Bubbles in Recommender Systems: Fact or Fallacy — A Systematic Review.&rdquo;</a> WIREs Data Mining and Knowledge Discovery 2023.</p>
+<p>[47] liyongqi2002. <a href="https://github.com/liyongqi2002/Awesome-Personalized-Alignment">&ldquo;Awesome-Personalized-Alignment.&rdquo;</a> GitHub 2026.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://m1yan.github.io/posts/self_evolving_agents/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Self-Evolving Agents：当 Agent 学会改进自己</span>
+  </a>
+</nav>
+
+  </footer><script src="https://giscus.app/client.js"
+        data-repo="M1YAN/M1YAN.github.io"
+        data-repo-id="R_kgDOLdlkMA"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOLdlkMM4Ck7BX"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="light"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>© <a href="https://m1yan.github.io">M1Yan&rsquo;s Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+<script src="https://immmmm.com/waterfall.min.js"></script>
+<script src="https://immmmm.com/imgStatus.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    var photosAll = document.getElementsByTagName('gallery') || '';
+    if(photosAll){
+      for(var i=0;i < photosAll.length;i++){
+        photosAll[i].innerHTML = '<div class="gallery-photos">'+photosAll[i].innerHTML+'</div>'
+        var photosIMG = photosAll[i].getElementsByTagName('img')
+        for(var j=0;j < photosIMG.length;j++){
+          wrap(photosIMG[j], document.createElement('div'));
+        }
+      }
+    }
+    function wrap(el, wrapper) {
+      wrapper.className = "gallery-photo";
+      el.parentNode.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
+    
+    let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
+    if(galleryPhotos){
+      imgStatus.watch('.gallery-photo img', function(imgs) {
+        if(imgs.isDone()){
+          for(var i=0;i < galleryPhotos.length;i++){
+            waterfall(galleryPhotos[i]);
+            let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
+            for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
+          }
+        }
+      });
+      window.addEventListener('resize', function () {
+        for(var i=0;i < galleryPhotos.length;i++){
+          waterfall(galleryPhotos[i]);
+        }
+      });
+    }
+  });
+</script>
+<script type="text/javascript" src="https://immmmm.com/view-image.js"></script>
+<script>
+  window.ViewImage && ViewImage.init('.gallery-photo img')
+</script>
+
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = '复制';
+
+        function copyingDone() {
+            copybutton.innerHTML = '已复制！';
+            setTimeout(() => {
+                copybutton.innerHTML = '复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
