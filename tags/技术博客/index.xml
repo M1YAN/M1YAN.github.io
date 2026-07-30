@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>技术博客 on M1YAN&#39;s Blog</title>
+    <link>https://m1yan.github.io/tags/%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2/</link>
+    <description>Recent content in 技术博客 on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.163.3</generator>
+    <language>zh</language>
+    <copyright>M1Yan&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Thu, 30 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://m1yan.github.io/tags/%E6%8A%80%E6%9C%AF%E5%8D%9A%E5%AE%A2/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LLM Personalization：个性化对齐的方法、评测与风险</title>
+      <link>https://m1yan.github.io/posts/llm_personalization/</link>
+      <pubDate>Thu, 30 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/llm_personalization/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——&lt;a href=&#34;https://arxiv.org/abs/2503.17003&#34;&gt;A Survey on Personalized Alignment&lt;/a&gt;（Guan et al.）与 &lt;a href=&#34;https://arxiv.org/abs/2504.07070&#34;&gt;A Survey on Personalized and Pluralistic Preference Alignment in LLMs&lt;/a&gt;（Xie et al.）——及论文列表仓库 &lt;a href=&#34;https://github.com/liyongqi2002/Awesome-Personalized-Alignment&#34;&gt;liyongqi2002/Awesome-Personalized-Alignment&lt;/a&gt;，以及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Self-Evolving Agents：当 Agent 学会改进自己</title>
+      <link>https://m1yan.github.io/posts/self_evolving_agents/</link>
+      <pubDate>Tue, 28 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/self_evolving_agents/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对 2022–2026 年 Agent Self-Evolve（自进化智能体）相关论文的调研。主要参考两篇核心综述——&lt;a href=&#34;https://arxiv.org/abs/2507.21046&#34;&gt;A Survey of Self-Evolving Agents&lt;/a&gt;（Gao et al.）与 &lt;a href=&#34;https://arxiv.org/abs/2508.07407&#34;&gt;A Comprehensive Survey of Self-Evolving AI Agents&lt;/a&gt;（Fang et al.）——及其配套仓库 &lt;a href=&#34;https://github.com/CharlesQ9/Self-Evolving-Agents&#34;&gt;CharlesQ9/Self-Evolving-Agents&lt;/a&gt;、&lt;a href=&#34;https://github.com/EvoAgentX/Awesome-Self-Evolving-Agents&#34;&gt;EvoAgentX/Awesome-Self-Evolving-Agents&lt;/a&gt;，以及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Long-Horizon Agents: Harness, Learning, and Trust</title>
+      <link>https://m1yan.github.io/posts/long_horizon_agents_survey/</link>
+      <pubDate>Fri, 24 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/long_horizon_agents_survey/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，主要整理自 &lt;a href=&#34;https://github.com/RUC-NLPIR/Awesome-Long-Horizon-Agents&#34;&gt;RUC-NLPIR/Awesome-Long-Horizon-Agents&lt;/a&gt; 及其对应综述论文 &lt;em&gt;Towards Long-Horizon Agents: A Survey&lt;/em&gt;。文中涉及论文均尽量附原文链接，具体出处见文末 References。部分公式为对方法机制的抽象化表达，会在文中显式说明；若需引用具体方法细节，请以原始论文为准。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Rubric：大语言模型评估范式的结构化转向</title>
+      <link>https://m1yan.github.io/posts/rubric_evaluation/</link>
+      <pubDate>Thu, 23 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/rubric_evaluation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 &lt;a href=&#34;https://github.com/RUC-NLPIR/Rubrics_Survey&#34;&gt;RUC-NLPIR/Rubrics_Survey&lt;/a&gt;（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>On-Policy Distillation: 重塑大模型后训练的新范式</title>
+      <link>https://m1yan.github.io/posts/on_policy_distillation/</link>
+      <pubDate>Fri, 03 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/on_policy_distillation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文综合了 &lt;a href=&#34;https://thinkingmachines.ai/blog/on-policy-distillation/&#34;&gt;Thinking Machines Lab 的 On-Policy Distillation 博客&lt;/a&gt; 与 OPD 前沿技术综述的内容，系统梳理同策略蒸馏（OPD）的核心原理、工业实践与最新算法进展。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;大语言模型的能力并非一蹴而就——它们通常经历三个训练阶段：&lt;strong&gt;预训练（Pre-training）&lt;/strong&gt; 教会模型语言理解与世界知识；&lt;strong&gt;中间训练（Mid-training）&lt;/strong&gt; 注入领域知识；&lt;strong&gt;后训练（Post-training）&lt;/strong&gt; 引导出指令遵循、数学推理或对话等目标行为。后训练是将基础模型变成有用工具的关键一步，而同策略蒸馏（On-Policy Distillation, OPD）正在以更高的样本效率和更密集的监督信号，重新定义这一阶段的范式。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Diffusion Model for Video Generation</title>
+      <link>https://m1yan.github.io/posts/video_generation/</link>
+      <pubDate>Mon, 17 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/video_generation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;全文为&lt;a href=&#34;https://lilianweng.github.io/posts/2024-04-12-diffusion-video/&#34;&gt;Weng, Lilian. (Apr 2024). Diffusion Models Video Generation. Lil’Log.&lt;/a&gt;的中文翻译版本。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;在过去几年里，扩散模型在图像合成方面显示出了优异的效果。现在，研究界已经开始着手一项更加艰巨的任务——将扩散模型用于视频生成。该任务可以看作是图像生成的超集，因为图像可以认为是1帧的视频，但是图像生成更加具有挑战性，原因如下：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>What are Diffusion Models?</title>
+      <link>https://m1yan.github.io/posts/diffusion-model/</link>
+      <pubDate>Sat, 07 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/diffusion-model/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Update [2024.12.7]：增加条件生成以及潜在扩散模型的介绍。&lt;/p&gt;
+&lt;p&gt;Update [2024.12.11]：增加评估指标的对比以及超参数调整。&lt;/p&gt;
+&lt;p&gt;Update [2024.12.12]：增加对于扩散模型个性化生成微调方法的介绍&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;生成模型&#34;&gt;生成模型&lt;/h2&gt;
+&lt;p&gt;目前主流的生成模型包括&lt;strong&gt;生成对抗模型 (GAN)&lt;/strong&gt;、&lt;strong&gt;变分自编码器 (VAE)&lt;strong&gt;和&lt;/strong&gt;基于流的模型 (Flow-based models)&lt;/strong&gt;。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

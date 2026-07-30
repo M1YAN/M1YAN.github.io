@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>大模型对齐 on M1YAN&#39;s Blog</title>
+    <link>https://m1yan.github.io/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AF%B9%E9%BD%90/</link>
+    <description>Recent content in 大模型对齐 on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.163.3</generator>
+    <language>zh</language>
+    <copyright>M1Yan&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Thu, 30 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://m1yan.github.io/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AF%B9%E9%BD%90/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LLM Personalization：个性化对齐的方法、评测与风险</title>
+      <link>https://m1yan.github.io/posts/llm_personalization/</link>
+      <pubDate>Thu, 30 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/llm_personalization/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近三年（2023.7–2026.7）LLM/Agent Personalization（个性化）相关论文的调研。主要参考两篇核心综述——&lt;a href=&#34;https://arxiv.org/abs/2503.17003&#34;&gt;A Survey on Personalized Alignment&lt;/a&gt;（Guan et al.）与 &lt;a href=&#34;https://arxiv.org/abs/2504.07070&#34;&gt;A Survey on Personalized and Pluralistic Preference Alignment in LLMs&lt;/a&gt;（Xie et al.）——及论文列表仓库 &lt;a href=&#34;https://github.com/liyongqi2002/Awesome-Personalized-Alignment&#34;&gt;liyongqi2002/Awesome-Personalized-Alignment&lt;/a&gt;，以及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Rubric：大语言模型评估范式的结构化转向</title>
+      <link>https://m1yan.github.io/posts/rubric_evaluation/</link>
+      <pubDate>Thu, 23 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/rubric_evaluation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 &lt;a href=&#34;https://github.com/RUC-NLPIR/Rubrics_Survey&#34;&gt;RUC-NLPIR/Rubrics_Survey&lt;/a&gt;（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Rubric on M1YAN&#39;s Blog</title>
+    <link>https://m1yan.github.io/tags/rubric/</link>
+    <description>Recent content in Rubric on M1YAN&#39;s Blog</description>
+    <image>
+      <title>M1YAN&#39;s Blog</title>
+      <url>https://m1yan.github.io/images/papermod-cover.png</url>
+      <link>https://m1yan.github.io/images/papermod-cover.png</link>
+    </image>
+    <generator>Hugo -- 0.163.3</generator>
+    <language>zh</language>
+    <copyright>M1Yan&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Thu, 23 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://m1yan.github.io/tags/rubric/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Rubric：大语言模型评估范式的结构化转向</title>
+      <link>https://m1yan.github.io/posts/rubric_evaluation/</link>
+      <pubDate>Thu, 23 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://m1yan.github.io/posts/rubric_evaluation/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文为个人技术笔记，整理自对近两年（2024–2026）Rubric-based Evaluation（基于评分细则的评估方法）相关论文的调研。主要参考 &lt;a href=&#34;https://github.com/RUC-NLPIR/Rubrics_Survey&#34;&gt;RUC-NLPIR/Rubrics_Survey&lt;/a&gt;（《The Rules of the Game: A Survey of Rubrics for Large Language Models》）及文中列出的原始论文，具体出处见文末 References。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
