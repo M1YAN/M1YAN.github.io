@@ -10,7 +10,7 @@
 <meta name="description" content="Search - M1YAN&#39;s Blog">
 <meta name="author" content="Mi Yan">
 <link rel="canonical" href="https://m1yan.github.io/search/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.21000cb3ff6f93ad673bf92bcff2ebe859888318eb805bc064c15f874d21d63d.css" integrity="sha256-IQAMs/9vk61nO/krz/Lr6FmIgxjrgFvAZMFfh00h1j0=" rel="preload stylesheet" as="style"><link crossorigin="anonymous" rel="preload" as="fetch" href="../index.json">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.e189660512770c4bb7f9355a5d3a4d97f00c7ce3a2e082fa19ddf3ac7dcc830f.css" integrity="sha256-4YlmBRJ3DEu3&#43;TVaXTpNl/AMfOOi4IL6Gd3zrH3Mgw8=" rel="preload stylesheet" as="style"><link crossorigin="anonymous" rel="preload" as="fetch" href="../index.json">
 <script defer crossorigin="anonymous" src="/assets/js/search.54afeae09605b61b886fb05bb6c9fa48593e3b12d64dbe8c137b738de2af15b3.js" integrity="sha256-VK/q4JYFthuIb7Bbtsn6SFk&#43;OxLWTb6ME3tzjeKvFbM="></script>
 <link rel="icon" href="https://m1yan.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://m1yan.github.io/favicon-16x16.png">
@@ -74,7 +74,6 @@
     });
 </script>
 
-<link rel="stylesheet" href="https://s1.hdslb.com/bfs/static/jinkela/long/font/regular.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"><meta property="og:url" content="https://m1yan.github.io/search/">
@@ -282,12 +281,31 @@
       wrapper.appendChild(el);
     }
     
+    function galleryCols() {
+      var w = window.innerWidth;
+      return w > 1280 ? 4 : (w > 860 ? 3 : 2);
+    }
+    function layoutGallery(g) {
+      var photos = g.querySelectorAll('.gallery-photo');
+      if (photos.length < galleryCols()) {
+        g.classList.add('gallery-flex');
+        g.style.height = 'auto';
+        for (var k = 0; k < photos.length; k++) {
+          photos[k].style.position = '';
+          photos[k].style.top = '';
+          photos[k].style.left = '';
+        }
+      } else {
+        g.classList.remove('gallery-flex');
+        waterfall(g);
+      }
+    }
     let galleryPhotos = document.querySelectorAll('.gallery-photos') || ''
     if(galleryPhotos){
       imgStatus.watch('.gallery-photo img', function(imgs) {
         if(imgs.isDone()){
           for(var i=0;i < galleryPhotos.length;i++){
-            waterfall(galleryPhotos[i]);
+            layoutGallery(galleryPhotos[i]);
             let pagePhoto = galleryPhotos[i].querySelectorAll('.gallery-photo');
             for(var j=0;j < pagePhoto.length;j++){pagePhoto[j].className += " visible"};
           }
@@ -295,7 +313,7 @@
       });
       window.addEventListener('resize', function () {
         for(var i=0;i < galleryPhotos.length;i++){
-          waterfall(galleryPhotos[i]);
+          layoutGallery(galleryPhotos[i]);
         }
       });
     }
